@@ -139,6 +139,7 @@ namespace uds_test
             mmTimer.Stop();
             mmTimer.Dispose();
         }
+
         /// <summary>
         /// mmtimer handler
         /// </summary>
@@ -152,6 +153,15 @@ namespace uds_test
                 UpdateAndTransmit();
             };
             try { Invoke(TextBoxUpdate); } catch { };
+            int id;
+            int dlc;
+            long time;
+            byte[] data = new byte[8];
+            if (can.ReadData(out id, ref data, out dlc, out time) == true)
+            {
+                trans.Can_Trans_RxFrams(id, data, dlc);
+            }
+            trans.CanTrans_Manage(10);
         }
         #endregion
 

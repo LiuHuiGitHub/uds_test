@@ -16,7 +16,7 @@ using User_Control;
 using uds_test.Source.Transmit;
 using uds_test.Source.BusParams;
 using Uds;
-using uds_test.Source.MyFormat;
+using MyFormat;
 
 namespace uds_test
 {
@@ -350,11 +350,62 @@ namespace uds_test
 
         private void button_Click(object sender, EventArgs e)
         {
-            Format format = new Format();
             trans.rx_id = 0x7B8;
             trans.tx_id = 0x7B0;
 
-            trans.CanTrans_TxMsg(format.string_to_hex(textBox2.Text));
+            trans.CanTrans_TxMsg(textBox2.Text.StringToHex());
+        }
+
+        bool delete_char_flag = false;
+        private void trans_data_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox textbox = (TextBox)sender;
+            string strings = textbox.Text;
+            delete_char_flag = true;
+
+            if (e.KeyChar != 8  /* 允许使用退格符 */
+                && e.KeyChar != 0x0003 /* 允许使用复制符 */
+                && e.KeyChar != 0x0016 /* 允许使用粘贴符 */
+                && e.KeyChar != 0x0018 /* 允许使用剪切符 */
+                && !Char.IsDigit(e.KeyChar)
+                && !(((int)e.KeyChar >= 'A' && (int)e.KeyChar <= 'F'))
+                && !(((int)e.KeyChar >= 'a' && (int)e.KeyChar <= 'f'))
+                )
+            {
+                e.Handled = true;
+            }
+            if (e.KeyChar == 8)
+            {
+                delete_char_flag = false;
+            }
+            else if (e.KeyChar == '\r')
+            {
+                trans.rx_id = 0x7B8;
+                trans.tx_id = 0x7B0;
+
+                trans.CanTrans_TxMsg(textBox2.Text.StringToHex());
+            }
+        }
+
+        private void trans_data_TextChanged(object sender, EventArgs e)
+        {
+            TextBox textbox = (TextBox)sender;
+            string strings = textbox.Text;
+            if (delete_char_flag == false)
+            {
+                return;
+            }
+            strings = strings.Replace(" ", "");     //将原string中的空格删除
+            strings = strings.Replace("0x", "");
+            strings = strings.Replace("0X", "");
+            strings = strings.Replace(",", "");
+            if (strings.Length == 0 || strings.Length % 2 != 0)
+            {
+                return;
+            }
+            strings = strings.StringToHex().HexToStrings(" ");
+            textbox.Text = strings;
+            textbox.SelectionStart = textbox.Text.Length;
         }
     }
 }

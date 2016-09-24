@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
-namespace uds_test.Source.MyFormat
+namespace MyFormat
 {
-    class Format
+    static class Format
     {
-        public byte[] string_to_hex(string strings)
+        public static byte[] StringToHex(this string strings)
         {
             byte[] hex = new byte[0];
             try
@@ -33,7 +34,7 @@ namespace uds_test.Source.MyFormat
             }
         }
 
-        public string hex_to_string(byte[] hex, string space)
+        public static string HexToStrings(this byte[] hex, string space)
         {
             string strings = "";
             for (int i = 0; i < hex.Length; i++)//逐字节变为16进制字符，并以space隔开
@@ -43,9 +44,16 @@ namespace uds_test.Source.MyFormat
             return strings;
         }
 
-        public string hex_to_string(byte[] hex)
+        public static string HexToStrings(this byte[] hex)
         {
-            return hex_to_string(hex, "");
+            return HexToStrings(hex, "");
         }
+
+        public static string RemoveUnwantedSpaces(this string strings)
+        {
+            strings = Regex.Replace(strings.Trim(), "\\s+", " ");
+            return strings;
+        }
+
     }
 }

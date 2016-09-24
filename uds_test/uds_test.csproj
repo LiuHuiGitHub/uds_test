@@ -118,7 +118,8 @@
       <DependentUpon>OneShotCtrl.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Uds\can_driver.cs" />
-    <Compile Include="Source\Uds\uds_can_trans.cs" />
+    <Compile Include="Source\Uds\uds_seriver.cs" />
+    <Compile Include="Source\Uds\uds_trans.cs" />
     <EmbeddedResource Include="Source\Transmit\CycleCtrl.resx">
       <DependentUpon>CycleCtrl.cs</DependentUpon>
     </EmbeddedResource>

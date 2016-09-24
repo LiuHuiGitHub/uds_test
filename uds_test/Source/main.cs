@@ -22,7 +22,9 @@ namespace uds_test
 {
     public partial class main : Form
     {
-        can_driver can = new can_driver();
+        can_driver driver = new can_driver();
+        uds_trans trans = new uds_trans();
+        List<uds_seriver> serivers_list = new List<Uds.uds_seriver>();
 
         public main()
         {
@@ -40,6 +42,7 @@ namespace uds_test
                      true);
             BusParamsInit();
             TransmitInit();
+            uds_init();
             mmTimerInit();
         }
 
@@ -49,20 +52,20 @@ namespace uds_test
 
         private void BusParamsInit()
         {
-            can.SelectChannel(ref comboBoxChannel);
+            driver.SelectChannel(ref comboBoxChannel);
             LoadBusParamsSetting();
         }
 
         private void comboBoxChannel_Click(object sender, EventArgs e)
         {
-            can.SelectChannel(ref comboBoxChannel);
+            driver.SelectChannel(ref comboBoxChannel);
         }
 
         private void buttonSchedulerSwitch_Click(object sender, EventArgs e)
         {
             if (buttonBusSwitch.Text == "Bus On")
             {
-                if (can.OpenChannel(ref comboBoxChannel, ref comboBoxBaud, int.Parse(textBoxSjw.Text)) == true)
+                if (driver.OpenChannel(ref comboBoxChannel, ref comboBoxBaud, int.Parse(textBoxSjw.Text)) == true)
                 {
                     buttonBusSwitch.Text = "Bus Off";
                     mmTimerStart();
@@ -75,17 +78,19 @@ namespace uds_test
                     timer.Tick += delegate
                     {
                         int busload = 0;
-                        if (can.BusLoad(ref busload) == true)
+                        if (driver.BusLoad(ref busload) == true)
                         {
                             progressBarBusLoad.Value = busload;
                         }
+                        //can.WriteData(0x7DF, new byte[] { 0x3E, 0x80, 0x00,0x00,0x00,0x00,0x00,0x00 }, 8);
                     };
                     timer.Enabled = true;
+
                 }
             }
             else
             {
-                can.CloseChannel();
+                driver.CloseChannel();
                 buttonBusSwitch.Text = "Bus On";
                 mmTimerStop();
                 comboBoxBaud.Enabled = true;
@@ -156,10 +161,10 @@ namespace uds_test
             int id;
             int dlc;
             long time;
-            byte[] data = new byte[8];
-            if (can.ReadData(out id, ref data, out dlc, out time) == true)
+            byte[] dat = new byte[8];
+            if (driver.ReadData(out id, ref dat, out dlc, out time) == true)
             {
-                trans.Can_Trans_RxFrams(id, data, dlc);
+                trans.Can_Trans_RxFrams(id, dat, dlc);
             }
             trans.CanTrans_Manage(10);
         }
@@ -199,7 +204,7 @@ namespace uds_test
                     {
                         Sch.TimeCnt -= Sch.Interval;
 
-                        can.WriteData(Sch.Id, Sch.Dat, Sch.Dlc);
+                        driver.WriteData(Sch.Id, Sch.Dat, Sch.Dlc);
                     }
                 }
             }
@@ -209,7 +214,7 @@ namespace uds_test
                 {
                     Sch.Updated = false;
 
-                    can.WriteData(Sch.Id, Sch.Dat, Sch.Dlc);
+                    driver.WriteData(Sch.Id, Sch.Dat, Sch.Dlc);
                 }
             }
         }
@@ -299,18 +304,9 @@ namespace uds_test
 
         #endregion
 
-        #region TextClick
+        #region TextBoxRightClick
 
-#if flase
-        private void copyToClipBoardToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if(textBoxShow.Text != "")
-            {
-                Clipboard.SetDataObject(textBoxShow.Text);
-            }
-        }
-
-        private void saveToFileToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             StreamWriter myStream;
             saveFileDialog.Filter = "text文本 (*.txt)|*.txt|所有文件 (*.*)|*.*";
@@ -319,41 +315,314 @@ namespace uds_test
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
                 myStream = new StreamWriter(saveFileDialog.FileName);
-                myStream.Write(textBoxShow.Text);
+                myStream.Write(textBoxStream.Text);
                 myStream.Close();
             }
         }
-#endif
+
+        private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Clipboard.SetDataObject(textBoxStream.Text);
+        }
+
+        private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            textBoxStream.Text = "";
+        }
+
         #endregion
 
-        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        #region UDS
+        uds_seriver now_seriver = new uds_seriver();
+        uds_seriver.SubFunction now_sub_function = new uds_seriver.SubFunction();
+
+        private void uds_init()
         {
-            if (tabControl.SelectedTab == tabPageBusParams)
+            driver = new can_driver();
+            trans = new uds_trans();
+            serivers_list = new List<Uds.uds_seriver>();
+
+            /*使用事件委托传参*/
+            driver.EventWriteData += new EventHandler(
+                (sender1, e1) =>
+                {
+                    can_driver.WriteDataEventArgs writeFarme = (can_driver.WriteDataEventArgs)e1;
+                    textBoxStream.Text += writeFarme.id.ToString("X3") + " "
+                    + writeFarme.dlc.ToString("X1") + " "
+                    + writeFarme.dat.HexToStrings(" ") + "\r\n";
+                }
+                );
+            trans.EventTxFarms += new EventHandler(
+                (sender1, e1) =>
+                {
+                    uds_trans.FarmsEventArgs TxFarme = (uds_trans.FarmsEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        textBoxStream.Text += TxFarme.id.ToString("X3") + " "
+                        + TxFarme.dlc.ToString("X1") + " "
+                        + TxFarme.dat.HexToStrings(" ") + "\r\n";
+                    };
+                    try { Invoke(TextBoxUpdate); } catch { };
+                }
+                );
+            trans.EventRxFarms += new EventHandler(
+                (sender1, e1) =>
+                {
+                    uds_trans.FarmsEventArgs RxFarme = (uds_trans.FarmsEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        textBoxStream.Text += RxFarme.id.ToString("X3") + " "
+                        + RxFarme.dlc.ToString("X1") + " "
+                        + RxFarme.dat.HexToStrings(" ") + "\r\n";
+                    };
+                    try { Invoke(TextBoxUpdate); } catch { };
+                }
+                );
+            uds_seriver seriver = new uds_seriver();
+            uds_seriver.SubFunction sub_function = new uds_seriver.SubFunction();
+
+            #region $11
+            seriver.sid = "11";
+            seriver.name = "ECU Reset";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@parameter
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Hard Reset";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Key Off On Reset";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Soft Reset";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "04";
+            sub_function.name = "Enable Rapid Power Shut Down";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_5
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "05";
+            sub_function.name = "Disable Rapid Power Shut Down";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $14
+            seriver = new uds_seriver();
+            seriver.sid = "14";
+            seriver.name = "Clear Diagnostic Information";
+            seriver.parameter = "FF FF FF";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $19
+            seriver = new uds_seriver();
+            seriver.sid = "19";
+            seriver.name = "Read DTC Information";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Report Number Of DTC By Status Mask";
+            sub_function.parameter = "FF";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Report DTC By Status Mask";
+            sub_function.parameter = "FF";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "04";
+            sub_function.name = "Report DTC Snapshot Record By DTC Number";
+            sub_function.parameter = "FF FF FF";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "06";
+            sub_function.name = "Report DTC Extended Datar Record By DTC Number";
+            sub_function.parameter = "FF FF FF FF";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_5
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "0A";
+            sub_function.name = "Report Supported DTC";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $22
+            seriver = new uds_seriver();
+            seriver.sid = "22";
+            seriver.name = "Read Data By Identifier";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $23
+            seriver = new uds_seriver();
+            seriver.sid = "23";
+            seriver.name = "Read Memory By Address";
+            seriver.parameter = "00 00 00 00 00 01";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "42";
+            sub_function.name = "Address Lenght And Read Memory Lenght";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $28
+            seriver = new uds_seriver();
+            seriver.sid = "28";
+            seriver.name = "Communication Control";
+            seriver.parameter = "03";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "00";
+            sub_function.name = "Enable Rx And Tx";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "80";
+            sub_function.name = "Enable Rx And Tx Suppress Pos Res";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Enable Rx And Tx";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "83";
+            sub_function.name = "Enable Rx And Tx Suppress Pos Res";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $2E
+            seriver = new uds_seriver();
+            seriver.sid = "2E";
+            seriver.name = "Write Data By Identifier";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $2F
+            seriver = new uds_seriver();
+            seriver.sid = "2F";
+            seriver.name = "Input Output Control By Identifier ";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $31
+            seriver = new uds_seriver();
+            seriver.sid = "31";
+            seriver.name = "Routine Control";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Start Routine";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Stop Routine";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Request Routine Result";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $3D
+            seriver = new uds_seriver();
+            seriver.sid = "3D";
+            seriver.name = "Write Memory By Address";
+            seriver.parameter = "00 00 00 00 00 01 00";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "42";
+            sub_function.name = "Address 4 Byte Data 2 Byte";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $3E
+            seriver = new uds_seriver();
+            seriver.sid = "3E";
+            seriver.name = "Tester Present";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "00";
+            sub_function.name = "Test Present";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "80";
+            sub_function.name = "Test Present Suppress Pos Res";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            #region $85
+            seriver = new uds_seriver();
+            seriver.sid = "85";
+            seriver.name = "Control DTC Setting";
+            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "DTC Logging On";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "81";
+            sub_function.name = "DTC Logging On Suppress Pos Res";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "DTC Logging Off";
+            seriver.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_seriver.SubFunction();
+            sub_function.id = "82";
+            sub_function.name = "DTC Logging Off Suppress Pos Res";
+            seriver.sub_function_list.Add(sub_function);
+            serivers_list.Add(seriver);
+            #endregion
+
+            foreach (uds_seriver ss in serivers_list)
             {
+                comboBoxSerivers.Items.Add("$" + ss.sid + " " + ss.name);
             }
-            else if (tabControl.SelectedTab == tabPageTransmit)
-            {
-            }
+            comboBoxSerivers.SelectedIndex = 0;
         }
-
-        private void main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            SaveBusParamsSetting();
-        }
-
-        private void main_FormResized(object sender, EventArgs e)
-        {
-            Text = "uds_test" + " Width:" + Size.Width.ToString("d3") + " Height:" + Size.Height.ToString("d3");
-        }
-
-        uds_can_trans trans = new uds_can_trans();
-
         private void button_Click(object sender, EventArgs e)
         {
             trans.rx_id = 0x7B8;
             trans.tx_id = 0x7B0;
 
-            trans.CanTrans_TxMsg(textBox2.Text.StringToHex());
+            trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
         }
 
         bool delete_char_flag = false;
@@ -383,7 +652,7 @@ namespace uds_test
                 trans.rx_id = 0x7B8;
                 trans.tx_id = 0x7B0;
 
-                trans.CanTrans_TxMsg(textBox2.Text.StringToHex());
+                trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
             }
         }
 
@@ -406,6 +675,66 @@ namespace uds_test
             strings = strings.StringToHex().HexToStrings(" ");
             textbox.Text = strings;
             textbox.SelectionStart = textbox.Text.Length;
+        }
+        #endregion
+
+        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (tabControl.SelectedTab == tabPageBusParams)
+            {
+            }
+            else if (tabControl.SelectedTab == tabPageTransmit)
+            {
+            }
+        }
+
+        private void main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveBusParamsSetting();
+        }
+
+        private void main_FormResized(object sender, EventArgs e)
+        {
+            Text = "uds_test" + " Width:" + Size.Width.ToString("d3") + " Height:" + Size.Height.ToString("d3");
+        }
+
+        private void comboBoxSerivers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            now_seriver = serivers_list[comboBoxSerivers.SelectedIndex];
+            now_sub_function = new uds_seriver.SubFunction();
+
+            comboBoxSubFunction.Items.Clear();
+            foreach (uds_seriver.SubFunction sub in now_seriver.sub_function_list)
+            {
+                comboBoxSubFunction.Items.Add("$" + sub.id + " "+ sub.name);
+                comboBoxSubFunction.SelectedIndex = 0;
+            }
+            textBoxParameter.Text = now_seriver.parameter;
+            updateTransData();
+        }
+
+        private void comboBoxSubFunction_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (now_seriver.sub_function_list.Count != 0)
+            {
+                now_sub_function = now_seriver.sub_function_list[comboBoxSubFunction.SelectedIndex];
+            }
+            textBoxParameter.Text = now_seriver.parameter;
+            updateTransData();
+        }
+
+        void updateTransData()
+        {
+            string strings = now_seriver.sid;
+            strings += now_sub_function.id;
+            strings += now_sub_function.parameter;
+            strings += textBoxParameter.Text;
+            textBoxTransData.Text = strings.StringToHex().HexToStrings(" ");
+        }
+
+        private void textBoxParameter_TextChanged(object sender, EventArgs e)
+        {
+            updateTransData();
         }
     }
 }

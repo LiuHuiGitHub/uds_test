@@ -117,12 +117,29 @@ namespace Uds
             return true;
         }
 
+        public class WriteDataEventArgs : EventArgs
+        {
+            public int id = 0;
+            public int dlc = 0;
+            public byte[] dat = new byte[8];
+        }
+
+        private WriteDataEventArgs e_args = new WriteDataEventArgs();
+        public event EventHandler EventWriteData;
+
         public bool WriteData(int id, byte[] dat, int dlc)
         {
             Canlib.canStatus canStatus = Canlib.canWrite(canHandler, id, dat, dlc, 0);
             if (canStatus != Canlib.canStatus.canOK)
             {
                 return false;
+            }
+            if (EventWriteData != null)
+            {
+                e_args.id = id;
+                e_args.dlc = dlc;
+                Array.Copy(dat, e_args.dat, dlc);
+                EventWriteData(this, e_args);
             }
             return true;
         }
@@ -148,7 +165,5 @@ namespace Uds
             }
             return false;
         }
-
-
     }
 }

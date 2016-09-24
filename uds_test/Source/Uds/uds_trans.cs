@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Uds
 {
-    class uds_can_trans
+    class uds_trans
     {
         public byte fill_byte = 0x55;
 
@@ -97,7 +97,7 @@ namespace Uds
         private int RX_MAX_TP_BYTES = 0xFFF;
 
 
-        public uds_can_trans()
+        public uds_trans()
         {
             can_rx_info.frame = new byte[8];
             can_tx_info.frame = new byte[8];
@@ -122,8 +122,8 @@ namespace Uds
             public bool tx_in_progress = false;
 
             public int tx_block_size = 0;           /* BS(Block Size) in a flow Control Frame */
-            public int tx_stmin_time = 0;
-            public int tx_cf_stmin_wait_time = 0;   /* STmin Time in Flow Control Frame */
+            public int tx_stmin_time = 20;
+            public int tx_cf_stmin_wait_time = 20;   /* STmin Time in Flow Control Frame */
             public int tx_fc_wait_time = 0;         /* Wait for FC when has sent FF */
             
             public int lenght;
@@ -159,6 +159,39 @@ namespace Uds
         private tx_info can_tx_info = new tx_info();
         private rx_info can_rx_info = new rx_info();
         
+        public class FarmsEventArgs : EventArgs
+        {
+            public int id = 0;
+            public int dlc = 0;
+            public byte[] dat = new byte[8];
+        }
+
+        private FarmsEventArgs e_args = new FarmsEventArgs();
+        public event EventHandler EventTxFarms;
+        public event EventHandler EventRxFarms;
+
+        private void WriteData(int id, byte[] dat, int dlc)
+        {
+            if(EventTxFarms != null)
+            {
+                e_args.id = id;
+                e_args.dlc = dlc;
+                Array.Copy(dat, e_args.dat, dlc);
+                EventTxFarms(this, e_args);
+            }
+        }
+
+        private void ReadData(int id, byte[] dat, int dlc)
+        {
+            if (EventRxFarms != null)
+            {
+                e_args.id = id;
+                e_args.dlc = dlc;
+                Array.Copy(dat, e_args.dat, dlc);
+                EventRxFarms(this, e_args);
+            }
+        }
+
         can_driver can = new can_driver();
 
         public void Can_Trans_RxFrams(int id, byte[] dat, int dlc)
@@ -166,6 +199,7 @@ namespace Uds
             if (id == rx_id && dlc == 8)
             {
                 Array.Copy(dat, can_rx_info.frame, 8);
+                ReadData(id, dat, dlc);
             }
         }
 
@@ -271,6 +305,7 @@ namespace Uds
             }
             if (can.WriteData(tx_id, can_tx_info.frame, 8) == true)
             {
+                WriteData(tx_id, can_tx_info.frame, 8);
                 can_tx_info.tx_last_frame_error = false;
                 can_rx_info.frame[TPCI_Byte] = 0;
                 /*
@@ -372,7 +407,7 @@ namespace Uds
             else if (can_tx_info.tx_fc_tpdu)
             {
                 CanTrans_TxFrame(FrameType.TX_FC);
-                can_tx_info.tx_fc_tpdu = true;
+                can_tx_info.tx_fc_tpdu = false;
 
                 /*start to counter the CF wait time*/
                 can_rx_info.rx_cf_wait_time = CF_WAIT_TIMEOUT;

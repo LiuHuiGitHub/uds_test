@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 
 using canlibCLSNET;
+using MyFormat;
 
 namespace Uds
 {
@@ -122,6 +123,12 @@ namespace Uds
             public int id = 0;
             public int dlc = 0;
             public byte[] dat = new byte[8];
+            public override string ToString()
+            {
+                return id.ToString("X3") + " "
+                           + dlc.ToString("X1") + " "
+                           + dat.HexToStrings(" ");
+            }
         }
 
         private WriteDataEventArgs e_args = new WriteDataEventArgs();

@@ -9,7 +9,7 @@ using System.Windows.Forms;
 using Dongzr.MidiLite;
 using System.Threading;
 using System.IO;
-using canlibCLSNET;
+using System.Runtime.InteropServices;
 
 using User_Control;
 
@@ -22,6 +22,10 @@ namespace uds_test
 {
     public partial class main : Form
     {
+        [DllImport("SecurityAccess.dll", EntryPoint = "SecurityAccess", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        extern static uint SecurityAccess(uint project, uint seed, uint level);
+
+
         can_driver driver = new can_driver();
         uds_trans trans = new uds_trans();
         List<uds_seriver> serivers_list = new List<Uds.uds_seriver>();
@@ -43,6 +47,7 @@ namespace uds_test
             BusParamsInit();
             TransmitInit();
             uds_init();
+            textBoxStream.Text = SecurityAccess(0, 0x12345678, 0x12345678).ToString();
             mmTimerInit();
         }
 
@@ -86,6 +91,7 @@ namespace uds_test
                     };
                     timer.Enabled = true;
 
+                    tabControl.SelectedTab = tabPageUDS;
                 }
             }
             else
@@ -340,16 +346,18 @@ namespace uds_test
         {
             driver = new can_driver();
             trans = new uds_trans();
-            serivers_list = new List<Uds.uds_seriver>();
 
+            #region Trans Event
             /*使用事件委托传参*/
             driver.EventWriteData += new EventHandler(
                 (sender1, e1) =>
                 {
-                    can_driver.WriteDataEventArgs writeFarme = (can_driver.WriteDataEventArgs)e1;
-                    textBoxStream.Text += writeFarme.id.ToString("X3") + " "
-                    + writeFarme.dlc.ToString("X1") + " "
-                    + writeFarme.dat.HexToStrings(" ") + "\r\n";
+                    can_driver.WriteDataEventArgs TxFarme = (can_driver.WriteDataEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        textBoxStream.Text += TxFarme.ToString() + "\r\n";
+                        };
+                    try { Invoke(TextBoxUpdate); } catch { };
                 }
                 );
             trans.EventTxFarms += new EventHandler(
@@ -358,9 +366,7 @@ namespace uds_test
                     uds_trans.FarmsEventArgs TxFarme = (uds_trans.FarmsEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
-                        textBoxStream.Text += TxFarme.id.ToString("X3") + " "
-                        + TxFarme.dlc.ToString("X1") + " "
-                        + TxFarme.dat.HexToStrings(" ") + "\r\n";
+                        textBoxStream.Text += TxFarme.ToString() + "\r\n";
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
                 }
@@ -371,17 +377,18 @@ namespace uds_test
                     uds_trans.FarmsEventArgs RxFarme = (uds_trans.FarmsEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
-                        textBoxStream.Text += RxFarme.id.ToString("X3") + " "
-                        + RxFarme.dlc.ToString("X1") + " "
-                        + RxFarme.dat.HexToStrings(" ") + "\r\n";
+                        textBoxStream.Text += RxFarme.ToString() + "\r\n";
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
                 }
                 );
+            #endregion
+
+            serivers_list = new List<Uds.uds_seriver>();
             uds_seriver seriver = new uds_seriver();
             uds_seriver.SubFunction sub_function = new uds_seriver.SubFunction();
 
-            #region $11
+            #region $11 ECU Reset
             seriver.sid = "11";
             seriver.name = "ECU Reset";
             seriver.sub_function_list = new List<uds_seriver.SubFunction>();
@@ -414,7 +421,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $14
+            #region $14 Clear Diagnostic Information
             seriver = new uds_seriver();
             seriver.sid = "14";
             seriver.name = "Clear Diagnostic Information";
@@ -423,7 +430,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $19
+            #region $19 Read DTC Information
             seriver = new uds_seriver();
             seriver.sid = "19";
             seriver.name = "Read DTC Information";
@@ -460,7 +467,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $22
+            #region $22 Read Data By Identifier
             seriver = new uds_seriver();
             seriver.sid = "22";
             seriver.name = "Read Data By Identifier";
@@ -468,7 +475,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $23
+            #region $23 Read Memory By Address
             seriver = new uds_seriver();
             seriver.sid = "23";
             seriver.name = "Read Memory By Address";
@@ -482,7 +489,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $28
+            #region $28 Communication Control
             seriver = new uds_seriver();
             seriver.sid = "28";
             seriver.name = "Communication Control";
@@ -511,7 +518,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $2E
+            #region $2E "Write Data By Identifier
             seriver = new uds_seriver();
             seriver.sid = "2E";
             seriver.name = "Write Data By Identifier";
@@ -519,15 +526,15 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $2F
+            #region $2F Input Output Control By Identifier
             seriver = new uds_seriver();
             seriver.sid = "2F";
-            seriver.name = "Input Output Control By Identifier ";
+            seriver.name = "Input Output Control By Identifier";
             seriver.sub_function_list = new List<uds_seriver.SubFunction>();
             serivers_list.Add(seriver);
             #endregion
 
-            #region $31
+            #region $31 Routine Control
             seriver = new uds_seriver();
             seriver.sid = "31";
             seriver.name = "Routine Control";
@@ -551,7 +558,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $3D
+            #region $3D Write Memory By Address
             seriver = new uds_seriver();
             seriver.sid = "3D";
             seriver.name = "Write Memory By Address";
@@ -565,7 +572,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $3E
+            #region $3E Tester Present
             seriver = new uds_seriver();
             seriver.sid = "3E";
             seriver.name = "Tester Present";
@@ -583,7 +590,7 @@ namespace uds_test
             serivers_list.Add(seriver);
             #endregion
 
-            #region $85
+            #region $85 Control DTC Setting
             seriver = new uds_seriver();
             seriver.sid = "85";
             seriver.name = "Control DTC Setting";
@@ -609,14 +616,56 @@ namespace uds_test
             sub_function.name = "DTC Logging Off Suppress Pos Res";
             seriver.sub_function_list.Add(sub_function);
             serivers_list.Add(seriver);
-            #endregion
+            #endregion 
 
+            groupBoxSerivers.Text = "诊断服务";
             foreach (uds_seriver ss in serivers_list)
             {
                 comboBoxSerivers.Items.Add("$" + ss.sid + " " + ss.name);
+                groupBoxSerivers.Text += " $" + ss.sid;
             }
             comboBoxSerivers.SelectedIndex = 0;
         }
+
+        private void comboBoxSerivers_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            now_seriver = serivers_list[comboBoxSerivers.SelectedIndex];
+            now_sub_function = new uds_seriver.SubFunction();
+
+            comboBoxSubFunction.Items.Clear();
+            foreach (uds_seriver.SubFunction sub in now_seriver.sub_function_list)
+            {
+                comboBoxSubFunction.Items.Add("$" + sub.id + " " + sub.name);
+                comboBoxSubFunction.SelectedIndex = 0;
+            }
+            textBoxParameter.Text = now_seriver.parameter;
+            updateTransData();
+        }
+
+        private void comboBoxSubFunction_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (now_seriver.sub_function_list.Count != 0)
+            {
+                now_sub_function = now_seriver.sub_function_list[comboBoxSubFunction.SelectedIndex];
+            }
+            textBoxParameter.Text = now_seriver.parameter;
+            updateTransData();
+        }
+
+        void updateTransData()
+        {
+            string strings = now_seriver.sid;
+            strings += now_sub_function.id;
+            strings += now_sub_function.parameter;
+            strings += textBoxParameter.Text;
+            textBoxTransData.Text = strings.StringToHex().HexToStrings(" ");
+        }
+
+        private void textBoxParameter_TextChanged(object sender, EventArgs e)
+        {
+            updateTransData();
+        }
+
         private void button_Click(object sender, EventArgs e)
         {
             trans.rx_id = 0x7B8;
@@ -696,45 +745,6 @@ namespace uds_test
         private void main_FormResized(object sender, EventArgs e)
         {
             Text = "uds_test" + " Width:" + Size.Width.ToString("d3") + " Height:" + Size.Height.ToString("d3");
-        }
-
-        private void comboBoxSerivers_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            now_seriver = serivers_list[comboBoxSerivers.SelectedIndex];
-            now_sub_function = new uds_seriver.SubFunction();
-
-            comboBoxSubFunction.Items.Clear();
-            foreach (uds_seriver.SubFunction sub in now_seriver.sub_function_list)
-            {
-                comboBoxSubFunction.Items.Add("$" + sub.id + " "+ sub.name);
-                comboBoxSubFunction.SelectedIndex = 0;
-            }
-            textBoxParameter.Text = now_seriver.parameter;
-            updateTransData();
-        }
-
-        private void comboBoxSubFunction_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (now_seriver.sub_function_list.Count != 0)
-            {
-                now_sub_function = now_seriver.sub_function_list[comboBoxSubFunction.SelectedIndex];
-            }
-            textBoxParameter.Text = now_seriver.parameter;
-            updateTransData();
-        }
-
-        void updateTransData()
-        {
-            string strings = now_seriver.sid;
-            strings += now_sub_function.id;
-            strings += now_sub_function.parameter;
-            strings += textBoxParameter.Text;
-            textBoxTransData.Text = strings.StringToHex().HexToStrings(" ");
-        }
-
-        private void textBoxParameter_TextChanged(object sender, EventArgs e)
-        {
-            updateTransData();
         }
     }
 }

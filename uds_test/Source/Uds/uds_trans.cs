@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using MyFormat;
+
 namespace Uds
 {
     class uds_trans
@@ -164,6 +166,12 @@ namespace Uds
             public int id = 0;
             public int dlc = 0;
             public byte[] dat = new byte[8];
+            public override string ToString()
+            {
+                return id.ToString("X3") + " "
+                           + dlc.ToString("X1") + " "
+                           + dat.HexToStrings(" ");
+            }
         }
 
         private FarmsEventArgs e_args = new FarmsEventArgs();
@@ -203,13 +211,29 @@ namespace Uds
             }
         }
 
+        byte[] tx_msg = new byte[0];
+
         public bool CanTrans_TxMsg(byte[] msg)
         {
-            if (msg.Length == 0 || msg.Length > RX_MAX_TP_BYTES - 2)
+            if (msg.Length == 0 
+                || msg.Length > RX_MAX_TP_BYTES - 2
+                || tx_msg.Length != 0
+                )
             {
                 return false;
             }
+            tx_msg = msg;
+            tx_msg = new byte[msg.Length];
+            Array.Copy(msg, tx_msg, msg.Length);
+            return true;
+        }
 
+        private void Tx_Msg()
+        {
+            if(tx_msg.Length == 0)
+            {
+                return;
+            }
             /*
             ** Set the tx_in_progress bit...it will be cleared when TX is done.
             */
@@ -221,10 +245,11 @@ namespace Uds
             ** appropriate frame type.
             */
             can_tx_info.offset = 0;
-            can_tx_info.lenght = msg.Length;
-            can_tx_info.buffer = new byte[msg.Length];
-            Array.Copy(msg, can_tx_info.buffer, can_tx_info.lenght);
+            can_tx_info.lenght = tx_msg.Length;
+            can_tx_info.buffer = new byte[tx_msg.Length];
+            Array.Copy(tx_msg, can_tx_info.buffer, can_tx_info.lenght);
             can_tx_info.offset = 0;
+            tx_msg = new byte[0];
 
             if (can_tx_info.lenght <= SF_DL_MAX_BYTES)
             {
@@ -234,7 +259,6 @@ namespace Uds
             {
                 CanTrans_TxFrame(FrameType.TX_FF);
             }
-            return true;
         }
 
         private void CanTrans_TxFrame(FrameType frame_type)
@@ -337,6 +361,8 @@ namespace Uds
 
         public void CanTrans_Manage(int tick)
         {
+            Tx_Msg();
+
             CanTrans_Counter(tick);
 
             /*
@@ -650,7 +676,7 @@ namespace Uds
                     }
                     else
                     {
-                        can_tx_info.tx_stmin_time = 0x00;
+                        can_tx_info.tx_stmin_time = 20;
                     }
                     if ((flow_control_sts == PCI.FC_STATUS_CONTINUE)
                      && (can_rx_info.rx_fc_wait_timeout_disable == false)

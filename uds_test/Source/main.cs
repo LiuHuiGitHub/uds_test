@@ -14,7 +14,6 @@ using System.Runtime.InteropServices;
 using User_Control;
 
 using uds_test.Source.Transmit;
-using uds_test.Source.BusParams;
 using Uds;
 using MyFormat;
 
@@ -28,7 +27,7 @@ namespace uds_test
 
         can_driver driver = new can_driver();
         uds_trans trans = new uds_trans();
-        List<uds_seriver> serivers_list = new List<Uds.uds_seriver>();
+        List<uds_service> services_list = new List<Uds.uds_service>();
 
         public main()
         {
@@ -47,18 +46,19 @@ namespace uds_test
             BusParamsInit();
             TransmitInit();
             uds_init();
-            textBoxStream.Text = SecurityAccess(0, 0x12345678, 0x12345678).ToString();
+            //textBoxStream.Text = SecurityAccess(0, 0x12345678, 0x12345678).ToString();
             mmTimerInit();
         }
 
         #region Bus Params Page
 
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+        int time_cnt = 0;
 
         private void BusParamsInit()
         {
             driver.SelectChannel(ref comboBoxChannel);
-            LoadBusParamsSetting();
+            comboBoxBaud.SelectedIndex = 1;
         }
 
         private void comboBoxChannel_Click(object sender, EventArgs e)
@@ -68,15 +68,14 @@ namespace uds_test
 
         private void buttonSchedulerSwitch_Click(object sender, EventArgs e)
         {
-            if (buttonBusSwitch.Text == "Bus On")
+            if (buttonBusSwitch.Text == "打开")
             {
-                if (driver.OpenChannel(ref comboBoxChannel, ref comboBoxBaud, int.Parse(textBoxSjw.Text)) == true)
+                if (driver.OpenChannel(ref comboBoxChannel, ref comboBoxBaud) == true)
                 {
-                    buttonBusSwitch.Text = "Bus Off";
+                    buttonBusSwitch.Text = "关闭";
                     mmTimerStart();
                     comboBoxBaud.Enabled = false;
                     comboBoxChannel.Enabled = false;
-                    textBoxSjw.Enabled = false;
 
                     timer = new System.Windows.Forms.Timer();
                     timer.Interval = 1000;
@@ -87,7 +86,11 @@ namespace uds_test
                         {
                             progressBarBusLoad.Value = busload;
                         }
-                        //can.WriteData(0x7DF, new byte[] { 0x3E, 0x80, 0x00,0x00,0x00,0x00,0x00,0x00 }, 8);
+                        if (++time_cnt > 4)
+                        {
+                            time_cnt = 0;
+                            driver.WriteData(0x7DF, new byte[] { 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8);
+                        }
                     };
                     timer.Enabled = true;
 
@@ -97,28 +100,14 @@ namespace uds_test
             else
             {
                 driver.CloseChannel();
-                buttonBusSwitch.Text = "Bus On";
+                buttonBusSwitch.Text = "打开";
                 mmTimerStop();
                 comboBoxBaud.Enabled = true;
                 comboBoxChannel.Enabled = true;
-                textBoxSjw.Enabled = true;
 
                 timer.Enabled = false;
                 progressBarBusLoad.Value = 0;
             }
-        }
-
-        private void LoadBusParamsSetting()
-        {
-            textBoxSjw.Text = BusParams.Default.canSJW;
-            comboBoxBaud.Text = BusParams.Default.canFreq;
-        }
-
-        void SaveBusParamsSetting()
-        {
-            BusParams.Default.canSJW = textBoxSjw.Text;
-            BusParams.Default.canFreq = comboBoxBaud.Text;
-            BusParams.Default.Save();
         }
         #endregion
 
@@ -331,7 +320,7 @@ namespace uds_test
             Clipboard.SetDataObject(textBoxStream.Text);
         }
 
-        private void DeleteToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ClearToolStripMenuItem_Click(object sender, EventArgs e)
         {
             textBoxStream.Text = "";
         }
@@ -339,13 +328,547 @@ namespace uds_test
         #endregion
 
         #region UDS
-        uds_seriver now_seriver = new uds_seriver();
-        uds_seriver.SubFunction now_sub_function = new uds_seriver.SubFunction();
+        uds_service now_service = new uds_service();
+        uds_service service_10 = new uds_service();
+        uds_service service_27 = new uds_service();
+
+        private void uds_seriver_init()
+        {
+            services_list = new List<Uds.uds_service>();
+            uds_service service = new uds_service();
+            uds_service.SubFunction sub_function = new uds_service.SubFunction();
+            uds_service.Identifier identifier = new uds_service.Identifier();
+
+            #region $10 Diagnostic Session Control
+            service_10 = new uds_service();
+            service_10.sid = "10";
+            service_10.name = "Diagnostic Session Control";
+            service_10.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Default Session";
+            service_10.sub_function_list.Add(sub_function);
+            //2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Programing Session";
+            service_10.sub_function_list.Add(sub_function);
+            //3
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Extended Diagnostic Session";
+            service_10.sub_function_list.Add(sub_function);
+            //@identifier
+            //@end_identifier
+            #endregion
+
+            #region $11 ECU Reset
+            service = new uds_service();
+            service.sid = "11";
+            service.name = "ECU Reset";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@parameter
+            //@sub_function_1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Hard Reset";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Key Off On Reset";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Soft Reset";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "04";
+            sub_function.name = "Enable Rapid Power Shut Down";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_5
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "05";
+            sub_function.name = "Disable Rapid Power Shut Down";
+            service.sub_function_list.Add(sub_function);
+            services_list.Add(service);
+            #endregion
+
+            #region $14 Clear Diagnostic Information
+            service = new uds_service();
+            service.sid = "14";
+            service.name = "Clear Diagnostic Information";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //end_sub_function
+            //@identifier
+            identifier = new uds_service.Identifier();
+            identifier.id = "FFFFFF";
+            identifier.name = "Clear All DTC";
+            service.identifier_list.Add(identifier);
+            //@end_identifier
+            services_list.Add(service);
+            #endregion
+
+            #region $19 Read DTC Information
+            service = new uds_service();
+            service.sid = "19";
+            service.name = "Read DTC Information";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Report Number Of DTC By Status Mask";
+            sub_function.parameter = "FF";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Report DTC By Status Mask";
+            sub_function.parameter = "FF";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "04";
+            sub_function.name = "Report DTC Snapshot Record By DTC Number";
+            sub_function.parameter = "FF FF FF";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "06";
+            sub_function.name = "Report DTC Extended Datar Record By DTC Number";
+            sub_function.parameter = "FF FF FF FF";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_5
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "0A";
+            sub_function.name = "Report Supported DTC";
+            service.sub_function_list.Add(sub_function);
+            services_list.Add(service);
+            #endregion
+
+            #region $22 Read Data By Identifier
+            service = new uds_service();
+            service.sid = "22";
+            service.name = "Read Data By Identifier";
+            service.parameter = "";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //end_sub_function
+            //@identifier
+            identifier = new uds_service.Identifier();
+            identifier.id = "F183";
+            identifier.name = "ECU Bootloader Software Number";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F184";
+            identifier.name = "ECU Application Software Number";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F18E";
+            identifier.name = "ECU Assembly Number(Part Number)";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F18A";
+            identifier.name = "System Supplier Identifier";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F190";
+            identifier.name = "Vin";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F191";
+            identifier.name = "ECU Hardware Number";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F1A0";
+            identifier.name = "Vehicle Network Number";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F198";
+            identifier.name = "Repair Shop Code/Tester Serial Number";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F199";
+            identifier.name = "Programming Date";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "F284";
+            identifier.name = "ATECH Application Software Number";
+            service.identifier_list.Add(identifier);
+            //@end_identifier
+            services_list.Add(service);
+            #endregion
+
+            #region $27 Security Access
+            service_27 = new uds_service();
+            service_27.sid = "27";
+            service_27.name = "Security Access";
+            service_27.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Extended";
+            service_27.sub_function_list.Add(sub_function);
+            //2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Reprogramming";
+            service_27.sub_function_list.Add(sub_function);
+            //3
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "05";
+            sub_function.name = "Immobiliser";
+            service_27.sub_function_list.Add(sub_function);
+            //4
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "07";
+            sub_function.name = "Development";
+            service_27.sub_function_list.Add(sub_function);
+            //@identifier
+            //@end_identifier
+            #endregion
+
+            #region $23 Read Memory By Address
+            service = new uds_service();
+            service.sid = "23";
+            service.name = "Read Memory By Address";
+            service.parameter = "00 00 00 00 00 01";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //end_sub_function
+            //@identifier
+            identifier = new uds_service.Identifier();
+            identifier.id = "42";
+            identifier.name = "Address Lenght And Read Memory Lenght";
+            service.identifier_list.Add(identifier);
+            //@end_identifier
+            services_list.Add(service);
+            #endregion
+
+            #region $28 Communication Control
+            service = new uds_service();
+            service.sid = "28";
+            service.name = "Communication Control";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "00";
+            sub_function.name = "Enable Rx And Tx";
+            service.sub_function_list.Add(sub_function);
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "80";
+            sub_function.name = "Enable Rx And Tx Suppress Pos Res";
+            service.sub_function_list.Add(sub_function);
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Disable Rx And Tx";
+            service.sub_function_list.Add(sub_function);
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "83";
+            sub_function.name = "Rx And Tx Suppress Pos Res";
+            service.sub_function_list.Add(sub_function);
+            //end_sub_function
+            //@identifier
+            identifier = new uds_service.Identifier();
+            identifier.id = "01";
+            identifier.name = "Normal Communication Messages";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "02";
+            identifier.name = "Network Management Communication Messages";
+            service.identifier_list.Add(identifier);
+            identifier = new uds_service.Identifier();
+            identifier.id = "03";
+            identifier.name = "Normal and Network Management Communication Messages";
+            service.identifier_list.Add(identifier);
+            //@end_identifier
+            services_list.Add(service);
+            #endregion
+
+            #region $2E "Write Data By Identifier
+            service = new uds_service();
+            service.sid = "2E";
+            service.name = "Write Data By Identifier";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@identifier_7
+            identifier = new uds_service.Identifier();
+            identifier.id = "F198";
+            identifier.name = "Repair Shop Code/Tester Serial Number";
+            service.identifier_list.Add(identifier);
+            //@identifier_8
+            identifier = new uds_service.Identifier();
+            identifier.id = "F199";
+            identifier.name = "Programming Date";
+            service.identifier_list.Add(identifier);
+            services_list.Add(service);
+            #endregion
+
+            #region $2F Input Output Control By Identifier
+            service = new uds_service();
+            service.sid = "2F";
+            service.name = "Input Output Control By Identifier";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            services_list.Add(service);
+            #endregion
+
+            #region $31 Routine Control
+            service = new uds_service();
+            service.sid = "31";
+            service.name = "Routine Control";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Start Routine";
+            service.sub_function_list.Add(sub_function);
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Stop Routine";
+            service.sub_function_list.Add(sub_function);
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Request Routine Result";
+            service.sub_function_list.Add(sub_function);
+            //end_sub_function
+            //@identifier
+            //1
+            identifier = new uds_service.Identifier();
+            identifier.id = "7501";
+            identifier.name = "Generate Random Secret Key";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //2
+            identifier = new uds_service.Identifier();
+            identifier.id = "7502";
+            identifier.name = "Lock ECU";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //3
+            identifier = new uds_service.Identifier();
+            identifier.id = "7503";
+            identifier.name = "Add Key";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //4
+            identifier = new uds_service.Identifier();
+            identifier.id = "7504";
+            identifier.name = "Delete Key";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //5
+            identifier = new uds_service.Identifier();
+            identifier.id = "7505";
+            identifier.name = "Learn Secret Key from EMS";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //6
+            identifier = new uds_service.Identifier();
+            identifier.id = "7506";
+            identifier.name = "Teach Secret key to EMS";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //7
+            identifier = new uds_service.Identifier();
+            identifier.id = "7507";
+            identifier.name = "Key Test";
+            identifier.parameter = "AABBCCDD";
+            service.identifier_list.Add(identifier);
+            //8
+            identifier = new uds_service.Identifier();
+            identifier.id = "7508";
+            identifier.name = "DD Windows Position";
+            identifier.parameter = "64000000";
+            service.identifier_list.Add(identifier);
+            //9
+            identifier = new uds_service.Identifier();
+            identifier.id = "7509";
+            identifier.name = "PD Windows Position";
+            identifier.parameter = "64000000";
+            service.identifier_list.Add(identifier);
+            //10
+            identifier = new uds_service.Identifier();
+            identifier.id = "750A";
+            identifier.name = "RLD Windows Position";
+            identifier.parameter = "64000000";
+            service.identifier_list.Add(identifier);
+            //11
+            identifier = new uds_service.Identifier();
+            identifier.id = "750B";
+            identifier.name = "RRD Windows Position";
+            identifier.parameter = "64000000";
+            service.identifier_list.Add(identifier);
+            //12
+            identifier = new uds_service.Identifier();
+            identifier.id = "750C";
+            identifier.name = "HornCtr";
+            identifier.parameter = "64000000";
+            service.identifier_list.Add(identifier);
+            //13
+            identifier = new uds_service.Identifier();
+            identifier.id = "750D";
+            identifier.name = "RRD Windows Position";
+            identifier.parameter = "64646464";
+            service.identifier_list.Add(identifier);
+            //14
+            identifier = new uds_service.Identifier();
+            identifier.id = "750E";
+            identifier.name = "ALL Door Lock";
+            service.identifier_list.Add(identifier);
+            //15
+            identifier = new uds_service.Identifier();
+            identifier.id = "750F";
+            identifier.name = "ALL Door Unlock";
+            service.identifier_list.Add(identifier);
+            //16
+            identifier = new uds_service.Identifier();
+            identifier.id = "7500";
+            identifier.name = "Driver Door Unlock";
+            service.identifier_list.Add(identifier);
+            //17
+            identifier = new uds_service.Identifier();
+            identifier.id = "7500";
+            identifier.name = "Hazard Control";
+            identifier.parameter = "01";
+            service.identifier_list.Add(identifier);
+            //18
+            identifier = new uds_service.Identifier();
+            identifier.id = "7551";
+            identifier.name = "Find My Car";
+            identifier.parameter = "F0";
+            service.identifier_list.Add(identifier);
+            //19
+            identifier = new uds_service.Identifier();
+            identifier.id = "FF01";
+            identifier.name = "Check Programming Dependecies";
+            service.identifier_list.Add(identifier);
+            //20
+            identifier = new uds_service.Identifier();
+            identifier.id = "FFF7";
+            identifier.name = "Immo Unlock";
+            service.identifier_list.Add(identifier);
+            //21
+            identifier = new uds_service.Identifier();
+            identifier.id = "FFF8";
+            identifier.name = "Test ABIC Phase";
+            service.identifier_list.Add(identifier);
+            //22
+            identifier = new uds_service.Identifier();
+            identifier.id = "FFF9";
+            identifier.name = "DEBUG Mode";
+            service.identifier_list.Add(identifier);
+            //23
+            identifier = new uds_service.Identifier();
+            identifier.id = "FDF0";
+            identifier.name = "Turn Calibration";
+            service.identifier_list.Add(identifier);
+            //24
+            identifier = new uds_service.Identifier();
+            identifier.id = "FFFA";
+            identifier.name = "Valid All Key";
+            identifier.parameter = "FFFF";
+            service.identifier_list.Add(identifier);
+
+            //@end_identifier
+            services_list.Add(service);
+            #endregion
+
+            #region $3D Write Memory By Address
+            service = new uds_service();
+            service.sid = "3D";
+            service.name = "Write Memory By Address";
+            service.parameter = "00 00 00 00 00 01 00";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //end_sub_function
+            //@identifier
+            identifier = new uds_service.Identifier();
+            identifier.id = "42";
+            identifier.name = "Address Lenght And Read Memory Lenght";
+            service.identifier_list.Add(identifier);
+            //@end_identifier
+            services_list.Add(service);
+            #endregion
+
+            #region $3E Tester Present
+            service = new uds_service();
+            service.sid = "3E";
+            service.name = "Tester Present";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "00";
+            sub_function.name = "Test Present";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "80";
+            sub_function.name = "Test Present Suppress Pos Res";
+            service.sub_function_list.Add(sub_function);
+            services_list.Add(service);
+            #endregion
+
+            #region $85 Control DTC Setting
+            service = new uds_service();
+            service.sid = "85";
+            service.name = "Control DTC Setting";
+            service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function_1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "DTC Logging On";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "81";
+            sub_function.name = "DTC Logging On Suppress Pos Res";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_3
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "DTC Logging Off";
+            service.sub_function_list.Add(sub_function);
+            //@sub_function_4
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "82";
+            sub_function.name = "DTC Logging Off Suppress Pos Res";
+            service.sub_function_list.Add(sub_function);
+            services_list.Add(service);
+            #endregion
+
+            foreach (uds_service.SubFunction sub in service_10.sub_function_list)
+            {
+                comboBoxSession.Items.Add("$" + sub.id + " " + sub.name);
+                comboBoxSession.SelectedIndex = 0;
+            }
+            foreach (uds_service.SubFunction sub in service_27.sub_function_list)
+            {
+                comboBoxSecurityLevel.Items.Add("$" + sub.id + " " + sub.name);
+                comboBoxSecurityLevel.SelectedIndex = 0;
+            }
+            comboBoxServices.Text = "诊断服务";
+            foreach (uds_service ss in services_list)
+            {
+                comboBoxServices.Items.Add("$" + ss.sid + " " + ss.name);
+                groupBoxServices.Text += " $" + ss.sid;
+
+            }
+            comboBoxServices.SelectedIndex = 0;
+        }
 
         private void uds_init()
         {
             driver = new can_driver();
             trans = new uds_trans();
+
+            trans.tx_id = 0x7B0;
+            trans.rx_id = 0x7B8;
 
             #region Trans Event
             /*使用事件委托传参*/
@@ -355,8 +878,8 @@ namespace uds_test
                     can_driver.WriteDataEventArgs TxFarme = (can_driver.WriteDataEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
-                        textBoxStream.Text += TxFarme.ToString() + "\r\n";
-                        };
+                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
+                    };
                     try { Invoke(TextBoxUpdate); } catch { };
                 }
                 );
@@ -366,7 +889,7 @@ namespace uds_test
                     uds_trans.FarmsEventArgs TxFarme = (uds_trans.FarmsEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
-                        textBoxStream.Text += TxFarme.ToString() + "\r\n";
+                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
                 }
@@ -377,288 +900,58 @@ namespace uds_test
                     uds_trans.FarmsEventArgs RxFarme = (uds_trans.FarmsEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
-                        textBoxStream.Text += RxFarme.ToString() + "\r\n";
+                        textBoxStream.AppendText(RxFarme.ToString() + "\r\n");
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
                 }
                 );
             #endregion
 
-            serivers_list = new List<Uds.uds_seriver>();
-            uds_seriver seriver = new uds_seriver();
-            uds_seriver.SubFunction sub_function = new uds_seriver.SubFunction();
-
-            #region $11 ECU Reset
-            seriver.sid = "11";
-            seriver.name = "ECU Reset";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@parameter
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "01";
-            sub_function.name = "Hard Reset";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "02";
-            sub_function.name = "Key Off On Reset";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_3
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "03";
-            sub_function.name = "Soft Reset";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_4
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "04";
-            sub_function.name = "Enable Rapid Power Shut Down";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_5
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "05";
-            sub_function.name = "Disable Rapid Power Shut Down";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $14 Clear Diagnostic Information
-            seriver = new uds_seriver();
-            seriver.sid = "14";
-            seriver.name = "Clear Diagnostic Information";
-            seriver.parameter = "FF FF FF";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $19 Read DTC Information
-            seriver = new uds_seriver();
-            seriver.sid = "19";
-            seriver.name = "Read DTC Information";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "01";
-            sub_function.name = "Report Number Of DTC By Status Mask";
-            sub_function.parameter = "FF";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "02";
-            sub_function.name = "Report DTC By Status Mask";
-            sub_function.parameter = "FF";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_3
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "04";
-            sub_function.name = "Report DTC Snapshot Record By DTC Number";
-            sub_function.parameter = "FF FF FF";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_4
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "06";
-            sub_function.name = "Report DTC Extended Datar Record By DTC Number";
-            sub_function.parameter = "FF FF FF FF";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_5
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "0A";
-            sub_function.name = "Report Supported DTC";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $22 Read Data By Identifier
-            seriver = new uds_seriver();
-            seriver.sid = "22";
-            seriver.name = "Read Data By Identifier";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $23 Read Memory By Address
-            seriver = new uds_seriver();
-            seriver.sid = "23";
-            seriver.name = "Read Memory By Address";
-            seriver.parameter = "00 00 00 00 00 01";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "42";
-            sub_function.name = "Address Lenght And Read Memory Lenght";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $28 Communication Control
-            seriver = new uds_seriver();
-            seriver.sid = "28";
-            seriver.name = "Communication Control";
-            seriver.parameter = "03";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "00";
-            sub_function.name = "Enable Rx And Tx";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "80";
-            sub_function.name = "Enable Rx And Tx Suppress Pos Res";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_3
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "03";
-            sub_function.name = "Enable Rx And Tx";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_4
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "83";
-            sub_function.name = "Enable Rx And Tx Suppress Pos Res";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $2E "Write Data By Identifier
-            seriver = new uds_seriver();
-            seriver.sid = "2E";
-            seriver.name = "Write Data By Identifier";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $2F Input Output Control By Identifier
-            seriver = new uds_seriver();
-            seriver.sid = "2F";
-            seriver.name = "Input Output Control By Identifier";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $31 Routine Control
-            seriver = new uds_seriver();
-            seriver.sid = "31";
-            seriver.name = "Routine Control";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "01";
-            sub_function.name = "Start Routine";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "02";
-            sub_function.name = "Stop Routine";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "03";
-            sub_function.name = "Request Routine Result";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $3D Write Memory By Address
-            seriver = new uds_seriver();
-            seriver.sid = "3D";
-            seriver.name = "Write Memory By Address";
-            seriver.parameter = "00 00 00 00 00 01 00";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "42";
-            sub_function.name = "Address 4 Byte Data 2 Byte";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $3E Tester Present
-            seriver = new uds_seriver();
-            seriver.sid = "3E";
-            seriver.name = "Tester Present";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "00";
-            sub_function.name = "Test Present";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "80";
-            sub_function.name = "Test Present Suppress Pos Res";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion
-
-            #region $85 Control DTC Setting
-            seriver = new uds_seriver();
-            seriver.sid = "85";
-            seriver.name = "Control DTC Setting";
-            seriver.sub_function_list = new List<uds_seriver.SubFunction>();
-            //@sub_function_1
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "01";
-            sub_function.name = "DTC Logging On";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_2
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "81";
-            sub_function.name = "DTC Logging On Suppress Pos Res";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_3
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "02";
-            sub_function.name = "DTC Logging Off";
-            seriver.sub_function_list.Add(sub_function);
-            //@sub_function_4
-            sub_function = new uds_seriver.SubFunction();
-            sub_function.id = "82";
-            sub_function.name = "DTC Logging Off Suppress Pos Res";
-            seriver.sub_function_list.Add(sub_function);
-            serivers_list.Add(seriver);
-            #endregion 
-
-            groupBoxSerivers.Text = "诊断服务";
-            foreach (uds_seriver ss in serivers_list)
-            {
-                comboBoxSerivers.Items.Add("$" + ss.sid + " " + ss.name);
-                groupBoxSerivers.Text += " $" + ss.sid;
-            }
-            comboBoxSerivers.SelectedIndex = 0;
+            uds_seriver_init();
         }
 
         private void comboBoxSerivers_SelectedIndexChanged(object sender, EventArgs e)
         {
-            now_seriver = serivers_list[comboBoxSerivers.SelectedIndex];
-            now_sub_function = new uds_seriver.SubFunction();
+            now_service = services_list[comboBoxServices.SelectedIndex];
+            now_service.sub_function_selectd = new uds_service.SubFunction();
+            now_service.identifier_selected = new uds_service.Identifier();
 
             comboBoxSubFunction.Items.Clear();
-            foreach (uds_seriver.SubFunction sub in now_seriver.sub_function_list)
+            comboBoxIdentifier.Items.Clear();
+            foreach (uds_service.SubFunction sub in now_service.sub_function_list)
             {
                 comboBoxSubFunction.Items.Add("$" + sub.id + " " + sub.name);
                 comboBoxSubFunction.SelectedIndex = 0;
             }
-            textBoxParameter.Text = now_seriver.parameter;
+            foreach (uds_service.Identifier ident in now_service.identifier_list)
+            {
+                comboBoxIdentifier.Items.Add("$" + ident.id + " " + ident.name);
+                comboBoxIdentifier.SelectedIndex = 0;
+            }
             updateTransData();
         }
 
         private void comboBoxSubFunction_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (now_seriver.sub_function_list.Count != 0)
+            if (now_service.sub_function_list.Count != 0)
             {
-                now_sub_function = now_seriver.sub_function_list[comboBoxSubFunction.SelectedIndex];
+                now_service.sub_function_selectd = now_service.sub_function_list[comboBoxSubFunction.SelectedIndex];
             }
-            textBoxParameter.Text = now_seriver.parameter;
+            updateTransData();
+        }
+
+        private void comboBoxIdentifier_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (now_service.identifier_list.Count != 0)
+            {
+                now_service.identifier_selected = now_service.identifier_list[comboBoxIdentifier.SelectedIndex];
+            }
             updateTransData();
         }
 
         void updateTransData()
         {
-            string strings = now_seriver.sid;
-            strings += now_sub_function.id;
-            strings += now_sub_function.parameter;
-            strings += textBoxParameter.Text;
-            textBoxTransData.Text = strings.StringToHex().HexToStrings(" ");
+            textBoxTransData.Text = now_service.ToString();
         }
 
         private void textBoxParameter_TextChanged(object sender, EventArgs e)
@@ -668,19 +961,14 @@ namespace uds_test
 
         private void button_Click(object sender, EventArgs e)
         {
-            trans.rx_id = 0x7B8;
-            trans.tx_id = 0x7B0;
-
             trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
         }
 
-        bool delete_char_flag = false;
+        private bool delete_char_flag = false;
         private void trans_data_KeyPress(object sender, KeyPressEventArgs e)
         {
             TextBox textbox = (TextBox)sender;
             string strings = textbox.Text;
-            delete_char_flag = true;
-
             if (e.KeyChar != 8  /* 允许使用退格符 */
                 && e.KeyChar != 0x0003 /* 允许使用复制符 */
                 && e.KeyChar != 0x0016 /* 允许使用粘贴符 */
@@ -694,7 +982,7 @@ namespace uds_test
             }
             if (e.KeyChar == 8)
             {
-                delete_char_flag = false;
+                delete_char_flag = true;
             }
             else if (e.KeyChar == '\r')
             {
@@ -709,21 +997,36 @@ namespace uds_test
         {
             TextBox textbox = (TextBox)sender;
             string strings = textbox.Text;
-            if (delete_char_flag == false)
+            if (delete_char_flag == true)
             {
-                return;
+                delete_char_flag = false;
+                if (strings.Length != 0 && strings[strings.Length - 1] != ' ')
+                {
+                    return;
+                }
             }
-            strings = strings.Replace(" ", "");     //将原string中的空格删除
-            strings = strings.Replace("0x", "");
-            strings = strings.Replace("0X", "");
-            strings = strings.Replace(",", "");
-            if (strings.Length == 0 || strings.Length % 2 != 0)
-            {
-                return;
-            }
-            strings = strings.StringToHex().HexToStrings(" ");
-            textbox.Text = strings;
+            textbox.Text = strings.Replace(" ", "").InsertSpace(2);
             textbox.SelectionStart = textbox.Text.Length;
+        }
+
+        private void buttonSession_Click(object sender, EventArgs e)
+        {
+            trans.CanTrans_TxMsg(service_10.ToString().StringToHex());
+        }
+
+        private void comboBoxSession_SelectIndexChanged(object sender, EventArgs e)
+        {
+            service_10.sub_function_selectd = service_10.sub_function_list[comboBoxSession.SelectedIndex];
+        }
+
+        private void buttonSecurityAccess_Click(object sender, EventArgs e)
+        {
+            trans.CanTrans_TxMsg(service_27.ToString().StringToHex());
+        }
+
+        private void comboBoxSecurityLevel_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            service_27.sub_function_selectd = service_27.sub_function_list[comboBoxSecurityLevel.SelectedIndex];
         }
         #endregion
 
@@ -735,11 +1038,6 @@ namespace uds_test
             else if (tabControl.SelectedTab == tabPageTransmit)
             {
             }
-        }
-
-        private void main_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            SaveBusParamsSetting();
         }
 
         private void main_FormResized(object sender, EventArgs e)

@@ -55,5 +55,19 @@ namespace MyFormat
             return strings;
         }
 
+        public static string InsertSpace(this string str, int lenght)
+        {
+            int i;
+            string strings = "";
+            for (i = 0; i < str.Length; i++)
+            {
+                strings += str[i];
+                if (i % lenght != 0 && i != str.Length - 1)
+                {
+                    strings += " ";
+                }
+            }
+            return strings;
+        }
     }
 }

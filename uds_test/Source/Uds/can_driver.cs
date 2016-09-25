@@ -38,7 +38,7 @@ namespace Uds
             }
         }
 
-        public bool OpenChannel(ref ComboBox comboBoxChannel, ref ComboBox comboBoxBaud, int sjw)
+        public bool OpenChannel(ref ComboBox comboBoxChannel, ref ComboBox comboBoxBaud)
         {
             int canFreq;
             if (comboBoxChannel.Items.Count == 0)
@@ -94,7 +94,7 @@ namespace Uds
                     break;
             }
 
-            Canlib.canStatus canStatus = Canlib.canSetBusParams(canHandler, canFreq, 0x80, 0x3A, sjw, 1, 0);
+            Canlib.canStatus canStatus = Canlib.canSetBusParams(canHandler, canFreq, 0x80, 0x3A, 1, 1, 0);
             if (canStatus != Canlib.canStatus.canOK)
             {
                 MessageBox.Show("Can't Open This Channel!");

@@ -79,11 +79,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\BusParams\BusParams.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>BusParams.settings</DependentUpon>
-    </Compile>
     <Compile Include="Source\MyFormat\Format.cs" />
     <Compile Include="Source\Transmit\Transmit.cs" />
     <Compile Include="Source\Transmit\Transmit.Designer.cs">
@@ -118,7 +113,7 @@
       <DependentUpon>OneShotCtrl.cs</DependentUpon>
     </Compile>
     <Compile Include="Source\Uds\can_driver.cs" />
-    <Compile Include="Source\Uds\uds_seriver.cs" />
+    <Compile Include="Source\Uds\uds_service.cs" />
     <Compile Include="Source\Uds\uds_trans.cs" />
     <EmbeddedResource Include="Source\Transmit\CycleCtrl.resx">
       <DependentUpon>CycleCtrl.cs</DependentUpon>
@@ -159,11 +154,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Source\BusParams\BusParams.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <SubType>Designer</SubType>
-      <LastGenOutput>BusParams.Designer.cs</LastGenOutput>
-    </None>
     <None Include="Source\Transmit\Transmit.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Transmit.Designer.cs</LastGenOutput>

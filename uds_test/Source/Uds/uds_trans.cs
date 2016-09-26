@@ -135,16 +135,15 @@ namespace Uds
             public byte[] frame;
         }
 
-        private class rx_info
+        public class rx_info
         {
             public bool rx_info_init = false;
-            public bool rx_msg_rcvd = false;
+            public bool rx_msg_rcvd = false;        /* if the message has never been received to be used by application level software */
             public bool rx_msg_invl_tpci = false;
             public bool rx_msg_pad_not_zero = false;
             public bool tx_aborted = false;
             public bool rx_msg_invl_len = false;
             public bool rcv_msg_is_msng = false;    /* the message has been declared missing */
-            public bool msg_never_rcvd = false;     /* if the message has never been received to be used by application level software */
             public bool rcv_msg_is_new = false;     /* the message is new */
 
             public int rx_cf_wait_time = 0;
@@ -159,7 +158,7 @@ namespace Uds
         }
 
         private tx_info can_tx_info = new tx_info();
-        private rx_info can_rx_info = new rx_info();
+        public rx_info can_rx_info = new rx_info();
         
         public class FarmsEventArgs : EventArgs
         {

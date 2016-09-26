@@ -86,10 +86,13 @@ namespace uds_test
                         {
                             progressBarBusLoad.Value = busload;
                         }
-                        if (++time_cnt > 4)
+                        if (checkBoxTesterPresent.Checked)
                         {
-                            time_cnt = 0;
-                            driver.WriteData(0x7DF, new byte[] { 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8);
+                            if (++time_cnt > 4)
+                            {
+                                time_cnt = 0;
+                                driver.WriteData(0x7DF, new byte[] { 0x02, 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8);
+                            }
                         }
                     };
                     timer.Enabled = true;
@@ -150,7 +153,7 @@ namespace uds_test
             //匿名委托，用于this.Invoke调用
             EventHandler TextBoxUpdate = delegate
             {
-                UpdateAndTransmit();
+                //UpdateAndTransmit();
             };
             try { Invoke(TextBoxUpdate); } catch { };
             int id;
@@ -160,6 +163,7 @@ namespace uds_test
             if (driver.ReadData(out id, ref dat, out dlc, out time) == true)
             {
                 trans.Can_Trans_RxFrams(id, dat, dlc);
+                uds_rx_handler();
             }
             trans.CanTrans_Manage(10);
         }
@@ -327,6 +331,351 @@ namespace uds_test
 
         #endregion
 
+        #region DTC
+
+        public class Dtc
+        {
+            public string id;
+            public string name;
+
+            public Dtc(string Id, string Name)
+            {
+                id = Id;
+                name = Name;
+            }
+        }
+
+        List<Dtc> dtc_list = new List<Dtc>
+        {
+            new Dtc("D10087", "Lost_BCAN_Communication"),
+            new Dtc("D20000", "BCAN_Bus_Off"),
+            new Dtc("E13087", "ICM1_the_message_timeout_error"),
+            new Dtc("E13187", "ICM2_the_message_timeout_error"),
+            new Dtc("E13287", "ICM_VIN_the_message_timeout_error"),
+            new Dtc("E10087", "CLM1_the_message_timeout_error"),
+            new Dtc("E14587", "MENUSET1_the_message_timeout_error"),
+            new Dtc("E16087", "PLG1_the_message_timeout_error"),
+            new Dtc("E19087", "PEPS1_the_message_timeout_error"),
+            new Dtc("E02087", "GWB_SDM1_the_message_timeout_error"),
+            new Dtc("E00187", "GWB_EMS2_the_message_timeout_error"),
+            new Dtc("E00287", "GWB_EMS3_the_message_timeout_error"),
+            new Dtc("E00487", "GWB_EMS5_the_message_timeout_error"),
+            new Dtc("E01087", "GWB_TCM1_the_message_timeout_error"),
+            new Dtc("E04087", "GWB_BRAKE1_the_message_timeout_error"),
+            new Dtc("E05087", "GWB_EPB1_the_message_timeout_error"),
+            new Dtc("C42387", "Implausible_signal_from_SDM1"),
+            new Dtc("C46987", "Implausible_signal_from_EMS5"),
+            new Dtc("C45687", "Implausible_signal_from_BRAKE1"),
+            new Dtc("D10287", "Lost_LIN_Communication_with_DDM"),
+            new Dtc("D10387", "Lost_LIN_Communication_with_PDM"),
+            new Dtc("D10487", "Lost_LIN_Communication_with_RLDM"),
+            new Dtc("D10587", "Lost_LIN_Communication_with_RRDM"),
+            new Dtc("D10787", "Lost_LIN_Communication_with_RS"),
+            new Dtc("D10887", "Lost_LIN_Communication_with_SCM"),
+            new Dtc("D10987", "Lost_LIN_Communication_with_DCM"),
+            new Dtc("910000", "BCM_EEPROM_Error"),
+            new Dtc("910100", "VIN_Mismatch_with_other_ECU"),
+            new Dtc("910216", "Circuit_voltage_below9"),
+            new Dtc("910217", "Circuit_voltage_above16"),
+            new Dtc("910311", "Door_Open_Illumination_short_to_Ground"),
+            new Dtc("910313", "Door_Open_Illumination_open"),
+            new Dtc("910411", "Welcome_Lamps_short_to_Ground"),
+            new Dtc("910413", "Welcome_Lamps_open"),
+            new Dtc("910511", "Battery_saver_short_to_Ground"),
+            new Dtc("910513", "Battery_saver_open"),
+            new Dtc("910611", "Power_mirror_heat_short_to_Ground"),
+            new Dtc("910613", "Power_mirror_heat_open"),
+            new Dtc("910711", "Reverse_Lamps_short_to_Ground"),
+            new Dtc("910713", "Reverse_Lamps_open"),
+            new Dtc("910811", "Brake_Lamps_short_to_Ground"),
+            new Dtc("910813", "Brake_Lamps_open"),
+            new Dtc("910911", "CHMSL_short_to_Ground"),
+            new Dtc("910913", "CHMSL_open"),
+            new Dtc("911011", "Turn_Lamps_L_short_to_Ground"),
+            new Dtc("911013", "Turn_Lamps_L_open"),
+            new Dtc("911111", "Turn_Lamps_R_short_to_Ground"),
+            new Dtc("911113", "Turn_Lamps_R_open"),
+            new Dtc("911211", "Low_Beam_L_short_to_Ground"),
+            new Dtc("911213", "Low_Beam_L_open"),
+            new Dtc("911311", "Low_Beam_R_short_to_Ground"),
+            new Dtc("911313", "Low_Beam_R_open"),
+            new Dtc("911411", "Assist_HI_BM_Corner_Lamp_L_short_to_Ground"),
+            new Dtc("911413", "Assist_HI_BM_Corner_Lamp_L_open"),
+            new Dtc("911511", "Assist_HI_BM_Corner_Lamp_R_short_to_Ground"),
+            new Dtc("911513", "Assist_HI_BM_Corner_Lamp_R_open"),
+            new Dtc("911611", "Front_Fog_Lamp_L_short_to_Ground"),
+            new Dtc("911613", "Front_Fog_Lamp_L_open"),
+            new Dtc("911711", "Front_Fog_Lamp_R_short_to_Ground"),
+            new Dtc("911713", "Front_Fog_Lamp_R_open"),
+            new Dtc("911811", "Rear_Fog_Lamps_short_to_Ground"),
+            new Dtc("911813", "Rear_Fog_Lamps_open"),
+            new Dtc("911911", "Daytime_Running_Lamps_short_to_Ground"),
+            new Dtc("911913", "Daytime_Running_Lamps_open"),
+            new Dtc("912011", "Key_Locked_Solenoid_short_to_Ground"),
+            new Dtc("912013", "Key_Locked_Solenoid_open"),
+            new Dtc("912111", "Rear_Defroster_Relay_short_to_Ground"),
+            new Dtc("912113", "Rear_Defroster_Relay_open"),
+            new Dtc("912211", "Shifter_Lock_Solenoid_short_to_Ground"),
+            new Dtc("912213", "Shifter_Lock_Solenoid_open"),
+            new Dtc("912413", "Starter_Solenoid_Relay_open"),
+            new Dtc("912511", "Position_Lamps_L_short_to_Ground"),
+            new Dtc("912513", "Position_Lamps_L_open"),
+            new Dtc("912611", "Position_Lamps_R_short_to_Ground"),
+            new Dtc("912613", "Position_Lamps_R_open"),
+            new Dtc("912711", "License_plate_lamps_short_to_Ground"),
+            new Dtc("912713", "License_plate_lamps_open"),
+            new Dtc("912811", "IP_Illumination_short_to_Ground"),
+            new Dtc("912813", "IP_Illumination_open"),
+            new Dtc("912912", "Dome_Lamps_short_to_Battery"),
+            new Dtc("913012", "Window_Lift_Enable1_short_to_Battery"),
+            new Dtc("913014", "Window_Lift_Enable1_short_to_Groundoropen"),
+            new Dtc("913112", "Window_Lift_Enable2_short_to_Battery"),
+            new Dtc("913114", "Window_Lift_Enable2_short_to_Groundoropen"),
+            new Dtc("913212", "Passenger_Window_Up_short_to_Battery"),
+            new Dtc("913214", "Passenger_Window_Up_short_to_Groundopen"),
+            new Dtc("913312", "Passenger_Window_Down_short_to_Battery"),
+            new Dtc("913314", "Passenger_Window_Down_short_to_Groundopen"),
+            new Dtc("913412", "RL_Window_Up_short_to_Battery"),
+            new Dtc("913414", "RL_Window_Up_short_to_Groundoropen"),
+            new Dtc("913512", "RL_Window_Down_short_to_Battery"),
+            new Dtc("913514", "RL_Window_Down_short_to_Groundoropen"),
+            new Dtc("913612", "RR_Window_Up_short_to_Battery"),
+            new Dtc("913614", "RR_Window_Up_short_to_Groundoropen"),
+            new Dtc("913712", "RR_Window_Down_short_to_Battery"),
+            new Dtc("913714", "RR_Window_Down_short_to_Groundoropen"),
+            new Dtc("913812", "Wiper_Motor_High_short_to_Battery"),
+            new Dtc("913912", "Wiper_Motor_Low_short_to_Battery"),
+            new Dtc("913914", "Wiper_Motor_Low_short_to_Groundoropen"),
+            new Dtc("914012", "Front_Washer_Pump_short_to_Battery"),
+            new Dtc("914014", "Front_Washer_Pump_short_to_Groundoropen"),
+            new Dtc("914112", "Rear_Washer_Pump_short_to_Battery"),
+            new Dtc("914114", "Rear_Washer_Pump_short_to_Groundoropen"),
+            new Dtc("914212", "Rear_Wiper_short_to_Battery"),
+            new Dtc("914411", "Window_Lock_Indicator_short_to_Ground"),
+            new Dtc("914413", "Window_Lock_Indicator_open"),
+            new Dtc("914500", "Wiper_Intermittent_SW_Invaild"),
+            new Dtc("914600", "WasherorRear_Wiper_SW_Invaild"),
+            new Dtc("914700", "Window_SW_Stick"),
+            new Dtc("915011", "High_Beam_Solenoid_short_to_Ground"),
+            new Dtc("915013", "High_Beam_Solenoid_open"),
+            new Dtc("915111", "Atmosphere_Lamp_short_to_Ground"),
+            new Dtc("915113", "Atmosphere_Lamp_open"),
+            new Dtc("915211", "RearDoor_Lamp_short_to_Ground"),
+            new Dtc("915213", "RearDoor_Lamp_open"),
+            new Dtc("970000", "Invalid_key_present"),
+            new Dtc("970100", "ABIC_or_antenna_Fault"),
+            new Dtc("970200", "TP_FaultNo_TP_Responds"),
+            new Dtc("970300", "TP_Respond_Authentication_fail"),
+            new Dtc("970400", "No_EMS_challenge_Rx"),
+            new Dtc("900500", "Invalid_Challenge"),
+            new Dtc("900000", "DDM_F_ECU"),
+            new Dtc("900100", "DDM_F_DriveSwitch"),
+            new Dtc("900500", "DDM_F_Sensor"),
+            new Dtc("900600", "DDM_F_Response"),
+            new Dtc("900700", "PDM_F_ECU"),
+            new Dtc("900800", "PDM_F_PassSwitch"),
+            new Dtc("900900", "PDM_F_Sensor"),
+            new Dtc("901000", "PDM_F_Response"),
+            new Dtc("901100", "RLDM_F_ECU"),
+            new Dtc("901200", "RLDM_F_RLSwitch"),
+            new Dtc("901300", "RLDM_F_Sensor"),
+            new Dtc("901400", "RLDM_F_Response"),
+            new Dtc("901500", "RRDM_F_ECU"),
+            new Dtc("901600", "RRDM_F_RRSwitch"),
+            new Dtc("901700", "RRDM_F_Sensor"),
+            new Dtc("901800", "RRDM_F_Response"),
+            new Dtc("901900", "SCM_F_LevelSensor"),
+            new Dtc("902000", "SCM_F_BackrestSensor"),
+            new Dtc("902100", "SCM_F_HeightSeatSensor"),
+            new Dtc("902200", "SCM_F_CushionSeatSensor"),
+            new Dtc("902400", "SCM_F_R_HeightMirrorSensor"),
+            new Dtc("902600", "SCM_F_R_LevelMirrorSensor"),
+            new Dtc("902700", "SCM_F_SeatAdjSwitch"),
+            new Dtc("902800", "SCM_F_MemorySwitch"),
+            new Dtc("902300", "SCM_F_BRCTCOMRelay"),
+            new Dtc("902500", "SCM_F_CTLVRelay"),
+            new Dtc("902900", "SCM_F_HILVCOMRelay"),
+            new Dtc("903200", "SCM_F_Eeprom"),
+            new Dtc("903300", "SCM_F_Communication"),
+            new Dtc("903600", "RS_F_LightSensor"),
+            new Dtc("903700", "RS_F_RainSensor"),
+            new Dtc("903800", "RS_F_Volatage"),
+            new Dtc("903900", "RS_F_Communication"),
+            new Dtc("903000", "DCM_F_LLevelMirrorSensor"),
+            new Dtc("903100", "DCM_F_LHeightMirrorSensor"),
+            new Dtc("903400", "DCM_F_Response"),
+        };
+
+        public partial class DtcFinder
+        {
+            private string Id = string.Empty;
+
+            public string id
+            {
+                get { return Id; }
+                set { this.Id = value; }
+            }
+
+            private string Name = string.Empty;
+
+            public string name
+            {
+                get { return this.Name; }
+                set { this.Name = value; }
+            }
+
+            public DtcFinder()
+            {
+
+            }
+
+            /// <summary>
+            /// 通过ID查找
+            /// </summary>
+            /// <param name="Dtc"></param>
+            /// <returns></returns>
+            public bool FindDtcById(Dtc dtc)
+            {
+                return Id == dtc.id;
+            }
+
+            /// <summary>
+            /// 通过名称查找
+            /// </summary>
+            /// <param name="Dtc"></param>
+            /// <returns></returns>
+            public bool FindDtcByName(Dtc dtc)
+            {
+                return Name == dtc.name;
+            }
+        }
+        #endregion
+
+        #region Analyze
+        private void Analyze()
+        {
+            string strings = string.Empty;
+            if (trans.can_rx_info.buffer[0] == 0x7F)
+            {
+                switch (trans.can_rx_info.buffer[2])
+                {
+                    case 0x11:
+                        strings = "-->NRC11, Service Not Supported";
+                        break;
+                    case 0x12:
+                        strings = "-->NRC12, Sub Function Not Supported Or Invalid Format";
+                        break;
+                    case 0x13:
+                        strings = "-->NRC13, Incorrect Message Length Or Invalid Format";
+                        break;
+                    case 0x14:
+                        strings = "-->NRC14, Response Too Long";
+                        break; 
+                    case 0x21:
+                        strings = "-->NRC21, Busy Repeat Request";
+                        break;
+                    case 0x22:
+                        strings = "-->NRC22, Conditions Not Correct";
+                        break;
+                    case 0x24:
+                        strings = "-->NRC24, Request Sequence Error";
+                        break;
+                    case 0x31:
+                        strings = "-->NRC31, Request Out Of Range";
+                        break;
+                    case 0x33:
+                        strings = "-->NRC33, Security Access Denied";
+                        break;
+                    case 0x35:
+                        strings = "-->NRC35, Invalid Key";
+                        break;
+                    case 0x36:
+                        strings = "-->NRC36, Seed Number Of Attempts";
+                        break;
+                    case 0x37:
+                        strings = "-->NRC37, Required Time Delay Not Expired";
+                        break;
+                    case 0x71:
+                        strings = "-->NRC37, Transfer Data Suspended";
+                        break;
+                    case 0x72:
+                        strings = "-->NRC72, General Programming Failure";
+                        break;
+                    case 0x73:
+                        strings = "-->NRC72, Wrong Block Sequence Counter";
+                        break;
+                    case 0x78:
+                        strings = "-->NRC78, Request Correctly Received Response Pending";
+                        break; 
+                    case 0x7E:
+                        strings = "-->NRC7E, Sub Function Not Supported In Active Session";
+                        break;
+                    case 0x7F:
+                        strings = "-->NRC7F, Serivce Not Support In Active Session";
+                        break; 
+                    case 0x87:
+                        strings = "-->NRC87, Defect While Writing";
+                        break;
+                    case 0x92:
+                        strings = "-->NRC92, Serivce Not Support Vvoltage Too High";
+                        break;
+                    case 0x93:
+                        strings = "-->NRC93, Serivce Not Support Voltage TooLow";
+                        break;
+                    default:
+                        break;
+                }
+                strings += "\r\n";
+            }
+            else if (trans.can_rx_info.buffer[0] == 0x59)
+            {
+                if (trans.can_rx_info.buffer[1] == 0x01)
+                {
+                }
+                else if (trans.can_rx_info.buffer[1] == 0x04)
+                {
+                }
+                else if (trans.can_rx_info.buffer[1] == 0x06)
+                {
+                }
+                else
+                {
+                    strings += "-->DTC Analyze\r\n";
+                    DtcFinder dtc_finder = new DtcFinder();
+                    Dtc dtc = new Dtc("", "");
+                    int dtc_num = (trans.can_rx_info.buffer.Length - 3) / 4;
+                    int dtc_sts;
+                    int index;
+                    strings += "-->DTC Number:" + dtc_num .ToString() + "\r\n";
+                    for (index = 0; index < dtc_num; index++)
+                    {
+                        dtc_finder.id = ((int)trans.can_rx_info.buffer[3 + index * 4 + 0] << 16
+                                | (int)trans.can_rx_info.buffer[3 + index * 4 + 1] << 8
+                                | (int)trans.can_rx_info.buffer[3 + index * 4 + 2]).ToString("X6");
+                        dtc_sts = trans.can_rx_info.buffer[3 + index * 4 + 3];
+                        dtc = dtc_list.Find(dtc_finder.FindDtcById);
+                        if (dtc != null)
+                        {
+                            strings += "$" + dtc.id + " " + dtc_sts.ToString("X2") + " " + dtc.name + "\r\n";
+                        }
+                        else
+                        {
+                            strings += "$" + dtc_finder.id + " " + dtc_sts.ToString("X2") + " " + "\r\n";
+                        }
+                    }
+                }
+            }
+            if(strings != string.Empty)
+            {
+                EventHandler TextBoxUpdate = delegate
+                {
+                    textBoxStream.AppendText(strings);
+                };
+                try { Invoke(TextBoxUpdate); } catch { };
+            }
+        }
+        #endregion
+
         #region UDS
         uds_service now_service = new uds_service();
         uds_service service_10 = new uds_service();
@@ -360,6 +709,7 @@ namespace uds_test
             sub_function.id = "03";
             sub_function.name = "Extended Diagnostic Session";
             service_10.sub_function_list.Add(sub_function);
+            //@end_sub_function
             //@identifier
             //@end_identifier
             #endregion
@@ -408,8 +758,15 @@ namespace uds_test
             //@identifier
             identifier = new uds_service.Identifier();
             identifier.id = "FFFFFF";
-            identifier.name = "Clear All DTC";
+            identifier.name = "All DTC";
             service.identifier_list.Add(identifier);
+            foreach (Dtc dtc in dtc_list)
+            {
+                identifier = new uds_service.Identifier();
+                identifier.id = dtc.id;
+                identifier.name = dtc.name;
+                service.identifier_list.Add(identifier);
+            }
             //@end_identifier
             services_list.Add(service);
             #endregion
@@ -424,30 +781,42 @@ namespace uds_test
             sub_function.id = "01";
             sub_function.name = "Report Number Of DTC By Status Mask";
             sub_function.parameter = "FF";
+            sub_function.identifier_enabled = false;
             service.sub_function_list.Add(sub_function);
             //@sub_function_2
             sub_function = new uds_service.SubFunction();
             sub_function.id = "02";
             sub_function.name = "Report DTC By Status Mask";
             sub_function.parameter = "FF";
+            sub_function.identifier_enabled = false;
             service.sub_function_list.Add(sub_function);
             //@sub_function_3
             sub_function = new uds_service.SubFunction();
             sub_function.id = "04";
             sub_function.name = "Report DTC Snapshot Record By DTC Number";
-            sub_function.parameter = "FF FF FF";
+            sub_function.parameter = "01";
             service.sub_function_list.Add(sub_function);
             //@sub_function_4
             sub_function = new uds_service.SubFunction();
             sub_function.id = "06";
             sub_function.name = "Report DTC Extended Datar Record By DTC Number";
-            sub_function.parameter = "FF FF FF FF";
+            sub_function.parameter = "01";
             service.sub_function_list.Add(sub_function);
             //@sub_function_5
             sub_function = new uds_service.SubFunction();
             sub_function.id = "0A";
             sub_function.name = "Report Supported DTC";
+            sub_function.identifier_enabled = false;
             service.sub_function_list.Add(sub_function);
+            //@identifier
+            foreach(Dtc dtc in dtc_list)
+            {
+                identifier = new uds_service.Identifier();
+                identifier.id = dtc.id;
+                identifier.name = dtc.name;
+                service.identifier_list.Add(identifier);
+            }
+            //@end_identifier
             services_list.Add(service);
             #endregion
 
@@ -455,7 +824,6 @@ namespace uds_test
             service = new uds_service();
             service.sid = "22";
             service.name = "Read Data By Identifier";
-            service.parameter = "";
             service.sub_function_list = new List<uds_service.SubFunction>();
             //@sub_function
             //end_sub_function
@@ -530,6 +898,7 @@ namespace uds_test
             sub_function.id = "07";
             sub_function.name = "Development";
             service_27.sub_function_list.Add(sub_function);
+            //@end_sub_function
             //@identifier
             //@end_identifier
             #endregion
@@ -538,7 +907,6 @@ namespace uds_test
             service = new uds_service();
             service.sid = "23";
             service.name = "Read Memory By Address";
-            service.parameter = "00 00 00 00 00 01";
             service.sub_function_list = new List<uds_service.SubFunction>();
             //@sub_function
             //end_sub_function
@@ -546,6 +914,7 @@ namespace uds_test
             identifier = new uds_service.Identifier();
             identifier.id = "42";
             identifier.name = "Address Lenght And Read Memory Lenght";
+            identifier.parameter = "00 00 00 00 00 01";
             service.identifier_list.Add(identifier);
             //@end_identifier
             services_list.Add(service);
@@ -600,11 +969,13 @@ namespace uds_test
             identifier = new uds_service.Identifier();
             identifier.id = "F198";
             identifier.name = "Repair Shop Code/Tester Serial Number";
+            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
             service.identifier_list.Add(identifier);
             //@identifier_8
             identifier = new uds_service.Identifier();
             identifier.id = "F199";
             identifier.name = "Programming Date";
+            identifier.parameter = "FFFFFFFFFFFF";
             service.identifier_list.Add(identifier);
             services_list.Add(service);
             #endregion
@@ -614,6 +985,60 @@ namespace uds_test
             service.sid = "2F";
             service.name = "Input Output Control By Identifier";
             service.sub_function_list = new List<uds_service.SubFunction>();
+            //@sub_function
+            //1
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "01";
+            sub_function.name = "Return Control To ECU";
+            service.sub_function_list.Add(sub_function);
+            //2
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "02";
+            sub_function.name = "Reset To Default";
+            service.sub_function_list.Add(sub_function);
+            //3
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "03";
+            sub_function.name = "Freeze Current State";
+            service.sub_function_list.Add(sub_function);
+            //4
+            sub_function = new uds_service.SubFunction();
+            sub_function.id = "04";
+            sub_function.name = "Short Term Adjustment";
+            service.sub_function_list.Add(sub_function);
+            //@end_sub_function
+            //@identifier
+            //1
+            identifier = new uds_service.Identifier();
+            identifier.id = "D500";
+            identifier.name = "Digital Input 1";
+            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            service.identifier_list.Add(identifier);
+            //2
+            identifier = new uds_service.Identifier();
+            identifier.id = "D501";
+            identifier.name = "Digital Input 2";
+            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            service.identifier_list.Add(identifier);
+            //3
+            identifier = new uds_service.Identifier();
+            identifier.id = "D502";
+            identifier.name = "Out Put 1";
+            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            service.identifier_list.Add(identifier);
+            //4
+            identifier = new uds_service.Identifier();
+            identifier.id = "D503";
+            identifier.name = "Out Put 2";
+            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            service.identifier_list.Add(identifier);
+            //5
+            identifier = new uds_service.Identifier();
+            identifier.id = "D504";
+            identifier.name = "Out Put 3";
+            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            service.identifier_list.Add(identifier);
+            //@end_identifier
             services_list.Add(service);
             #endregion
 
@@ -621,7 +1046,6 @@ namespace uds_test
             service = new uds_service();
             service.sid = "31";
             service.name = "Routine Control";
-            service.sub_function_list = new List<uds_service.SubFunction>();
             service.sub_function_list = new List<uds_service.SubFunction>();
             //@sub_function
             sub_function = new uds_service.SubFunction();
@@ -783,7 +1207,6 @@ namespace uds_test
             service = new uds_service();
             service.sid = "3D";
             service.name = "Write Memory By Address";
-            service.parameter = "00 00 00 00 00 01 00";
             service.sub_function_list = new List<uds_service.SubFunction>();
             //@sub_function
             //end_sub_function
@@ -791,6 +1214,7 @@ namespace uds_test
             identifier = new uds_service.Identifier();
             identifier.id = "42";
             identifier.name = "Address Lenght And Read Memory Lenght";
+            identifier.parameter = "00 00 00 00 00 01 00";
             service.identifier_list.Add(identifier);
             //@end_identifier
             services_list.Add(service);
@@ -878,6 +1302,12 @@ namespace uds_test
                     can_driver.WriteDataEventArgs TxFarme = (can_driver.WriteDataEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
+                        if (checkBoxTesterPresentShow.Checked == false
+                            && TxFarme.dat[0] == 0x02
+                            && TxFarme.dat[1] == 0x3E)
+                        {
+                            return;
+                        }
                         textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
@@ -889,6 +1319,12 @@ namespace uds_test
                     uds_trans.FarmsEventArgs TxFarme = (uds_trans.FarmsEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
+                        if (checkBoxTesterPresentShow.Checked == false
+                            && TxFarme.dat[0] == 0x02
+                            && TxFarme.dat[1] == 0x3E)
+                        {
+                            return;
+                        }
                         textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
@@ -900,6 +1336,12 @@ namespace uds_test
                     uds_trans.FarmsEventArgs RxFarme = (uds_trans.FarmsEventArgs)e1;
                     EventHandler TextBoxUpdate = delegate
                     {
+                        if (checkBoxTesterPresentShow.Checked == false
+                            && RxFarme.dat[0] == 0x02
+                            && RxFarme.dat[1] == 0x7E)
+                        {
+                            return;
+                        }
                         textBoxStream.AppendText(RxFarme.ToString() + "\r\n");
                     };
                     try { Invoke(TextBoxUpdate); } catch { };
@@ -908,6 +1350,50 @@ namespace uds_test
             #endregion
 
             uds_seriver_init();
+        }
+
+        private void uds_rx_handler()
+        {
+            if (trans.can_rx_info.rx_msg_rcvd == true)
+            {
+                trans.can_rx_info.rx_msg_rcvd = false;
+                if (trans.can_rx_info.buffer[0] == 0x67)
+                {
+                    uint seed = 0;
+                    uint level;
+                    uint result;
+                    if (trans.can_rx_info.buffer.Length == 4)
+                    {
+                        seed = (uint)trans.can_rx_info.buffer[2] << 8
+                            | (uint)trans.can_rx_info.buffer[3];
+                    }
+                    else if (trans.can_rx_info.buffer.Length == 6)
+                    {
+                        seed = (uint)trans.can_rx_info.buffer[2] << 24
+                            | (uint)trans.can_rx_info.buffer[3] << 16
+                            | (uint)trans.can_rx_info.buffer[4] << 8
+                            | (uint)trans.can_rx_info.buffer[5];
+                    }
+                    level = trans.can_rx_info.buffer[1];
+                    if (seed != 0 && level % 2 != 0)
+                    {
+                        result = SecurityAccess(0, seed, level);
+                        if (trans.can_rx_info.buffer.Length == 4)
+                        {
+                            result &= 0xFFFF;
+                            trans.CanTrans_TxMsg(("27" + (level + 1).ToString("x2") + result.ToString("x4")).StringToHex());
+                        }
+                        else if (trans.can_rx_info.buffer.Length == 6)
+                        {
+                            trans.CanTrans_TxMsg(("27" + (level + 1).ToString("x2") + result.ToString("x8")).StringToHex());
+                        }
+                    }
+                }
+                if(checkBoxAnalyze.Checked)
+                {
+                    Analyze();
+                }
+            }
         }
 
         private void comboBoxSerivers_SelectedIndexChanged(object sender, EventArgs e)
@@ -936,6 +1422,7 @@ namespace uds_test
             if (now_service.sub_function_list.Count != 0)
             {
                 now_service.sub_function_selectd = now_service.sub_function_list[comboBoxSubFunction.SelectedIndex];
+                comboBoxIdentifier.Enabled = now_service.sub_function_selectd.identifier_enabled;
             }
             updateTransData();
         }

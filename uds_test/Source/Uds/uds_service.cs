@@ -45,22 +45,33 @@ namespace Uds
             public string id;
             public string name;
             public string parameter;
+            public bool identifier_enabled;
             public SubFunction()
             {
                 id = string.Empty;
                 name = string.Empty;
                 parameter = string.Empty;
+                identifier_enabled = true;
             }
         }
 
         public override string ToString()
         {
-            return sid
-                + sub_function_selectd.id
-                + sub_function_selectd.parameter
-                + identifier_selected.id
-                + identifier_selected.parameter
-                + parameter;
+            string strings = string.Empty;
+            strings += sid;
+            strings += sub_function_selectd.id;
+            if(sub_function_selectd.identifier_enabled)
+            {
+                strings += identifier_selected.id;
+                strings += identifier_selected.parameter;
+                strings += sub_function_selectd.parameter;
+            }
+            else
+            {
+                strings += sub_function_selectd.parameter;
+            }
+            strings += parameter;
+            return strings;
         }
     }
 }

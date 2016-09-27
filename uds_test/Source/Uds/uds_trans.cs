@@ -177,7 +177,7 @@ namespace Uds
         public event EventHandler EventTxFarms;
         public event EventHandler EventRxFarms;
 
-        private void WriteData(int id, byte[] dat, int dlc)
+        private void TxFarmsEvent(int id, byte[] dat, int dlc)
         {
             if(EventTxFarms != null)
             {
@@ -188,7 +188,7 @@ namespace Uds
             }
         }
 
-        private void ReadData(int id, byte[] dat, int dlc)
+        private void RxFarmsEvent(int id, byte[] dat, int dlc)
         {
             if (EventRxFarms != null)
             {
@@ -206,7 +206,7 @@ namespace Uds
             if (id == rx_id && dlc == 8)
             {
                 Array.Copy(dat, can_rx_info.frame, 8);
-                ReadData(id, dat, dlc);
+                RxFarmsEvent(id, dat, dlc);
             }
         }
 
@@ -328,7 +328,7 @@ namespace Uds
             }
             if (can.WriteData(tx_id, can_tx_info.frame, 8) == true)
             {
-                WriteData(tx_id, can_tx_info.frame, 8);
+                TxFarmsEvent(tx_id, can_tx_info.frame, 8);
                 can_tx_info.tx_last_frame_error = false;
                 can_rx_info.frame[TPCI_Byte] = 0;
                 /*

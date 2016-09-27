@@ -46,7 +46,6 @@ namespace uds_test
             BusParamsInit();
             TransmitInit();
             uds_init();
-            //textBoxStream.Text = SecurityAccess(0, 0x12345678, 0x12345678).ToString();
             mmTimerInit();
         }
 
@@ -160,11 +159,11 @@ namespace uds_test
             int dlc;
             long time;
             byte[] dat = new byte[8];
-            if (driver.ReadData(out id, ref dat, out dlc, out time) == true)
+            while (driver.ReadData(out id, ref dat, out dlc, out time) == true)
             {
                 trans.Can_Trans_RxFrams(id, dat, dlc);
-                uds_rx_handler();
             }
+            uds_rx_handler();
             trans.CanTrans_Manage(10);
         }
         #endregion
@@ -304,6 +303,16 @@ namespace uds_test
         #endregion
 
         #region TextBoxRightClick
+        
+        private void AnalyzeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AnalyzeToolStripMenuItem.Checked = !AnalyzeToolStripMenuItem.Checked;
+        }
+
+        private void AutoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            AutoToolStripMenuItem.Checked = !AutoToolStripMenuItem.Checked;
+        }
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -352,10 +361,10 @@ namespace uds_test
             new Dtc("E13087", "ICM1_the_message_timeout_error"),
             new Dtc("E13187", "ICM2_the_message_timeout_error"),
             new Dtc("E13287", "ICM_VIN_the_message_timeout_error"),
-            new Dtc("E10087", "CLM1_the_message_timeout_error"),
+            new Dtc("E11087", "CLM1_the_message_timeout_error"),
             new Dtc("E14587", "MENUSET1_the_message_timeout_error"),
             new Dtc("E16087", "PLG1_the_message_timeout_error"),
-            new Dtc("E19087", "PEPS1_the_message_timeout_error"),
+            new Dtc("E09087", "PEPS1_the_message_timeout_error"),
             new Dtc("E02087", "GWB_SDM1_the_message_timeout_error"),
             new Dtc("E00187", "GWB_EMS2_the_message_timeout_error"),
             new Dtc("E00287", "GWB_EMS3_the_message_timeout_error"),
@@ -467,7 +476,7 @@ namespace uds_test
             new Dtc("970200", "TP_FaultNo_TP_Responds"),
             new Dtc("970300", "TP_Respond_Authentication_fail"),
             new Dtc("970400", "No_EMS_challenge_Rx"),
-            new Dtc("900500", "Invalid_Challenge"),
+            new Dtc("970500", "Invalid_Challenge"),
             new Dtc("900000", "DDM_F_ECU"),
             new Dtc("900100", "DDM_F_DriveSwitch"),
             new Dtc("900500", "DDM_F_Sensor"),
@@ -631,12 +640,36 @@ namespace uds_test
             {
                 if (trans.can_rx_info.buffer[1] == 0x01)
                 {
+                    if(trans.can_rx_info.buffer.Length >= 6)
+                    {
+                        int dtc_num = (int)trans.can_rx_info.buffer[4] << 8
+                                            | (int)trans.can_rx_info.buffer[5];
+                        strings += "-->DTC Analyze\r\n";
+                        strings += "-->DTC Number:" + dtc_num.ToString() + "\r\n";
+                    }
                 }
                 else if (trans.can_rx_info.buffer[1] == 0x04)
                 {
+                    if (trans.can_rx_info.buffer.Length >= 7)
+                    {
+                        byte[] bytes = new byte[5];
+                        Array.Copy(trans.can_rx_info.buffer, 2, bytes, 0, 5);
+                        strings += "-->DTC Analyze\r\n";
+                        strings += "-->DTC Snop Shot:" + bytes.HexToStrings(" ") + "\r\n";
+                        bytes = new byte[trans.can_rx_info.buffer.Length - 7];
+                        Array.Copy(trans.can_rx_info.buffer, 7, bytes, 0, bytes.Length);
+                        strings += "-->DTC Snop Shot:" + bytes.HexToStrings(" ") + "\r\n";
+                    }
                 }
                 else if (trans.can_rx_info.buffer[1] == 0x06)
                 {
+                    if (trans.can_rx_info.buffer.Length >= 2)
+                    {
+                        byte[] bytes = new byte[trans.can_rx_info.buffer.Length - 2];
+                        Array.Copy(trans.can_rx_info.buffer, 2, bytes, 0, bytes.Length);
+                        strings += "-->DTC Analyze\r\n";
+                        strings += "-->DTC Extended Record:" + bytes.HexToStrings(" ") + "\r\n";
+                    }
                 }
                 else
                 {
@@ -787,7 +820,7 @@ namespace uds_test
             sub_function = new uds_service.SubFunction();
             sub_function.id = "02";
             sub_function.name = "Report DTC By Status Mask";
-            sub_function.parameter = "FF";
+            sub_function.parameter = "09";
             sub_function.identifier_enabled = false;
             service.sub_function_list.Add(sub_function);
             //@sub_function_3
@@ -1269,20 +1302,19 @@ namespace uds_test
             foreach (uds_service.SubFunction sub in service_10.sub_function_list)
             {
                 comboBoxSession.Items.Add("$" + sub.id + " " + sub.name);
-                comboBoxSession.SelectedIndex = 0;
             }
             foreach (uds_service.SubFunction sub in service_27.sub_function_list)
             {
                 comboBoxSecurityLevel.Items.Add("$" + sub.id + " " + sub.name);
-                comboBoxSecurityLevel.SelectedIndex = 0;
             }
             comboBoxServices.Text = "诊断服务";
             foreach (uds_service ss in services_list)
             {
                 comboBoxServices.Items.Add("$" + ss.sid + " " + ss.name);
                 groupBoxServices.Text += " $" + ss.sid;
-
             }
+            comboBoxSession.SelectedIndex = 2;
+            comboBoxSecurityLevel.SelectedIndex = 0;
             comboBoxServices.SelectedIndex = 0;
         }
 
@@ -1361,7 +1393,7 @@ namespace uds_test
                 {
                     uint seed = 0;
                     uint level;
-                    uint result;
+                    uint result = 0;
                     if (trans.can_rx_info.buffer.Length == 4)
                     {
                         seed = (uint)trans.can_rx_info.buffer[2] << 8
@@ -1389,7 +1421,7 @@ namespace uds_test
                         }
                     }
                 }
-                if(checkBoxAnalyze.Checked)
+                if(AnalyzeToolStripMenuItem.Checked)
                 {
                     Analyze();
                 }
@@ -1414,6 +1446,7 @@ namespace uds_test
                 comboBoxIdentifier.Items.Add("$" + ident.id + " " + ident.name);
                 comboBoxIdentifier.SelectedIndex = 0;
             }
+            comboBoxIdentifier.Enabled = now_service.sub_function_selectd.identifier_enabled;
             updateTransData();
         }
 
@@ -1448,6 +1481,10 @@ namespace uds_test
 
         private void button_Click(object sender, EventArgs e)
         {
+            if (AutoToolStripMenuItem.Checked)
+            {
+                textBoxStream.Text = "";
+            }
             trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
         }
 
@@ -1475,7 +1512,10 @@ namespace uds_test
             {
                 trans.rx_id = 0x7B8;
                 trans.tx_id = 0x7B0;
-
+                if(AutoToolStripMenuItem.Checked)
+                {
+                    textBoxStream.Text = "";
+                }
                 trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
             }
         }
@@ -1516,20 +1556,5 @@ namespace uds_test
             service_27.sub_function_selectd = service_27.sub_function_list[comboBoxSecurityLevel.SelectedIndex];
         }
         #endregion
-
-        private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (tabControl.SelectedTab == tabPageBusParams)
-            {
-            }
-            else if (tabControl.SelectedTab == tabPageTransmit)
-            {
-            }
-        }
-
-        private void main_FormResized(object sender, EventArgs e)
-        {
-            Text = "uds_test" + " Width:" + Size.Width.ToString("d3") + " Height:" + Size.Height.ToString("d3");
-        }
     }
 }

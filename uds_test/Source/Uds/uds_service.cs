@@ -60,7 +60,7 @@ namespace Uds
             string strings = string.Empty;
             strings += sid;
             strings += sub_function_selectd.id;
-            if(sub_function_selectd.identifier_enabled)
+            if (sub_function_selectd.identifier_enabled)
             {
                 strings += identifier_selected.id;
                 strings += identifier_selected.parameter;

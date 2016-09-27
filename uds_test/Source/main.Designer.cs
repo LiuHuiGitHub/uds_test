@@ -39,6 +39,8 @@
             this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxStream = new System.Windows.Forms.TextBox();
             this.contextMenuStripSream = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.AnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AutoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ClearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,9 +58,21 @@
             this.label25 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
+            this.oneShotCtrl4 = new User_Control.OneShotCtrl();
+            this.oneShotCtrl3 = new User_Control.OneShotCtrl();
+            this.oneShotCtrl2 = new User_Control.OneShotCtrl();
+            this.oneShotCtrl1 = new User_Control.OneShotCtrl();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cycleCtrl8 = new User_Control.CycleCtrl();
+            this.cycleCtrl7 = new User_Control.CycleCtrl();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.cycleCtrl6 = new User_Control.CycleCtrl();
+            this.cycleCtrl5 = new User_Control.CycleCtrl();
+            this.cycleCtrl4 = new User_Control.CycleCtrl();
+            this.cycleCtrl3 = new User_Control.CycleCtrl();
+            this.cycleCtrl2 = new User_Control.CycleCtrl();
+            this.cycleCtrl1 = new User_Control.CycleCtrl();
             this.label15 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
@@ -71,11 +85,12 @@
             this.label5 = new System.Windows.Forms.Label();
             this.tabPageUDS = new System.Windows.Forms.TabPage();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
-            this.button6 = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.button7 = new System.Windows.Forms.Button();
             this.comboBox4 = new System.Windows.Forms.ComboBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.checkBoxTesterPresentShow = new System.Windows.Forms.CheckBox();
+            this.checkBoxTesterPresent = new System.Windows.Forms.CheckBox();
             this.label33 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.buttonSecurityAccess = new System.Windows.Forms.Button();
@@ -102,21 +117,6 @@
             this.comboBoxBaud = new System.Windows.Forms.ComboBox();
             this.comboBoxChannel = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
-            this.checkBoxTesterPresent = new System.Windows.Forms.CheckBox();
-            this.checkBoxTesterPresentShow = new System.Windows.Forms.CheckBox();
-            this.checkBoxAnalyze = new System.Windows.Forms.CheckBox();
-            this.oneShotCtrl4 = new User_Control.OneShotCtrl();
-            this.oneShotCtrl3 = new User_Control.OneShotCtrl();
-            this.oneShotCtrl2 = new User_Control.OneShotCtrl();
-            this.oneShotCtrl1 = new User_Control.OneShotCtrl();
-            this.cycleCtrl8 = new User_Control.CycleCtrl();
-            this.cycleCtrl7 = new User_Control.CycleCtrl();
-            this.cycleCtrl6 = new User_Control.CycleCtrl();
-            this.cycleCtrl5 = new User_Control.CycleCtrl();
-            this.cycleCtrl4 = new User_Control.CycleCtrl();
-            this.cycleCtrl3 = new User_Control.CycleCtrl();
-            this.cycleCtrl2 = new User_Control.CycleCtrl();
-            this.cycleCtrl1 = new User_Control.CycleCtrl();
             this.contextMenuStripTransmit.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.contextMenuStripSream.SuspendLayout();
@@ -193,11 +193,29 @@
             // contextMenuStripSream
             // 
             this.contextMenuStripSream.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AnalyzeToolStripMenuItem,
+            this.AutoToolStripMenuItem,
             this.SaveToolStripMenuItem,
             this.CopyToolStripMenuItem,
             this.ClearToolStripMenuItem});
             this.contextMenuStripSream.Name = "contextMenuStripSream";
-            this.contextMenuStripSream.Size = new System.Drawing.Size(101, 70);
+            this.contextMenuStripSream.Size = new System.Drawing.Size(101, 114);
+            // 
+            // AnalyzeToolStripMenuItem
+            // 
+            this.AnalyzeToolStripMenuItem.Checked = true;
+            this.AnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AnalyzeToolStripMenuItem.Name = "AnalyzeToolStripMenuItem";
+            this.AnalyzeToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.AnalyzeToolStripMenuItem.Text = "解析";
+            this.AnalyzeToolStripMenuItem.Click += new System.EventHandler(this.AnalyzeToolStripMenuItem_Click);
+            // 
+            // AutoToolStripMenuItem
+            // 
+            this.AutoToolStripMenuItem.Name = "AutoToolStripMenuItem";
+            this.AutoToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.AutoToolStripMenuItem.Text = "自动";
+            this.AutoToolStripMenuItem.Click += new System.EventHandler(this.AutoToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
@@ -366,6 +384,34 @@
             this.label27.TabIndex = 64;
             this.label27.Text = "ID";
             // 
+            // oneShotCtrl4
+            // 
+            this.oneShotCtrl4.Location = new System.Drawing.Point(10, 143);
+            this.oneShotCtrl4.Name = "oneShotCtrl4";
+            this.oneShotCtrl4.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl4.TabIndex = 63;
+            // 
+            // oneShotCtrl3
+            // 
+            this.oneShotCtrl3.Location = new System.Drawing.Point(10, 105);
+            this.oneShotCtrl3.Name = "oneShotCtrl3";
+            this.oneShotCtrl3.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl3.TabIndex = 62;
+            // 
+            // oneShotCtrl2
+            // 
+            this.oneShotCtrl2.Location = new System.Drawing.Point(10, 68);
+            this.oneShotCtrl2.Name = "oneShotCtrl2";
+            this.oneShotCtrl2.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl2.TabIndex = 61;
+            // 
+            // oneShotCtrl1
+            // 
+            this.oneShotCtrl1.Location = new System.Drawing.Point(10, 31);
+            this.oneShotCtrl1.Name = "oneShotCtrl1";
+            this.oneShotCtrl1.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl1.TabIndex = 60;
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.cycleCtrl8);
@@ -395,6 +441,20 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Cycle Send";
             // 
+            // cycleCtrl8
+            // 
+            this.cycleCtrl8.Location = new System.Drawing.Point(6, 290);
+            this.cycleCtrl8.Name = "cycleCtrl8";
+            this.cycleCtrl8.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl8.TabIndex = 66;
+            // 
+            // cycleCtrl7
+            // 
+            this.cycleCtrl7.Location = new System.Drawing.Point(6, 254);
+            this.cycleCtrl7.Name = "cycleCtrl7";
+            this.cycleCtrl7.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl7.TabIndex = 65;
+            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -414,6 +474,48 @@
             this.label3.Size = new System.Drawing.Size(17, 12);
             this.label3.TabIndex = 53;
             this.label3.Text = "ID";
+            // 
+            // cycleCtrl6
+            // 
+            this.cycleCtrl6.Location = new System.Drawing.Point(6, 218);
+            this.cycleCtrl6.Name = "cycleCtrl6";
+            this.cycleCtrl6.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl6.TabIndex = 50;
+            // 
+            // cycleCtrl5
+            // 
+            this.cycleCtrl5.Location = new System.Drawing.Point(6, 182);
+            this.cycleCtrl5.Name = "cycleCtrl5";
+            this.cycleCtrl5.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl5.TabIndex = 49;
+            // 
+            // cycleCtrl4
+            // 
+            this.cycleCtrl4.Location = new System.Drawing.Point(6, 146);
+            this.cycleCtrl4.Name = "cycleCtrl4";
+            this.cycleCtrl4.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl4.TabIndex = 48;
+            // 
+            // cycleCtrl3
+            // 
+            this.cycleCtrl3.Location = new System.Drawing.Point(6, 110);
+            this.cycleCtrl3.Name = "cycleCtrl3";
+            this.cycleCtrl3.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl3.TabIndex = 47;
+            // 
+            // cycleCtrl2
+            // 
+            this.cycleCtrl2.Location = new System.Drawing.Point(6, 74);
+            this.cycleCtrl2.Name = "cycleCtrl2";
+            this.cycleCtrl2.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl2.TabIndex = 46;
+            // 
+            // cycleCtrl1
+            // 
+            this.cycleCtrl1.Location = new System.Drawing.Point(6, 38);
+            this.cycleCtrl1.Name = "cycleCtrl1";
+            this.cycleCtrl1.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl1.TabIndex = 45;
             // 
             // label15
             // 
@@ -530,38 +632,28 @@
             // 
             // groupBox8
             // 
-            this.groupBox8.Controls.Add(this.button6);
             this.groupBox8.Controls.Add(this.textBox4);
             this.groupBox8.Controls.Add(this.button7);
             this.groupBox8.Controls.Add(this.comboBox4);
-            this.groupBox8.Location = new System.Drawing.Point(6, 409);
+            this.groupBox8.Location = new System.Drawing.Point(6, 420);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(396, 95);
             this.groupBox8.TabIndex = 15;
             this.groupBox8.TabStop = false;
-            this.groupBox8.Text = "读写 $22 $2E";
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(303, 55);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(75, 28);
-            this.button6.TabIndex = 12;
-            this.button6.Text = "Write";
-            this.button6.UseVisualStyleBackColor = true;
+            this.groupBox8.Text = "快捷指令";
             // 
             // textBox4
             // 
             this.textBox4.Location = new System.Drawing.Point(18, 59);
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(267, 21);
+            this.textBox4.Size = new System.Drawing.Size(253, 21);
             this.textBox4.TabIndex = 13;
             // 
             // button7
             // 
-            this.button7.Location = new System.Drawing.Point(303, 20);
+            this.button7.Location = new System.Drawing.Point(286, 22);
             this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(75, 28);
+            this.button7.Size = new System.Drawing.Size(92, 60);
             this.button7.TabIndex = 0;
             this.button7.Text = "Read";
             this.button7.UseVisualStyleBackColor = true;
@@ -572,12 +664,11 @@
             this.comboBox4.FormattingEnabled = true;
             this.comboBox4.Location = new System.Drawing.Point(18, 24);
             this.comboBox4.Name = "comboBox4";
-            this.comboBox4.Size = new System.Drawing.Size(267, 20);
+            this.comboBox4.Size = new System.Drawing.Size(253, 20);
             this.comboBox4.TabIndex = 11;
             // 
             // groupBox7
             // 
-            this.groupBox7.Controls.Add(this.checkBoxAnalyze);
             this.groupBox7.Controls.Add(this.checkBoxTesterPresentShow);
             this.groupBox7.Controls.Add(this.checkBoxTesterPresent);
             this.groupBox7.Controls.Add(this.label33);
@@ -592,6 +683,28 @@
             this.groupBox7.TabIndex = 15;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "模式选择 $10 $27";
+            // 
+            // checkBoxTesterPresentShow
+            // 
+            this.checkBoxTesterPresentShow.AutoSize = true;
+            this.checkBoxTesterPresentShow.Location = new System.Drawing.Point(183, 93);
+            this.checkBoxTesterPresentShow.Name = "checkBoxTesterPresentShow";
+            this.checkBoxTesterPresentShow.Size = new System.Drawing.Size(84, 16);
+            this.checkBoxTesterPresentShow.TabIndex = 25;
+            this.checkBoxTesterPresentShow.Text = "显示Tester";
+            this.checkBoxTesterPresentShow.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxTesterPresent
+            // 
+            this.checkBoxTesterPresent.AutoSize = true;
+            this.checkBoxTesterPresent.Checked = true;
+            this.checkBoxTesterPresent.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxTesterPresent.Location = new System.Drawing.Point(80, 93);
+            this.checkBoxTesterPresent.Name = "checkBoxTesterPresent";
+            this.checkBoxTesterPresent.Size = new System.Drawing.Size(72, 16);
+            this.checkBoxTesterPresent.TabIndex = 24;
+            this.checkBoxTesterPresent.Text = "诊断保持";
+            this.checkBoxTesterPresent.UseVisualStyleBackColor = true;
             // 
             // label33
             // 
@@ -661,9 +774,9 @@
             this.groupBoxServices.Controls.Add(this.comboBoxSubFunction);
             this.groupBoxServices.Controls.Add(this.button1);
             this.groupBoxServices.Controls.Add(this.comboBoxServices);
-            this.groupBoxServices.Location = new System.Drawing.Point(6, 142);
+            this.groupBoxServices.Location = new System.Drawing.Point(6, 132);
             this.groupBoxServices.Name = "groupBoxServices";
-            this.groupBoxServices.Size = new System.Drawing.Size(396, 192);
+            this.groupBoxServices.Size = new System.Drawing.Size(396, 171);
             this.groupBoxServices.TabIndex = 14;
             this.groupBoxServices.TabStop = false;
             this.groupBoxServices.Text = "诊断服务";
@@ -672,10 +785,10 @@
             // 
             this.textBoxTransData.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.textBoxTransData.ImeMode = System.Windows.Forms.ImeMode.Close;
-            this.textBoxTransData.Location = new System.Drawing.Point(20, 124);
+            this.textBoxTransData.Location = new System.Drawing.Point(18, 124);
             this.textBoxTransData.Multiline = true;
             this.textBoxTransData.Name = "textBoxTransData";
-            this.textBoxTransData.Size = new System.Drawing.Size(358, 53);
+            this.textBoxTransData.Size = new System.Drawing.Size(360, 32);
             this.textBoxTransData.TabIndex = 1;
             this.textBoxTransData.TextChanged += new System.EventHandler(this.trans_data_TextChanged);
             this.textBoxTransData.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.trans_data_KeyPress);
@@ -685,27 +798,27 @@
             this.label32.AutoSize = true;
             this.label32.Location = new System.Drawing.Point(18, 92);
             this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(47, 12);
+            this.label32.Size = new System.Drawing.Size(29, 12);
             this.label32.TabIndex = 21;
-            this.label32.Text = "标识符:";
+            this.label32.Text = "DID:";
             // 
             // label31
             // 
             this.label31.AutoSize = true;
             this.label31.Location = new System.Drawing.Point(18, 58);
             this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(47, 12);
+            this.label31.Size = new System.Drawing.Size(29, 12);
             this.label31.TabIndex = 20;
-            this.label31.Text = "子功能:";
+            this.label31.Text = "PID:";
             // 
             // label30
             // 
             this.label30.AutoSize = true;
             this.label30.Location = new System.Drawing.Point(18, 24);
             this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(47, 12);
+            this.label30.Size = new System.Drawing.Size(29, 12);
             this.label30.TabIndex = 19;
-            this.label30.Text = "服务ID:";
+            this.label30.Text = "SID:";
             // 
             // comboBoxIdentifier
             // 
@@ -713,10 +826,10 @@
             this.comboBoxIdentifier.FormattingEnabled = true;
             this.comboBoxIdentifier.IntegralHeight = false;
             this.comboBoxIdentifier.ItemHeight = 12;
-            this.comboBoxIdentifier.Location = new System.Drawing.Point(65, 88);
+            this.comboBoxIdentifier.Location = new System.Drawing.Point(53, 88);
             this.comboBoxIdentifier.MaxDropDownItems = 16;
             this.comboBoxIdentifier.Name = "comboBoxIdentifier";
-            this.comboBoxIdentifier.Size = new System.Drawing.Size(206, 20);
+            this.comboBoxIdentifier.Size = new System.Drawing.Size(218, 20);
             this.comboBoxIdentifier.TabIndex = 18;
             this.comboBoxIdentifier.SelectedIndexChanged += new System.EventHandler(this.comboBoxIdentifier_SelectedIndexChanged);
             // 
@@ -725,10 +838,10 @@
             this.comboBoxSubFunction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxSubFunction.FormattingEnabled = true;
             this.comboBoxSubFunction.IntegralHeight = false;
-            this.comboBoxSubFunction.Location = new System.Drawing.Point(65, 54);
+            this.comboBoxSubFunction.Location = new System.Drawing.Point(53, 54);
             this.comboBoxSubFunction.MaxDropDownItems = 16;
             this.comboBoxSubFunction.Name = "comboBoxSubFunction";
-            this.comboBoxSubFunction.Size = new System.Drawing.Size(205, 20);
+            this.comboBoxSubFunction.Size = new System.Drawing.Size(217, 20);
             this.comboBoxSubFunction.TabIndex = 12;
             this.comboBoxSubFunction.SelectedIndexChanged += new System.EventHandler(this.comboBoxSubFunction_SelectedIndexChanged);
             // 
@@ -747,10 +860,10 @@
             this.comboBoxServices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxServices.FormattingEnabled = true;
             this.comboBoxServices.IntegralHeight = false;
-            this.comboBoxServices.Location = new System.Drawing.Point(65, 20);
+            this.comboBoxServices.Location = new System.Drawing.Point(53, 20);
             this.comboBoxServices.MaxDropDownItems = 16;
             this.comboBoxServices.Name = "comboBoxServices";
-            this.comboBoxServices.Size = new System.Drawing.Size(205, 20);
+            this.comboBoxServices.Size = new System.Drawing.Size(217, 20);
             this.comboBoxServices.TabIndex = 11;
             this.comboBoxServices.SelectedIndexChanged += new System.EventHandler(this.comboBoxSerivers_SelectedIndexChanged);
             // 
@@ -875,125 +988,6 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(419, 547);
             this.tabControl.TabIndex = 25;
-            this.tabControl.SelectedIndexChanged += new System.EventHandler(this.tabControl_SelectedIndexChanged);
-            // 
-            // checkBoxTesterPresent
-            // 
-            this.checkBoxTesterPresent.AutoSize = true;
-            this.checkBoxTesterPresent.Checked = true;
-            this.checkBoxTesterPresent.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxTesterPresent.Location = new System.Drawing.Point(42, 93);
-            this.checkBoxTesterPresent.Name = "checkBoxTesterPresent";
-            this.checkBoxTesterPresent.Size = new System.Drawing.Size(72, 16);
-            this.checkBoxTesterPresent.TabIndex = 24;
-            this.checkBoxTesterPresent.Text = "诊断保持";
-            this.checkBoxTesterPresent.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxTesterPresentShow
-            // 
-            this.checkBoxTesterPresentShow.AutoSize = true;
-            this.checkBoxTesterPresentShow.Location = new System.Drawing.Point(140, 93);
-            this.checkBoxTesterPresentShow.Name = "checkBoxTesterPresentShow";
-            this.checkBoxTesterPresentShow.Size = new System.Drawing.Size(84, 16);
-            this.checkBoxTesterPresentShow.TabIndex = 25;
-            this.checkBoxTesterPresentShow.Text = "显示Tester";
-            this.checkBoxTesterPresentShow.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxAnalyze
-            // 
-            this.checkBoxAnalyze.AutoSize = true;
-            this.checkBoxAnalyze.Checked = true;
-            this.checkBoxAnalyze.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxAnalyze.Location = new System.Drawing.Point(247, 93);
-            this.checkBoxAnalyze.Name = "checkBoxAnalyze";
-            this.checkBoxAnalyze.Size = new System.Drawing.Size(72, 16);
-            this.checkBoxAnalyze.TabIndex = 26;
-            this.checkBoxAnalyze.Text = "显示解析";
-            this.checkBoxAnalyze.UseVisualStyleBackColor = true;
-            // 
-            // oneShotCtrl4
-            // 
-            this.oneShotCtrl4.Location = new System.Drawing.Point(10, 143);
-            this.oneShotCtrl4.Name = "oneShotCtrl4";
-            this.oneShotCtrl4.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl4.TabIndex = 63;
-            // 
-            // oneShotCtrl3
-            // 
-            this.oneShotCtrl3.Location = new System.Drawing.Point(10, 105);
-            this.oneShotCtrl3.Name = "oneShotCtrl3";
-            this.oneShotCtrl3.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl3.TabIndex = 62;
-            // 
-            // oneShotCtrl2
-            // 
-            this.oneShotCtrl2.Location = new System.Drawing.Point(10, 68);
-            this.oneShotCtrl2.Name = "oneShotCtrl2";
-            this.oneShotCtrl2.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl2.TabIndex = 61;
-            // 
-            // oneShotCtrl1
-            // 
-            this.oneShotCtrl1.Location = new System.Drawing.Point(10, 31);
-            this.oneShotCtrl1.Name = "oneShotCtrl1";
-            this.oneShotCtrl1.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl1.TabIndex = 60;
-            // 
-            // cycleCtrl8
-            // 
-            this.cycleCtrl8.Location = new System.Drawing.Point(6, 290);
-            this.cycleCtrl8.Name = "cycleCtrl8";
-            this.cycleCtrl8.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl8.TabIndex = 66;
-            // 
-            // cycleCtrl7
-            // 
-            this.cycleCtrl7.Location = new System.Drawing.Point(6, 254);
-            this.cycleCtrl7.Name = "cycleCtrl7";
-            this.cycleCtrl7.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl7.TabIndex = 65;
-            // 
-            // cycleCtrl6
-            // 
-            this.cycleCtrl6.Location = new System.Drawing.Point(6, 218);
-            this.cycleCtrl6.Name = "cycleCtrl6";
-            this.cycleCtrl6.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl6.TabIndex = 50;
-            // 
-            // cycleCtrl5
-            // 
-            this.cycleCtrl5.Location = new System.Drawing.Point(6, 182);
-            this.cycleCtrl5.Name = "cycleCtrl5";
-            this.cycleCtrl5.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl5.TabIndex = 49;
-            // 
-            // cycleCtrl4
-            // 
-            this.cycleCtrl4.Location = new System.Drawing.Point(6, 146);
-            this.cycleCtrl4.Name = "cycleCtrl4";
-            this.cycleCtrl4.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl4.TabIndex = 48;
-            // 
-            // cycleCtrl3
-            // 
-            this.cycleCtrl3.Location = new System.Drawing.Point(6, 110);
-            this.cycleCtrl3.Name = "cycleCtrl3";
-            this.cycleCtrl3.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl3.TabIndex = 47;
-            // 
-            // cycleCtrl2
-            // 
-            this.cycleCtrl2.Location = new System.Drawing.Point(6, 74);
-            this.cycleCtrl2.Name = "cycleCtrl2";
-            this.cycleCtrl2.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl2.TabIndex = 46;
-            // 
-            // cycleCtrl1
-            // 
-            this.cycleCtrl1.Location = new System.Drawing.Point(6, 38);
-            this.cycleCtrl1.Name = "cycleCtrl1";
-            this.cycleCtrl1.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl1.TabIndex = 45;
             // 
             // main
             // 
@@ -1011,7 +1005,6 @@
             this.Name = "main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "uds_test";
-            this.Resize += new System.EventHandler(this.main_FormResized);
             this.contextMenuStripTransmit.ResumeLayout(false);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
@@ -1083,7 +1076,6 @@
         private System.Windows.Forms.ComboBox comboBox4;
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.TextBox textBox4;
-        private System.Windows.Forms.Button button6;
         private System.Windows.Forms.GroupBox groupBox8;
         private System.Windows.Forms.TabPage tabPageUDS;
         private System.Windows.Forms.Label label5;
@@ -1126,7 +1118,8 @@
         private System.Windows.Forms.TabPage tabPageTransmit;
         private System.Windows.Forms.CheckBox checkBoxTesterPresentShow;
         private System.Windows.Forms.CheckBox checkBoxTesterPresent;
-        private System.Windows.Forms.CheckBox checkBoxAnalyze;
+        private System.Windows.Forms.ToolStripMenuItem AutoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AnalyzeToolStripMenuItem;
     }
 }
 

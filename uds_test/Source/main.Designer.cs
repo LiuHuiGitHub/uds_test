@@ -36,11 +36,14 @@
             this.clearLocalSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItemSetting = new System.Windows.Forms.ToolStripMenuItem();
+            this.DTCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DTCCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AutoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxStream = new System.Windows.Forms.TextBox();
             this.contextMenuStripSream = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.AnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.AutoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ClearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -58,21 +61,9 @@
             this.label25 = new System.Windows.Forms.Label();
             this.label26 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
-            this.oneShotCtrl4 = new User_Control.OneShotCtrl();
-            this.oneShotCtrl3 = new User_Control.OneShotCtrl();
-            this.oneShotCtrl2 = new User_Control.OneShotCtrl();
-            this.oneShotCtrl1 = new User_Control.OneShotCtrl();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.cycleCtrl8 = new User_Control.CycleCtrl();
-            this.cycleCtrl7 = new User_Control.CycleCtrl();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
-            this.cycleCtrl6 = new User_Control.CycleCtrl();
-            this.cycleCtrl5 = new User_Control.CycleCtrl();
-            this.cycleCtrl4 = new User_Control.CycleCtrl();
-            this.cycleCtrl3 = new User_Control.CycleCtrl();
-            this.cycleCtrl2 = new User_Control.CycleCtrl();
-            this.cycleCtrl1 = new User_Control.CycleCtrl();
             this.label15 = new System.Windows.Forms.Label();
             this.label14 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
@@ -117,6 +108,23 @@
             this.comboBoxBaud = new System.Windows.Forms.ComboBox();
             this.comboBoxChannel = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
+            this.DTCCodeAnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.loadConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.退出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.oneShotCtrl4 = new User_Control.OneShotCtrl();
+            this.oneShotCtrl3 = new User_Control.OneShotCtrl();
+            this.oneShotCtrl2 = new User_Control.OneShotCtrl();
+            this.oneShotCtrl1 = new User_Control.OneShotCtrl();
+            this.cycleCtrl8 = new User_Control.CycleCtrl();
+            this.cycleCtrl7 = new User_Control.CycleCtrl();
+            this.cycleCtrl6 = new User_Control.CycleCtrl();
+            this.cycleCtrl5 = new User_Control.CycleCtrl();
+            this.cycleCtrl4 = new User_Control.CycleCtrl();
+            this.cycleCtrl3 = new User_Control.CycleCtrl();
+            this.cycleCtrl2 = new User_Control.CycleCtrl();
+            this.cycleCtrl1 = new User_Control.CycleCtrl();
+            this.checkBoxPhysicalAddressing = new System.Windows.Forms.CheckBox();
             this.contextMenuStripTransmit.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.contextMenuStripSream.SuspendLayout();
@@ -159,6 +167,7 @@
             // 
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.文件ToolStripMenuItem,
+            this.toolStripMenuItemSetting,
             this.关于ToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
@@ -168,9 +177,55 @@
             // 
             // 文件ToolStripMenuItem
             // 
+            this.文件ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.loadConfigToolStripMenuItem,
+            this.saveConfigToolStripMenuItem,
+            this.退出ToolStripMenuItem});
             this.文件ToolStripMenuItem.Name = "文件ToolStripMenuItem";
             this.文件ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
             this.文件ToolStripMenuItem.Text = "文件";
+            // 
+            // toolStripMenuItemSetting
+            // 
+            this.toolStripMenuItemSetting.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DTCToolStripMenuItem,
+            this.AnalyzeToolStripMenuItem,
+            this.AutoToolStripMenuItem});
+            this.toolStripMenuItemSetting.Name = "toolStripMenuItemSetting";
+            this.toolStripMenuItemSetting.Size = new System.Drawing.Size(44, 21);
+            this.toolStripMenuItemSetting.Text = "设置";
+            // 
+            // DTCToolStripMenuItem
+            // 
+            this.DTCToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.DTCCodeToolStripMenuItem,
+            this.DTCCodeAnalyzeToolStripMenuItem});
+            this.DTCToolStripMenuItem.Name = "DTCToolStripMenuItem";
+            this.DTCToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.DTCToolStripMenuItem.Text = "DTC设置";
+            // 
+            // DTCCodeToolStripMenuItem
+            // 
+            this.DTCCodeToolStripMenuItem.Name = "DTCCodeToolStripMenuItem";
+            this.DTCCodeToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.DTCCodeToolStripMenuItem.Text = "故障码转义";
+            this.DTCCodeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
+            // 
+            // AnalyzeToolStripMenuItem
+            // 
+            this.AnalyzeToolStripMenuItem.Checked = true;
+            this.AnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.AnalyzeToolStripMenuItem.Name = "AnalyzeToolStripMenuItem";
+            this.AnalyzeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.AnalyzeToolStripMenuItem.Text = "解析数据";
+            this.AnalyzeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
+            // 
+            // AutoToolStripMenuItem
+            // 
+            this.AutoToolStripMenuItem.Name = "AutoToolStripMenuItem";
+            this.AutoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.AutoToolStripMenuItem.Text = "自动显示";
+            this.AutoToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
             // 
             // 关于ToolStripMenuItem
             // 
@@ -193,29 +248,11 @@
             // contextMenuStripSream
             // 
             this.contextMenuStripSream.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.AnalyzeToolStripMenuItem,
-            this.AutoToolStripMenuItem,
             this.SaveToolStripMenuItem,
             this.CopyToolStripMenuItem,
             this.ClearToolStripMenuItem});
             this.contextMenuStripSream.Name = "contextMenuStripSream";
-            this.contextMenuStripSream.Size = new System.Drawing.Size(101, 114);
-            // 
-            // AnalyzeToolStripMenuItem
-            // 
-            this.AnalyzeToolStripMenuItem.Checked = true;
-            this.AnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.AnalyzeToolStripMenuItem.Name = "AnalyzeToolStripMenuItem";
-            this.AnalyzeToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
-            this.AnalyzeToolStripMenuItem.Text = "解析";
-            this.AnalyzeToolStripMenuItem.Click += new System.EventHandler(this.AnalyzeToolStripMenuItem_Click);
-            // 
-            // AutoToolStripMenuItem
-            // 
-            this.AutoToolStripMenuItem.Name = "AutoToolStripMenuItem";
-            this.AutoToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
-            this.AutoToolStripMenuItem.Text = "自动";
-            this.AutoToolStripMenuItem.Click += new System.EventHandler(this.AutoToolStripMenuItem_Click);
+            this.contextMenuStripSream.Size = new System.Drawing.Size(101, 70);
             // 
             // SaveToolStripMenuItem
             // 
@@ -384,34 +421,6 @@
             this.label27.TabIndex = 64;
             this.label27.Text = "ID";
             // 
-            // oneShotCtrl4
-            // 
-            this.oneShotCtrl4.Location = new System.Drawing.Point(10, 143);
-            this.oneShotCtrl4.Name = "oneShotCtrl4";
-            this.oneShotCtrl4.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl4.TabIndex = 63;
-            // 
-            // oneShotCtrl3
-            // 
-            this.oneShotCtrl3.Location = new System.Drawing.Point(10, 105);
-            this.oneShotCtrl3.Name = "oneShotCtrl3";
-            this.oneShotCtrl3.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl3.TabIndex = 62;
-            // 
-            // oneShotCtrl2
-            // 
-            this.oneShotCtrl2.Location = new System.Drawing.Point(10, 68);
-            this.oneShotCtrl2.Name = "oneShotCtrl2";
-            this.oneShotCtrl2.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl2.TabIndex = 61;
-            // 
-            // oneShotCtrl1
-            // 
-            this.oneShotCtrl1.Location = new System.Drawing.Point(10, 31);
-            this.oneShotCtrl1.Name = "oneShotCtrl1";
-            this.oneShotCtrl1.Size = new System.Drawing.Size(399, 27);
-            this.oneShotCtrl1.TabIndex = 60;
-            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.cycleCtrl8);
@@ -441,20 +450,6 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Cycle Send";
             // 
-            // cycleCtrl8
-            // 
-            this.cycleCtrl8.Location = new System.Drawing.Point(6, 290);
-            this.cycleCtrl8.Name = "cycleCtrl8";
-            this.cycleCtrl8.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl8.TabIndex = 66;
-            // 
-            // cycleCtrl7
-            // 
-            this.cycleCtrl7.Location = new System.Drawing.Point(6, 254);
-            this.cycleCtrl7.Name = "cycleCtrl7";
-            this.cycleCtrl7.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl7.TabIndex = 65;
-            // 
             // label4
             // 
             this.label4.AutoSize = true;
@@ -474,48 +469,6 @@
             this.label3.Size = new System.Drawing.Size(17, 12);
             this.label3.TabIndex = 53;
             this.label3.Text = "ID";
-            // 
-            // cycleCtrl6
-            // 
-            this.cycleCtrl6.Location = new System.Drawing.Point(6, 218);
-            this.cycleCtrl6.Name = "cycleCtrl6";
-            this.cycleCtrl6.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl6.TabIndex = 50;
-            // 
-            // cycleCtrl5
-            // 
-            this.cycleCtrl5.Location = new System.Drawing.Point(6, 182);
-            this.cycleCtrl5.Name = "cycleCtrl5";
-            this.cycleCtrl5.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl5.TabIndex = 49;
-            // 
-            // cycleCtrl4
-            // 
-            this.cycleCtrl4.Location = new System.Drawing.Point(6, 146);
-            this.cycleCtrl4.Name = "cycleCtrl4";
-            this.cycleCtrl4.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl4.TabIndex = 48;
-            // 
-            // cycleCtrl3
-            // 
-            this.cycleCtrl3.Location = new System.Drawing.Point(6, 110);
-            this.cycleCtrl3.Name = "cycleCtrl3";
-            this.cycleCtrl3.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl3.TabIndex = 47;
-            // 
-            // cycleCtrl2
-            // 
-            this.cycleCtrl2.Location = new System.Drawing.Point(6, 74);
-            this.cycleCtrl2.Name = "cycleCtrl2";
-            this.cycleCtrl2.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl2.TabIndex = 46;
-            // 
-            // cycleCtrl1
-            // 
-            this.cycleCtrl1.Location = new System.Drawing.Point(6, 38);
-            this.cycleCtrl1.Name = "cycleCtrl1";
-            this.cycleCtrl1.Size = new System.Drawing.Size(396, 24);
-            this.cycleCtrl1.TabIndex = 45;
             // 
             // label15
             // 
@@ -669,6 +622,7 @@
             // 
             // groupBox7
             // 
+            this.groupBox7.Controls.Add(this.checkBoxPhysicalAddressing);
             this.groupBox7.Controls.Add(this.checkBoxTesterPresentShow);
             this.groupBox7.Controls.Add(this.checkBoxTesterPresent);
             this.groupBox7.Controls.Add(this.label33);
@@ -687,7 +641,7 @@
             // checkBoxTesterPresentShow
             // 
             this.checkBoxTesterPresentShow.AutoSize = true;
-            this.checkBoxTesterPresentShow.Location = new System.Drawing.Point(183, 93);
+            this.checkBoxTesterPresentShow.Location = new System.Drawing.Point(258, 93);
             this.checkBoxTesterPresentShow.Name = "checkBoxTesterPresentShow";
             this.checkBoxTesterPresentShow.Size = new System.Drawing.Size(84, 16);
             this.checkBoxTesterPresentShow.TabIndex = 25;
@@ -699,7 +653,7 @@
             this.checkBoxTesterPresent.AutoSize = true;
             this.checkBoxTesterPresent.Checked = true;
             this.checkBoxTesterPresent.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxTesterPresent.Location = new System.Drawing.Point(80, 93);
+            this.checkBoxTesterPresent.Location = new System.Drawing.Point(155, 93);
             this.checkBoxTesterPresent.Name = "checkBoxTesterPresent";
             this.checkBoxTesterPresent.Size = new System.Drawing.Size(72, 16);
             this.checkBoxTesterPresent.TabIndex = 24;
@@ -798,27 +752,27 @@
             this.label32.AutoSize = true;
             this.label32.Location = new System.Drawing.Point(18, 92);
             this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(29, 12);
+            this.label32.Size = new System.Drawing.Size(47, 12);
             this.label32.TabIndex = 21;
-            this.label32.Text = "DID:";
+            this.label32.Text = "标识符:";
             // 
             // label31
             // 
             this.label31.AutoSize = true;
             this.label31.Location = new System.Drawing.Point(18, 58);
             this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(29, 12);
+            this.label31.Size = new System.Drawing.Size(47, 12);
             this.label31.TabIndex = 20;
-            this.label31.Text = "PID:";
+            this.label31.Text = "子功能:";
             // 
             // label30
             // 
             this.label30.AutoSize = true;
             this.label30.Location = new System.Drawing.Point(18, 24);
             this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(29, 12);
+            this.label30.Size = new System.Drawing.Size(47, 12);
             this.label30.TabIndex = 19;
-            this.label30.Text = "SID:";
+            this.label30.Text = "服务ID:";
             // 
             // comboBoxIdentifier
             // 
@@ -826,10 +780,10 @@
             this.comboBoxIdentifier.FormattingEnabled = true;
             this.comboBoxIdentifier.IntegralHeight = false;
             this.comboBoxIdentifier.ItemHeight = 12;
-            this.comboBoxIdentifier.Location = new System.Drawing.Point(53, 88);
+            this.comboBoxIdentifier.Location = new System.Drawing.Point(66, 88);
             this.comboBoxIdentifier.MaxDropDownItems = 16;
             this.comboBoxIdentifier.Name = "comboBoxIdentifier";
-            this.comboBoxIdentifier.Size = new System.Drawing.Size(218, 20);
+            this.comboBoxIdentifier.Size = new System.Drawing.Size(205, 20);
             this.comboBoxIdentifier.TabIndex = 18;
             this.comboBoxIdentifier.SelectedIndexChanged += new System.EventHandler(this.comboBoxIdentifier_SelectedIndexChanged);
             // 
@@ -838,10 +792,10 @@
             this.comboBoxSubFunction.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxSubFunction.FormattingEnabled = true;
             this.comboBoxSubFunction.IntegralHeight = false;
-            this.comboBoxSubFunction.Location = new System.Drawing.Point(53, 54);
+            this.comboBoxSubFunction.Location = new System.Drawing.Point(66, 54);
             this.comboBoxSubFunction.MaxDropDownItems = 16;
             this.comboBoxSubFunction.Name = "comboBoxSubFunction";
-            this.comboBoxSubFunction.Size = new System.Drawing.Size(217, 20);
+            this.comboBoxSubFunction.Size = new System.Drawing.Size(204, 20);
             this.comboBoxSubFunction.TabIndex = 12;
             this.comboBoxSubFunction.SelectedIndexChanged += new System.EventHandler(this.comboBoxSubFunction_SelectedIndexChanged);
             // 
@@ -860,10 +814,10 @@
             this.comboBoxServices.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBoxServices.FormattingEnabled = true;
             this.comboBoxServices.IntegralHeight = false;
-            this.comboBoxServices.Location = new System.Drawing.Point(53, 20);
+            this.comboBoxServices.Location = new System.Drawing.Point(66, 20);
             this.comboBoxServices.MaxDropDownItems = 16;
             this.comboBoxServices.Name = "comboBoxServices";
-            this.comboBoxServices.Size = new System.Drawing.Size(217, 20);
+            this.comboBoxServices.Size = new System.Drawing.Size(205, 20);
             this.comboBoxServices.TabIndex = 11;
             this.comboBoxServices.SelectedIndexChanged += new System.EventHandler(this.comboBoxSerivers_SelectedIndexChanged);
             // 
@@ -888,9 +842,9 @@
             this.groupBox1.Controls.Add(this.buttonBusSwitch);
             this.groupBox1.Controls.Add(this.comboBoxBaud);
             this.groupBox1.Controls.Add(this.comboBoxChannel);
-            this.groupBox1.Location = new System.Drawing.Point(2, 7);
+            this.groupBox1.Location = new System.Drawing.Point(6, 7);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(406, 118);
+            this.groupBox1.Size = new System.Drawing.Size(396, 118);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             // 
@@ -988,6 +942,130 @@
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(419, 547);
             this.tabControl.TabIndex = 25;
+            // 
+            // DTCCodeAnalyzeToolStripMenuItem
+            // 
+            this.DTCCodeAnalyzeToolStripMenuItem.Checked = true;
+            this.DTCCodeAnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.DTCCodeAnalyzeToolStripMenuItem.Name = "DTCCodeAnalyzeToolStripMenuItem";
+            this.DTCCodeAnalyzeToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.DTCCodeAnalyzeToolStripMenuItem.Text = "故障码解析";
+            this.DTCCodeAnalyzeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
+            // 
+            // loadConfigToolStripMenuItem
+            // 
+            this.loadConfigToolStripMenuItem.Name = "loadConfigToolStripMenuItem";
+            this.loadConfigToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.loadConfigToolStripMenuItem.Text = "打开";
+            // 
+            // saveConfigToolStripMenuItem
+            // 
+            this.saveConfigToolStripMenuItem.Name = "saveConfigToolStripMenuItem";
+            this.saveConfigToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.saveConfigToolStripMenuItem.Text = "保存";
+            // 
+            // 退出ToolStripMenuItem
+            // 
+            this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
+            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.退出ToolStripMenuItem.Text = "退出";
+            // 
+            // oneShotCtrl4
+            // 
+            this.oneShotCtrl4.Location = new System.Drawing.Point(10, 143);
+            this.oneShotCtrl4.Name = "oneShotCtrl4";
+            this.oneShotCtrl4.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl4.TabIndex = 63;
+            // 
+            // oneShotCtrl3
+            // 
+            this.oneShotCtrl3.Location = new System.Drawing.Point(10, 105);
+            this.oneShotCtrl3.Name = "oneShotCtrl3";
+            this.oneShotCtrl3.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl3.TabIndex = 62;
+            // 
+            // oneShotCtrl2
+            // 
+            this.oneShotCtrl2.Location = new System.Drawing.Point(10, 68);
+            this.oneShotCtrl2.Name = "oneShotCtrl2";
+            this.oneShotCtrl2.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl2.TabIndex = 61;
+            // 
+            // oneShotCtrl1
+            // 
+            this.oneShotCtrl1.Location = new System.Drawing.Point(10, 31);
+            this.oneShotCtrl1.Name = "oneShotCtrl1";
+            this.oneShotCtrl1.Size = new System.Drawing.Size(399, 27);
+            this.oneShotCtrl1.TabIndex = 60;
+            // 
+            // cycleCtrl8
+            // 
+            this.cycleCtrl8.Location = new System.Drawing.Point(6, 290);
+            this.cycleCtrl8.Name = "cycleCtrl8";
+            this.cycleCtrl8.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl8.TabIndex = 66;
+            // 
+            // cycleCtrl7
+            // 
+            this.cycleCtrl7.Location = new System.Drawing.Point(6, 254);
+            this.cycleCtrl7.Name = "cycleCtrl7";
+            this.cycleCtrl7.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl7.TabIndex = 65;
+            // 
+            // cycleCtrl6
+            // 
+            this.cycleCtrl6.Location = new System.Drawing.Point(6, 218);
+            this.cycleCtrl6.Name = "cycleCtrl6";
+            this.cycleCtrl6.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl6.TabIndex = 50;
+            // 
+            // cycleCtrl5
+            // 
+            this.cycleCtrl5.Location = new System.Drawing.Point(6, 182);
+            this.cycleCtrl5.Name = "cycleCtrl5";
+            this.cycleCtrl5.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl5.TabIndex = 49;
+            // 
+            // cycleCtrl4
+            // 
+            this.cycleCtrl4.Location = new System.Drawing.Point(6, 146);
+            this.cycleCtrl4.Name = "cycleCtrl4";
+            this.cycleCtrl4.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl4.TabIndex = 48;
+            // 
+            // cycleCtrl3
+            // 
+            this.cycleCtrl3.Location = new System.Drawing.Point(6, 110);
+            this.cycleCtrl3.Name = "cycleCtrl3";
+            this.cycleCtrl3.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl3.TabIndex = 47;
+            // 
+            // cycleCtrl2
+            // 
+            this.cycleCtrl2.Location = new System.Drawing.Point(6, 74);
+            this.cycleCtrl2.Name = "cycleCtrl2";
+            this.cycleCtrl2.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl2.TabIndex = 46;
+            // 
+            // cycleCtrl1
+            // 
+            this.cycleCtrl1.Location = new System.Drawing.Point(6, 38);
+            this.cycleCtrl1.Name = "cycleCtrl1";
+            this.cycleCtrl1.Size = new System.Drawing.Size(396, 24);
+            this.cycleCtrl1.TabIndex = 45;
+            // 
+            // checkBoxPhysicalAddressing
+            // 
+            this.checkBoxPhysicalAddressing.AutoSize = true;
+            this.checkBoxPhysicalAddressing.Checked = true;
+            this.checkBoxPhysicalAddressing.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxPhysicalAddressing.Location = new System.Drawing.Point(54, 93);
+            this.checkBoxPhysicalAddressing.Name = "checkBoxPhysicalAddressing";
+            this.checkBoxPhysicalAddressing.Size = new System.Drawing.Size(72, 16);
+            this.checkBoxPhysicalAddressing.TabIndex = 26;
+            this.checkBoxPhysicalAddressing.Text = "功能寻址";
+            this.checkBoxPhysicalAddressing.UseVisualStyleBackColor = true;
+            this.checkBoxPhysicalAddressing.Click += new System.EventHandler(this.checkBoxPhysicalAddressing_Click);
             // 
             // main
             // 
@@ -1118,8 +1196,16 @@
         private System.Windows.Forms.TabPage tabPageTransmit;
         private System.Windows.Forms.CheckBox checkBoxTesterPresentShow;
         private System.Windows.Forms.CheckBox checkBoxTesterPresent;
-        private System.Windows.Forms.ToolStripMenuItem AutoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItemSetting;
+        private System.Windows.Forms.ToolStripMenuItem DTCToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem AnalyzeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AutoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem DTCCodeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem DTCCodeAnalyzeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem loadConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveConfigToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem 退出ToolStripMenuItem;
+        private System.Windows.Forms.CheckBox checkBoxPhysicalAddressing;
     }
 }
 

@@ -9,6 +9,13 @@ namespace Uds
 {
     class uds_trans
     {
+        public enum AddressingModes
+        {
+            Physical_Addressing,
+            Functional_Addressing,
+        }
+        private int id;
+
         public byte fill_byte = 0x55;
 
         public int tx_id;
@@ -212,7 +219,7 @@ namespace Uds
 
         byte[] tx_msg = new byte[0];
 
-        public bool CanTrans_TxMsg(byte[] msg)
+        public bool CanTrans_TxMsg(AddressingModes mode, byte[] msg)
         {
             if (msg.Length == 0 
                 || msg.Length > RX_MAX_TP_BYTES - 2
@@ -220,6 +227,14 @@ namespace Uds
                 )
             {
                 return false;
+            }
+            if(mode == AddressingModes.Physical_Addressing)
+            {
+                id = tx_id;
+            }
+            else
+            {
+                id = 0x7DF;
             }
             tx_msg = msg;
             tx_msg = new byte[msg.Length];
@@ -326,9 +341,9 @@ namespace Uds
                 }
 
             }
-            if (can.WriteData(tx_id, can_tx_info.frame, 8) == true)
+            if (can.WriteData(id, can_tx_info.frame, 8) == true)
             {
-                TxFarmsEvent(tx_id, can_tx_info.frame, 8);
+                TxFarmsEvent(id, can_tx_info.frame, 8);
                 can_tx_info.tx_last_frame_error = false;
                 can_rx_info.frame[TPCI_Byte] = 0;
                 /*

@@ -69,5 +69,37 @@ namespace MyFormat
             }
             return strings;
         }
+
+        public static string DtcEscape(this string strings)
+        {
+            if (strings.Length == 7)
+            {
+                return strings;
+            }
+
+            string code = string.Empty;
+            byte dtc_code = Convert.ToByte(strings.Substring(0, 2), 16);
+            if ((dtc_code & 0xC0) == 0x00)
+            {
+                code += "P";
+            }
+            else if ((dtc_code & 0xC0) == 0x40)
+            {
+                code += "C";
+            }
+            else if ((dtc_code & 0xC0) == 0x80)
+            {
+                code += "B";
+            }
+            else
+            {
+                code += "U";
+            }
+
+            code += (dtc_code & 0x3F).ToString("X2");
+            code += strings.Substring(2, 4);
+
+            return code;
+        }
     }
 }

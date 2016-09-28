@@ -24,6 +24,7 @@ namespace uds_test
         [DllImport("SecurityAccess.dll", EntryPoint = "SecurityAccess", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         extern static uint SecurityAccess(uint project, uint seed, uint level);
 
+        uds_trans.AddressingModes mode = uds_trans.AddressingModes.Physical_Addressing;
 
         can_driver driver = new can_driver();
         uds_trans trans = new uds_trans();
@@ -302,17 +303,29 @@ namespace uds_test
 
         #endregion
 
-        #region TextBoxRightClick
-        
-        private void AnalyzeToolStripMenuItem_Click(object sender, EventArgs e)
+        #region Setting
+
+        private void checkBoxPhysicalAddressing_Click(object sender, EventArgs e)
         {
-            AnalyzeToolStripMenuItem.Checked = !AnalyzeToolStripMenuItem.Checked;
+            if (checkBoxPhysicalAddressing.Checked)
+            {
+                mode = uds_trans.AddressingModes.Physical_Addressing;
+            }
+            else
+            {
+                mode = uds_trans.AddressingModes.Functional_Addressing;
+            }
         }
 
-        private void AutoToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuItemSetting_Click(object sender, EventArgs e)
         {
-            AutoToolStripMenuItem.Checked = !AutoToolStripMenuItem.Checked;
+            ToolStripMenuItem s = (ToolStripMenuItem)sender;
+            s.Checked = !s.Checked;
         }
+
+        #endregion
+
+        #region TextBoxRightClick
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -330,7 +343,14 @@ namespace uds_test
 
         private void CopyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Clipboard.SetDataObject(textBoxStream.Text);
+            if (textBoxStream.SelectionLength != 0)
+            {
+                Clipboard.SetDataObject(textBoxStream.SelectedText);
+            }
+            else
+            {
+                Clipboard.SetDataObject(textBoxStream.Text);
+            }
         }
 
         private void ClearToolStripMenuItem_Click(object sender, EventArgs e)
@@ -346,7 +366,7 @@ namespace uds_test
         {
             public string id;
             public string name;
-
+            
             public Dtc(string Id, string Name)
             {
                 id = Id;
@@ -561,7 +581,8 @@ namespace uds_test
         #endregion
 
         #region Analyze
-        private void Analyze()
+
+        private void NrcAnalyze()
         {
             string strings = string.Empty;
             if (trans.can_rx_info.buffer[0] == 0x7F)
@@ -579,7 +600,7 @@ namespace uds_test
                         break;
                     case 0x14:
                         strings = "-->NRC14, Response Too Long";
-                        break; 
+                        break;
                     case 0x21:
                         strings = "-->NRC21, Busy Repeat Request";
                         break;
@@ -615,13 +636,13 @@ namespace uds_test
                         break;
                     case 0x78:
                         strings = "-->NRC78, Request Correctly Received Response Pending";
-                        break; 
+                        break;
                     case 0x7E:
                         strings = "-->NRC7E, Sub Function Not Supported In Active Session";
                         break;
                     case 0x7F:
                         strings = "-->NRC7F, Serivce Not Support In Active Session";
-                        break; 
+                        break;
                     case 0x87:
                         strings = "-->NRC87, Defect While Writing";
                         break;
@@ -636,11 +657,24 @@ namespace uds_test
                 }
                 strings += "\r\n";
             }
-            else if (trans.can_rx_info.buffer[0] == 0x59)
+            if (strings != string.Empty)
+            {
+                EventHandler TextBoxUpdate = delegate
+                {
+                    textBoxStream.AppendText(strings);
+                };
+                try { Invoke(TextBoxUpdate); } catch { };
+            }
+        }
+
+        private void DtcAnalyze()
+        {
+            string strings = string.Empty;
+            if (DTCCodeAnalyzeToolStripMenuItem.Checked && trans.can_rx_info.buffer[0] == 0x59)
             {
                 if (trans.can_rx_info.buffer[1] == 0x01)
                 {
-                    if(trans.can_rx_info.buffer.Length >= 6)
+                    if (trans.can_rx_info.buffer.Length >= 6)
                     {
                         int dtc_num = (int)trans.can_rx_info.buffer[4] << 8
                                             | (int)trans.can_rx_info.buffer[5];
@@ -679,7 +713,7 @@ namespace uds_test
                     int dtc_num = (trans.can_rx_info.buffer.Length - 3) / 4;
                     int dtc_sts;
                     int index;
-                    strings += "-->DTC Number:" + dtc_num .ToString() + "\r\n";
+                    strings += "-->DTC Number:" + dtc_num.ToString() + "\r\n";
                     for (index = 0; index < dtc_num; index++)
                     {
                         dtc_finder.id = ((int)trans.can_rx_info.buffer[3 + index * 4 + 0] << 16
@@ -687,18 +721,32 @@ namespace uds_test
                                 | (int)trans.can_rx_info.buffer[3 + index * 4 + 2]).ToString("X6");
                         dtc_sts = trans.can_rx_info.buffer[3 + index * 4 + 3];
                         dtc = dtc_list.Find(dtc_finder.FindDtcById);
-                        if (dtc != null)
+                        if (DTCCodeToolStripMenuItem.Checked)
                         {
-                            strings += "$" + dtc.id + " " + dtc_sts.ToString("X2") + " " + dtc.name + "\r\n";
+                            if (dtc != null)
+                            {
+                                strings += "$" + dtc.id.DtcEscape() + " " + dtc_sts.ToString("X2") + " " + dtc.name + "\r\n";
+                            }
+                            else
+                            {
+                                strings += "$" + dtc_finder.id.DtcEscape() + " " + dtc_sts.ToString("X2") + " " + "\r\n";
+                            }
                         }
                         else
                         {
-                            strings += "$" + dtc_finder.id + " " + dtc_sts.ToString("X2") + " " + "\r\n";
+                            if (dtc != null)
+                            {
+                                strings += "$" + dtc.id + " " + dtc_sts.ToString("X2") + " " + dtc.name + "\r\n";
+                            }
+                            else
+                            {
+                                strings += "$" + dtc_finder.id + " " + dtc_sts.ToString("X2") + " " + "\r\n";
+                            }
                         }
                     }
                 }
             }
-            if(strings != string.Empty)
+            if (strings != string.Empty)
             {
                 EventHandler TextBoxUpdate = delegate
                 {
@@ -707,6 +755,13 @@ namespace uds_test
                 try { Invoke(TextBoxUpdate); } catch { };
             }
         }
+
+        private void Analyze()
+        {
+            NrcAnalyze();
+            DtcAnalyze();
+        }
+
         #endregion
 
         #region UDS
@@ -813,7 +868,7 @@ namespace uds_test
             sub_function = new uds_service.SubFunction();
             sub_function.id = "01";
             sub_function.name = "Report Number Of DTC By Status Mask";
-            sub_function.parameter = "FF";
+            sub_function.parameter = "09";
             sub_function.identifier_enabled = false;
             service.sub_function_list.Add(sub_function);
             //@sub_function_2
@@ -842,7 +897,7 @@ namespace uds_test
             sub_function.identifier_enabled = false;
             service.sub_function_list.Add(sub_function);
             //@identifier
-            foreach(Dtc dtc in dtc_list)
+            foreach (Dtc dtc in dtc_list)
             {
                 identifier = new uds_service.Identifier();
                 identifier.id = dtc.id;
@@ -945,7 +1000,7 @@ namespace uds_test
             //end_sub_function
             //@identifier
             identifier = new uds_service.Identifier();
-            identifier.id = "42";
+            identifier.id = "24";
             identifier.name = "Address Lenght And Read Memory Lenght";
             identifier.parameter = "00 00 00 00 00 01";
             service.identifier_list.Add(identifier);
@@ -1245,7 +1300,7 @@ namespace uds_test
             //end_sub_function
             //@identifier
             identifier = new uds_service.Identifier();
-            identifier.id = "42";
+            identifier.id = "24";
             identifier.name = "Address Lenght And Read Memory Lenght";
             identifier.parameter = "00 00 00 00 00 01 00";
             service.identifier_list.Add(identifier);
@@ -1413,15 +1468,15 @@ namespace uds_test
                         if (trans.can_rx_info.buffer.Length == 4)
                         {
                             result &= 0xFFFF;
-                            trans.CanTrans_TxMsg(("27" + (level + 1).ToString("x2") + result.ToString("x4")).StringToHex());
+                            trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x4")).StringToHex());
                         }
                         else if (trans.can_rx_info.buffer.Length == 6)
                         {
-                            trans.CanTrans_TxMsg(("27" + (level + 1).ToString("x2") + result.ToString("x8")).StringToHex());
+                            trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x8")).StringToHex());
                         }
                     }
                 }
-                if(AnalyzeToolStripMenuItem.Checked)
+                if (AnalyzeToolStripMenuItem.Checked)
                 {
                     Analyze();
                 }
@@ -1485,7 +1540,7 @@ namespace uds_test
             {
                 textBoxStream.Text = "";
             }
-            trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
+            trans.CanTrans_TxMsg(mode, textBoxTransData.Text.StringToHex());
         }
 
         private bool delete_char_flag = false;
@@ -1512,11 +1567,11 @@ namespace uds_test
             {
                 trans.rx_id = 0x7B8;
                 trans.tx_id = 0x7B0;
-                if(AutoToolStripMenuItem.Checked)
+                if (AutoToolStripMenuItem.Checked)
                 {
                     textBoxStream.Text = "";
                 }
-                trans.CanTrans_TxMsg(textBoxTransData.Text.StringToHex());
+                trans.CanTrans_TxMsg(mode, textBoxTransData.Text.StringToHex());
             }
         }
 
@@ -1538,7 +1593,7 @@ namespace uds_test
 
         private void buttonSession_Click(object sender, EventArgs e)
         {
-            trans.CanTrans_TxMsg(service_10.ToString().StringToHex());
+            trans.CanTrans_TxMsg(mode, service_10.ToString().StringToHex());
         }
 
         private void comboBoxSession_SelectIndexChanged(object sender, EventArgs e)
@@ -1548,7 +1603,7 @@ namespace uds_test
 
         private void buttonSecurityAccess_Click(object sender, EventArgs e)
         {
-            trans.CanTrans_TxMsg(service_27.ToString().StringToHex());
+            trans.CanTrans_TxMsg(mode, service_27.ToString().StringToHex());
         }
 
         private void comboBoxSecurityLevel_SelectedIndexChanged(object sender, EventArgs e)

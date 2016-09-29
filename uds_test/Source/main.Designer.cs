@@ -35,16 +35,20 @@
             this.saveLocalSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.clearLocalSettingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip = new System.Windows.Forms.MenuStrip();
-            this.文件ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.FileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.OpenToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ExitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItemSetting = new System.Windows.Forms.ToolStripMenuItem();
             this.DTCToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.DTCCodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.DTCCodeAnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.AutoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.关于ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.AboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.textBoxStream = new System.Windows.Forms.TextBox();
             this.contextMenuStripSream = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.SaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.StreamSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ClearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxStream = new System.Windows.Forms.GroupBox();
@@ -80,6 +84,7 @@
             this.button7 = new System.Windows.Forms.Button();
             this.comboBox4 = new System.Windows.Forms.ComboBox();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.checkBoxPhysicalAddressing = new System.Windows.Forms.CheckBox();
             this.checkBoxTesterPresentShow = new System.Windows.Forms.CheckBox();
             this.checkBoxTesterPresent = new System.Windows.Forms.CheckBox();
             this.label33 = new System.Windows.Forms.Label();
@@ -108,10 +113,6 @@
             this.comboBoxBaud = new System.Windows.Forms.ComboBox();
             this.comboBoxChannel = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
-            this.DTCCodeAnalyzeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.loadConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveConfigToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.退出ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.oneShotCtrl4 = new User_Control.OneShotCtrl();
             this.oneShotCtrl3 = new User_Control.OneShotCtrl();
             this.oneShotCtrl2 = new User_Control.OneShotCtrl();
@@ -124,7 +125,7 @@
             this.cycleCtrl3 = new User_Control.CycleCtrl();
             this.cycleCtrl2 = new User_Control.CycleCtrl();
             this.cycleCtrl1 = new User_Control.CycleCtrl();
-            this.checkBoxPhysicalAddressing = new System.Windows.Forms.CheckBox();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.contextMenuStripTransmit.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.contextMenuStripSream.SuspendLayout();
@@ -166,24 +167,45 @@
             // menuStrip
             // 
             this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.文件ToolStripMenuItem,
+            this.FileToolStripMenuItem,
             this.toolStripMenuItemSetting,
-            this.关于ToolStripMenuItem});
+            this.AboutToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
             this.menuStrip.Size = new System.Drawing.Size(804, 25);
             this.menuStrip.TabIndex = 26;
             this.menuStrip.Text = "menuStrip";
             // 
-            // 文件ToolStripMenuItem
+            // FileToolStripMenuItem
             // 
-            this.文件ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.loadConfigToolStripMenuItem,
-            this.saveConfigToolStripMenuItem,
-            this.退出ToolStripMenuItem});
-            this.文件ToolStripMenuItem.Name = "文件ToolStripMenuItem";
-            this.文件ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
-            this.文件ToolStripMenuItem.Text = "文件";
+            this.FileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.OpenToolStripMenuItem,
+            this.SaveToolStripMenuItem,
+            this.ExitToolStripMenuItem});
+            this.FileToolStripMenuItem.Name = "FileToolStripMenuItem";
+            this.FileToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
+            this.FileToolStripMenuItem.Text = "文件";
+            // 
+            // OpenToolStripMenuItem
+            // 
+            this.OpenToolStripMenuItem.Name = "OpenToolStripMenuItem";
+            this.OpenToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.OpenToolStripMenuItem.Text = "打开";
+            this.OpenToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
+            // 
+            // SaveToolStripMenuItem
+            // 
+            this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.SaveToolStripMenuItem.Text = "保存";
+            this.SaveToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
+            // 
+            // ExitToolStripMenuItem
+            // 
+            this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ExitToolStripMenuItem.Text = "退出";
+            this.ExitToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
             // toolStripMenuItemSetting
             // 
@@ -201,7 +223,7 @@
             this.DTCCodeToolStripMenuItem,
             this.DTCCodeAnalyzeToolStripMenuItem});
             this.DTCToolStripMenuItem.Name = "DTCToolStripMenuItem";
-            this.DTCToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.DTCToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.DTCToolStripMenuItem.Text = "DTC设置";
             // 
             // DTCCodeToolStripMenuItem
@@ -211,27 +233,36 @@
             this.DTCCodeToolStripMenuItem.Text = "故障码转义";
             this.DTCCodeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
             // 
+            // DTCCodeAnalyzeToolStripMenuItem
+            // 
+            this.DTCCodeAnalyzeToolStripMenuItem.Checked = true;
+            this.DTCCodeAnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.DTCCodeAnalyzeToolStripMenuItem.Name = "DTCCodeAnalyzeToolStripMenuItem";
+            this.DTCCodeAnalyzeToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+            this.DTCCodeAnalyzeToolStripMenuItem.Text = "故障码解析";
+            this.DTCCodeAnalyzeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
+            // 
             // AnalyzeToolStripMenuItem
             // 
             this.AnalyzeToolStripMenuItem.Checked = true;
             this.AnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.AnalyzeToolStripMenuItem.Name = "AnalyzeToolStripMenuItem";
-            this.AnalyzeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.AnalyzeToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.AnalyzeToolStripMenuItem.Text = "解析数据";
             this.AnalyzeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
             // 
             // AutoToolStripMenuItem
             // 
             this.AutoToolStripMenuItem.Name = "AutoToolStripMenuItem";
-            this.AutoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.AutoToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
             this.AutoToolStripMenuItem.Text = "自动显示";
             this.AutoToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
             // 
-            // 关于ToolStripMenuItem
+            // AboutToolStripMenuItem
             // 
-            this.关于ToolStripMenuItem.Name = "关于ToolStripMenuItem";
-            this.关于ToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
-            this.关于ToolStripMenuItem.Text = "关于";
+            this.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem";
+            this.AboutToolStripMenuItem.Size = new System.Drawing.Size(44, 21);
+            this.AboutToolStripMenuItem.Text = "关于";
             // 
             // textBoxStream
             // 
@@ -248,18 +279,18 @@
             // contextMenuStripSream
             // 
             this.contextMenuStripSream.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.SaveToolStripMenuItem,
+            this.StreamSaveToolStripMenuItem,
             this.CopyToolStripMenuItem,
             this.ClearToolStripMenuItem});
             this.contextMenuStripSream.Name = "contextMenuStripSream";
             this.contextMenuStripSream.Size = new System.Drawing.Size(101, 70);
             // 
-            // SaveToolStripMenuItem
+            // StreamSaveToolStripMenuItem
             // 
-            this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
-            this.SaveToolStripMenuItem.Text = "保存";
-            this.SaveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
+            this.StreamSaveToolStripMenuItem.Name = "StreamSaveToolStripMenuItem";
+            this.StreamSaveToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.StreamSaveToolStripMenuItem.Text = "保存";
+            this.StreamSaveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
             // CopyToolStripMenuItem
             // 
@@ -638,6 +669,19 @@
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "模式选择 $10 $27";
             // 
+            // checkBoxPhysicalAddressing
+            // 
+            this.checkBoxPhysicalAddressing.AutoSize = true;
+            this.checkBoxPhysicalAddressing.Checked = true;
+            this.checkBoxPhysicalAddressing.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxPhysicalAddressing.Location = new System.Drawing.Point(54, 93);
+            this.checkBoxPhysicalAddressing.Name = "checkBoxPhysicalAddressing";
+            this.checkBoxPhysicalAddressing.Size = new System.Drawing.Size(72, 16);
+            this.checkBoxPhysicalAddressing.TabIndex = 26;
+            this.checkBoxPhysicalAddressing.Text = "功能寻址";
+            this.checkBoxPhysicalAddressing.UseVisualStyleBackColor = true;
+            this.checkBoxPhysicalAddressing.Click += new System.EventHandler(this.checkBoxPhysicalAddressing_Click);
+            // 
             // checkBoxTesterPresentShow
             // 
             this.checkBoxTesterPresentShow.AutoSize = true;
@@ -943,33 +987,6 @@
             this.tabControl.Size = new System.Drawing.Size(419, 547);
             this.tabControl.TabIndex = 25;
             // 
-            // DTCCodeAnalyzeToolStripMenuItem
-            // 
-            this.DTCCodeAnalyzeToolStripMenuItem.Checked = true;
-            this.DTCCodeAnalyzeToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.DTCCodeAnalyzeToolStripMenuItem.Name = "DTCCodeAnalyzeToolStripMenuItem";
-            this.DTCCodeAnalyzeToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.DTCCodeAnalyzeToolStripMenuItem.Text = "故障码解析";
-            this.DTCCodeAnalyzeToolStripMenuItem.Click += new System.EventHandler(this.toolStripMenuItemSetting_Click);
-            // 
-            // loadConfigToolStripMenuItem
-            // 
-            this.loadConfigToolStripMenuItem.Name = "loadConfigToolStripMenuItem";
-            this.loadConfigToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
-            this.loadConfigToolStripMenuItem.Text = "打开";
-            // 
-            // saveConfigToolStripMenuItem
-            // 
-            this.saveConfigToolStripMenuItem.Name = "saveConfigToolStripMenuItem";
-            this.saveConfigToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
-            this.saveConfigToolStripMenuItem.Text = "保存";
-            // 
-            // 退出ToolStripMenuItem
-            // 
-            this.退出ToolStripMenuItem.Name = "退出ToolStripMenuItem";
-            this.退出ToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
-            this.退出ToolStripMenuItem.Text = "退出";
-            // 
             // oneShotCtrl4
             // 
             this.oneShotCtrl4.Location = new System.Drawing.Point(10, 143);
@@ -1054,18 +1071,9 @@
             this.cycleCtrl1.Size = new System.Drawing.Size(396, 24);
             this.cycleCtrl1.TabIndex = 45;
             // 
-            // checkBoxPhysicalAddressing
+            // openFileDialog
             // 
-            this.checkBoxPhysicalAddressing.AutoSize = true;
-            this.checkBoxPhysicalAddressing.Checked = true;
-            this.checkBoxPhysicalAddressing.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxPhysicalAddressing.Location = new System.Drawing.Point(54, 93);
-            this.checkBoxPhysicalAddressing.Name = "checkBoxPhysicalAddressing";
-            this.checkBoxPhysicalAddressing.Size = new System.Drawing.Size(72, 16);
-            this.checkBoxPhysicalAddressing.TabIndex = 26;
-            this.checkBoxPhysicalAddressing.Text = "功能寻址";
-            this.checkBoxPhysicalAddressing.UseVisualStyleBackColor = true;
-            this.checkBoxPhysicalAddressing.Click += new System.EventHandler(this.checkBoxPhysicalAddressing_Click);
+            this.openFileDialog.FileName = "openFileDialog";
             // 
             // main
             // 
@@ -1120,10 +1128,10 @@
         private System.Windows.Forms.GroupBox groupBoxStream;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripSream;
         private System.Windows.Forms.ToolStripMenuItem CopyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem SaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem StreamSaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ClearToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 文件ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 关于ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem FileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem AboutToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl;
         private System.Windows.Forms.ComboBox comboBoxChannel;
         private System.Windows.Forms.ComboBox comboBoxBaud;
@@ -1202,10 +1210,11 @@
         private System.Windows.Forms.ToolStripMenuItem AutoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem DTCCodeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem DTCCodeAnalyzeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem loadConfigToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveConfigToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem 退出ToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem OpenToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem SaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ExitToolStripMenuItem;
         private System.Windows.Forms.CheckBox checkBoxPhysicalAddressing;
+        private System.Windows.Forms.OpenFileDialog openFileDialog;
     }
 }
 

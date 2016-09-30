@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using MyFormat;
 
@@ -14,6 +15,7 @@ namespace Uds
             Physical_Addressing,
             Functional_Addressing,
         }
+
         private int id;
 
         public byte fill_byte = 0x55;
@@ -115,11 +117,11 @@ namespace Uds
             CF_WAIT_TIMEOUT = N_Cr;             /* (N_Cr - 10)) */
         }
 
-        readonly int beginning_seq_number = 1;
-        readonly int TPCI_Byte = 0;
-        readonly int DL_Byte = 1;
-        readonly int BS_Byte = 1;
-        readonly int STminByte = 2;
+        private readonly int beginning_seq_number = 1;
+        private readonly int TPCI_Byte = 0;
+        private readonly int DL_Byte = 1;
+        private readonly int BS_Byte = 1;
+        private readonly int STminByte = 2;
         
         private class tx_info
         {
@@ -142,7 +144,7 @@ namespace Uds
             public byte[] frame;
         }
 
-        public class rx_info
+        private class rx_info
         {
             public bool rx_info_init = false;
             public bool rx_msg_rcvd = false;        /* if the message has never been received to be used by application level software */
@@ -165,8 +167,10 @@ namespace Uds
         }
 
         private tx_info can_tx_info = new tx_info();
-        public rx_info can_rx_info = new rx_info();
-        
+        private rx_info can_rx_info = new rx_info();
+
+        #region Event 
+
         public class FarmsEventArgs : EventArgs
         {
             public int id = 0;
@@ -180,14 +184,30 @@ namespace Uds
             }
         }
 
-        private FarmsEventArgs e_args = new FarmsEventArgs();
+        public class RxMsgEventArgs : EventArgs
+        {
+            public int id = 0;
+            public byte[] dat;
+            public RxMsgEventArgs(int lenght)
+            {
+                dat = new byte[lenght];
+            }
+            public override string ToString()
+            {
+                return id.ToString("X3") + " "
+                           + dat.HexToStrings(" ");
+            }
+        }
+
         public event EventHandler EventTxFarms;
         public event EventHandler EventRxFarms;
+        public event EventHandler EventRxMsgs;
 
         private void TxFarmsEvent(int id, byte[] dat, int dlc)
         {
             if(EventTxFarms != null)
             {
+                FarmsEventArgs e_args = new FarmsEventArgs();
                 e_args.id = id;
                 e_args.dlc = dlc;
                 Array.Copy(dat, e_args.dat, dlc);
@@ -199,6 +219,7 @@ namespace Uds
         {
             if (EventRxFarms != null)
             {
+                FarmsEventArgs e_args = new FarmsEventArgs();
                 e_args.id = id;
                 e_args.dlc = dlc;
                 Array.Copy(dat, e_args.dat, dlc);
@@ -206,18 +227,74 @@ namespace Uds
             }
         }
 
-        can_driver can = new can_driver();
-
-        public void Can_Trans_RxFrams(int id, byte[] dat, int dlc)
+        private void RxMsgEvent(int id, byte[] dat)
         {
-            if (id == rx_id && dlc == 8)
+            if(EventRxMsgs != null)
             {
-                Array.Copy(dat, can_rx_info.frame, 8);
-                RxFarmsEvent(id, dat, dlc);
+                int lenght = dat.Length;
+                RxMsgEventArgs e_rx_msg_args = new RxMsgEventArgs(lenght);
+                e_rx_msg_args.id = id;
+                Array.Copy(dat, e_rx_msg_args.dat, lenght);
+                EventRxMsgs(this, e_rx_msg_args);
             }
         }
 
-        byte[] tx_msg = new byte[0];
+        #endregion
+
+        #region Trans Thread
+
+        Thread trans_thread;
+        private void CanTrans_Thread()
+        {
+            long oldTime = DateTime.Now.Ticks;
+            while (true)
+            {
+                int id;
+                int dlc;
+                long time;
+                byte[] dat = new byte[8];
+                long cnt;
+                while (true)
+                {
+                    long nowTime = DateTime.Now.Ticks;
+                    cnt = nowTime - oldTime;
+                    if (cnt > 10000)
+                    {
+                        oldTime = nowTime;
+                        break;
+                    }
+                }
+                while (can.ReadData(out id, ref dat, out dlc, out time) == true)
+                {
+                    if (id == rx_id && dlc == 8)
+                    {
+                        Array.Copy(dat, can_rx_info.frame, 8);
+                        RxFarmsEvent(id, dat, dlc);
+                    }
+                }
+                CanTrans_Manage((int)cnt / 10000);
+            }
+        }
+
+        public void Start()
+        {
+            trans_thread = new Thread(new ThreadStart(CanTrans_Thread));
+            trans_thread.Start();
+        }
+
+        public void Stop()
+        {
+            if (trans_thread.IsAlive)
+            {
+                trans_thread.Abort();
+            }
+        }
+
+        #endregion
+
+        can_driver can = new can_driver();
+
+        private byte[] tx_msg = new byte[0];
 
         public bool CanTrans_TxMsg(AddressingModes mode, byte[] msg)
         {
@@ -242,7 +319,7 @@ namespace Uds
             return true;
         }
 
-        private void Tx_Msg()
+        private void CanTrans_TxMsg()
         {
             if(tx_msg.Length == 0)
             {
@@ -373,9 +450,9 @@ namespace Uds
             }
         }
 
-        public void CanTrans_Manage(int tick)
+        private void CanTrans_Manage(int tick)
         {
-            Tx_Msg();
+            CanTrans_TxMsg();
 
             CanTrans_Counter(tick);
 
@@ -487,6 +564,12 @@ namespace Uds
                     can_rx_info.lenght = SF_DL_MAX_BYTES - 1;
                     can_rx_info.rx_msg_rcvd = true;
                 }
+            }
+
+            if(can_rx_info.rx_msg_rcvd == true)
+            {
+                can_rx_info.rx_msg_rcvd = false;
+                RxMsgEvent(rx_id, can_rx_info.buffer);
             }
         }
 

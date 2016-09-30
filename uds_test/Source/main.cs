@@ -33,8 +33,6 @@ namespace uds_test
         public main()
         {
             InitializeComponent();
-            this.Width = 720;
-            this.Height = 620;
 
             SetStyle(
                      ControlStyles.OptimizedDoubleBuffer
@@ -45,9 +43,7 @@ namespace uds_test
                      | ControlStyles.SupportsTransparentBackColor,
                      true);
             BusParamsInit();
-            TransmitInit();
             uds_init();
-            mmTimerInit();
         }
 
         #region Bus Params Page
@@ -73,7 +69,7 @@ namespace uds_test
                 if (driver.OpenChannel(ref comboBoxChannel, ref comboBoxBaud) == true)
                 {
                     buttonBusSwitch.Text = "关闭";
-                    mmTimerStart();
+                    trans.Start();
                     comboBoxBaud.Enabled = false;
                     comboBoxChannel.Enabled = false;
 
@@ -104,7 +100,7 @@ namespace uds_test
             {
                 driver.CloseChannel();
                 buttonBusSwitch.Text = "打开";
-                mmTimerStop();
+                trans.Stop();
                 comboBoxBaud.Enabled = true;
                 comboBoxChannel.Enabled = true;
 
@@ -113,196 +109,7 @@ namespace uds_test
             }
         }
         #endregion
-
-        #region mmTimer_10ms
-
-        MmTimer mmTimer;
-        /// <summary>
-        /// mmTime init
-        /// </summary>
-        void mmTimerInit()
-        {
-            mmTimer = new MmTimer();
-            mmTimer.Mode = MmTimerMode.Periodic;
-            mmTimer.Interval = 10;
-            mmTimer.Tick += new EventHandler(mmTimer_tick);
-        }
-        /// <summary>
-        /// mmTimer start
-        /// </summary>
-        void mmTimerStart()
-        {
-            mmTimer.Start();
-        }
-        /// <summary>
-        /// mmTimer stpp
-        /// </summary>
-        void mmTimerStop()
-        {
-            mmTimer.Stop();
-            mmTimer.Dispose();
-        }
-
-        /// <summary>
-        /// mmtimer handler
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void mmTimer_tick(object sender, EventArgs e)
-        {
-            //匿名委托，用于this.Invoke调用
-            EventHandler TextBoxUpdate = delegate
-            {
-                //UpdateAndTransmit();
-            };
-            try { Invoke(TextBoxUpdate); } catch { };
-            int id;
-            int dlc;
-            long time;
-            byte[] dat = new byte[8];
-            while (driver.ReadData(out id, ref dat, out dlc, out time) == true)
-            {
-                trans.Can_Trans_RxFrams(id, dat, dlc);
-            }
-            uds_rx_handler();
-            trans.CanTrans_Manage(10);
-        }
-        #endregion
-
-        #region Transmit Page
-
-        List<CycleCtrl> cycleCtrlList = new List<CycleCtrl>();
-        List<OneShotCtrl> oneShotCtrlList = new List<OneShotCtrl>();
-
-        private void TransmitInit()
-        {
-            cycleCtrlList.Add(cycleCtrl1);
-            cycleCtrlList.Add(cycleCtrl2);
-            cycleCtrlList.Add(cycleCtrl3);
-            cycleCtrlList.Add(cycleCtrl4);
-            cycleCtrlList.Add(cycleCtrl5);
-            cycleCtrlList.Add(cycleCtrl6);
-            cycleCtrlList.Add(cycleCtrl7);
-            cycleCtrlList.Add(cycleCtrl8);
-            oneShotCtrlList.Add(oneShotCtrl1);
-            oneShotCtrlList.Add(oneShotCtrl2);
-            oneShotCtrlList.Add(oneShotCtrl3);
-            oneShotCtrlList.Add(oneShotCtrl4);
-
-            LoadTransmitSetting();
-        }
-
-        private void UpdateAndTransmit()
-        {
-            foreach (CycleCtrl Sch in cycleCtrlList)
-            {
-                if (Sch.Check)
-                {
-                    Sch.TimeCnt += 10;
-                    if (Sch.TimeCnt >= Sch.Interval)
-                    {
-                        Sch.TimeCnt -= Sch.Interval;
-
-                        driver.WriteData(Sch.Id, Sch.Dat, Sch.Dlc);
-                    }
-                }
-            }
-            foreach (OneShotCtrl Sch in oneShotCtrlList)
-            {
-                if (Sch.Updated)
-                {
-                    Sch.Updated = false;
-
-                    driver.WriteData(Sch.Id, Sch.Dat, Sch.Dlc);
-                }
-            }
-        }
-
-        private void LoadTransmitSetting()
-        {
-            if (Transmit.Default.SaveFlag)
-            {
-                int index = 0;
-                /*Cycle Ctrl*/
-                foreach (CycleCtrl Sch in cycleCtrlList)
-                {
-                    if (index < Transmit.Default.CtrlData.Length)
-                    {
-                        Sch.Init(Transmit.Default.CtrlData[index++]);
-                    }
-                }
-                /*One Shot Ctrl*/
-                foreach (OneShotCtrl Sch in oneShotCtrlList)
-                {
-                    if (index < Transmit.Default.CtrlData.Length)
-                    {
-                        Sch.Init(Transmit.Default.CtrlData[index++]);
-                    }
-                }
-            }
-            else
-            {
-                this.ClearTransmit();
-            }
-        }
-        /// <summary>
-        /// clear local settings
-        /// </summary>
-        private void ClearTransmit()
-        {
-            /*Cycle Ctrl*/
-            foreach (CycleCtrl Sch in cycleCtrlList)
-            {
-                Sch.Clear();
-            }
-            /*One Shot Ctrl*/
-            foreach (OneShotCtrl Sch in oneShotCtrlList)
-            {
-                Sch.Clear();
-            }
-        }
-        /// <summary>
-        /// save local settings
-        /// </summary>
-        void SaveTransmitSetting()
-        {
-            /*Cycle Ctrl*/
-            string[] stringArr = new string[cycleCtrlList.Count + oneShotCtrlList.Count];
-            int index = 0;
-            foreach (CycleCtrl Sch in cycleCtrlList)
-            {
-                stringArr[index++] = Sch.ToSetting();
-            }
-            /*One Shot Ctrl*/
-            foreach (OneShotCtrl Sch in oneShotCtrlList)
-            {
-                stringArr[index++] = Sch.ToSetting();
-            }
-            Transmit.Default.CtrlData = stringArr;
-            Transmit.Default.SaveFlag = true;
-            Transmit.Default.Save();
-        }
-        /// <summary>
-        /// clear data
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ClearTransmit_Click(object sender, EventArgs e)
-        {
-            ClearTransmit();
-        }
-        /// <summary>
-        /// save data
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SaveTransmit_Click(object sender, EventArgs e)
-        {
-            SaveTransmitSetting();
-        }
-
-        #endregion
-
+        
         #region File
 
         readonly string IdentifierProject = "$Project Name";
@@ -334,6 +141,7 @@ namespace uds_test
                     service_19.identifier_list = new List<uds_service.Identifier>();
                     service_22.identifier_list = new List<uds_service.Identifier>();
                     service_2E.identifier_list = new List<uds_service.Identifier>();
+                    service_2F.identifier_list = new List<uds_service.Identifier>();
 
                     while ((line = myStream.ReadLine()) != null)
                     {
@@ -382,13 +190,17 @@ namespace uds_test
                             }
                             else if (format[0] == IdentifierIoCtrl)
                             {
-
+                                string[] s = format[1].Split(new char[] { ',' });
+                                uds_service.Identifier identifier = new uds_service.Identifier();
+                                identifier.id = s[0];
+                                identifier.name = s[2];
+                                identifier.parameter = s[1];
+                                service_2F.identifier_list.Add(identifier);
                             }
                             else if (format[0] == IdentifierRoutine)
                             {
 
                             }
-                            
                         }
                         catch
                         {
@@ -748,12 +560,12 @@ namespace uds_test
 
         #region Analyze
 
-        private void NrcAnalyze()
+        private void NrcAnalyze(byte[] dat)
         {
             string strings = string.Empty;
-            if (trans.can_rx_info.buffer[0] == 0x7F)
+            if (dat[0] == 0x7F)
             {
-                switch (trans.can_rx_info.buffer[2])
+                switch (dat[2])
                 {
                     case 0x11:
                         strings = "-->NRC11, Service Not Supported";
@@ -833,40 +645,40 @@ namespace uds_test
             }
         }
 
-        private void DtcAnalyze()
+        private void DtcAnalyze(byte[] dat)
         {
             string strings = string.Empty;
-            if (DTCCodeAnalyzeToolStripMenuItem.Checked && trans.can_rx_info.buffer[0] == 0x59)
+            if (DTCCodeAnalyzeToolStripMenuItem.Checked && dat[0] == 0x59)
             {
-                if (trans.can_rx_info.buffer[1] == 0x01)
+                if (dat[1] == 0x01)
                 {
-                    if (trans.can_rx_info.buffer.Length >= 6)
+                    if (dat.Length >= 6)
                     {
-                        int dtc_num = (int)trans.can_rx_info.buffer[4] << 8
-                                            | (int)trans.can_rx_info.buffer[5];
+                        int dtc_num = (int)dat[4] << 8
+                                            | (int)dat[5];
                         strings += "-->DTC Analyze\r\n";
                         strings += "-->DTC Number:" + dtc_num.ToString() + "\r\n";
                     }
                 }
-                else if (trans.can_rx_info.buffer[1] == 0x04)
+                else if (dat[1] == 0x04)
                 {
-                    if (trans.can_rx_info.buffer.Length >= 7)
+                    if (dat.Length >= 7)
                     {
                         byte[] bytes = new byte[5];
-                        Array.Copy(trans.can_rx_info.buffer, 2, bytes, 0, 5);
+                        Array.Copy(dat, 2, bytes, 0, 5);
                         strings += "-->DTC Analyze\r\n";
                         strings += "-->DTC Snop Shot:" + bytes.HexToStrings(" ") + "\r\n";
-                        bytes = new byte[trans.can_rx_info.buffer.Length - 7];
-                        Array.Copy(trans.can_rx_info.buffer, 7, bytes, 0, bytes.Length);
+                        bytes = new byte[dat.Length - 7];
+                        Array.Copy(dat, 7, bytes, 0, bytes.Length);
                         strings += "-->DTC Snop Shot:" + bytes.HexToStrings(" ") + "\r\n";
                     }
                 }
-                else if (trans.can_rx_info.buffer[1] == 0x06)
+                else if (dat[1] == 0x06)
                 {
-                    if (trans.can_rx_info.buffer.Length >= 2)
+                    if (dat.Length >= 2)
                     {
-                        byte[] bytes = new byte[trans.can_rx_info.buffer.Length - 2];
-                        Array.Copy(trans.can_rx_info.buffer, 2, bytes, 0, bytes.Length);
+                        byte[] bytes = new byte[dat.Length - 2];
+                        Array.Copy(dat, 2, bytes, 0, bytes.Length);
                         strings += "-->DTC Analyze\r\n";
                         strings += "-->DTC Extended Record:" + bytes.HexToStrings(" ") + "\r\n";
                     }
@@ -876,16 +688,16 @@ namespace uds_test
                     strings += "-->DTC Analyze\r\n";
                     DtcFinder dtc_finder = new DtcFinder();
                     Dtc dtc = new Dtc("", "");
-                    int dtc_num = (trans.can_rx_info.buffer.Length - 3) / 4;
+                    int dtc_num = (dat.Length - 3) / 4;
                     int dtc_sts;
                     int index;
                     strings += "-->DTC Number:" + dtc_num.ToString() + "\r\n";
                     for (index = 0; index < dtc_num; index++)
                     {
-                        dtc_finder.id = ((int)trans.can_rx_info.buffer[3 + index * 4 + 0] << 16
-                                | (int)trans.can_rx_info.buffer[3 + index * 4 + 1] << 8
-                                | (int)trans.can_rx_info.buffer[3 + index * 4 + 2]).ToString("X6");
-                        dtc_sts = trans.can_rx_info.buffer[3 + index * 4 + 3];
+                        dtc_finder.id = ((int)dat[3 + index * 4 + 0] << 16
+                                | (int)dat[3 + index * 4 + 1] << 8
+                                | (int)dat[3 + index * 4 + 2]).ToString("X6");
+                        dtc_sts = dat[3 + index * 4 + 3];
                         dtc = dtc_list.Find(dtc_finder.FindDtcById);
                         if (DTCCodeToolStripMenuItem.Checked)
                         {
@@ -922,15 +734,89 @@ namespace uds_test
             }
         }
 
-        private void Analyze()
+        private void Analyze(byte[] dat)
         {
-            NrcAnalyze();
-            DtcAnalyze();
+            NrcAnalyze(dat);
+            DtcAnalyze(dat);
         }
 
         #endregion
 
         #region UDS
+
+        private void uds_init()
+        {
+            driver = new can_driver();
+            trans = new uds_trans();
+
+            trans.tx_id = 0x7B0;
+            trans.rx_id = 0x7B8;
+
+            #region Trans Event
+            /*使用事件委托传参*/
+            driver.EventWriteData += new EventHandler(
+                (sender1, e1) =>
+                {
+                    can_driver.WriteDataEventArgs TxFarme = (can_driver.WriteDataEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        if (checkBoxTesterPresentShow.Checked == false
+                            && TxFarme.dat[0] == 0x02
+                            && TxFarme.dat[1] == 0x3E)
+                        {
+                            return;
+                        }
+                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
+                    };
+                    try { Invoke(TextBoxUpdate); } catch { };
+                }
+                );
+            trans.EventTxFarms += new EventHandler(
+                (sender1, e1) =>
+                {
+                    uds_trans.FarmsEventArgs TxFarme = (uds_trans.FarmsEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        if (checkBoxTesterPresentShow.Checked == false
+                            && TxFarme.dat[0] == 0x02
+                            && TxFarme.dat[1] == 0x3E)
+                        {
+                            return;
+                        }
+                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
+                    };
+                    try { Invoke(TextBoxUpdate); } catch { };
+                }
+                );
+            trans.EventRxFarms += new EventHandler(
+                (sender1, e1) =>
+                {
+                    uds_trans.FarmsEventArgs RxFarme = (uds_trans.FarmsEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        if (checkBoxTesterPresentShow.Checked == false
+                            && RxFarme.dat[0] == 0x02
+                            && RxFarme.dat[1] == 0x7E)
+                        {
+                            return;
+                        }
+                        textBoxStream.AppendText(RxFarme.ToString() + "\r\n");
+                    };
+                    try { Invoke(TextBoxUpdate); } catch { };
+                }
+                );
+            trans.EventRxMsgs += new EventHandler(
+                (sender1, e1) =>
+                {
+                    uds_trans.RxMsgEventArgs RxMsg = (uds_trans.RxMsgEventArgs)e1;
+                    uds_rx_msg(RxMsg.dat);
+                }
+                );
+            #endregion
+
+            uds_seriver_init();
+        }
+
         uds_service now_service = new uds_service();
         uds_service service_10 = new uds_service();
         uds_service service_11 = new uds_service();
@@ -977,7 +863,7 @@ namespace uds_test
             //@end_sub_function
             //@identifier
             //@end_identifier
-            services_list.Add(service_10);
+            //services_list.Add(service_10);
             #endregion
 
             #region $11 ECU Reset
@@ -1184,7 +1070,7 @@ namespace uds_test
             //@end_sub_function
             //@identifier
             //@end_identifier
-            services_list.Add(service_27);
+            //services_list.Add(service_27);
             #endregion
             
             #region $28 Communication Control
@@ -1255,22 +1141,22 @@ namespace uds_test
             //@sub_function
             //1
             sub_function = new uds_service.SubFunction();
-            sub_function.id = "01";
+            sub_function.id = "00";
             sub_function.name = "Return Control To ECU";
             service_2F.sub_function_list.Add(sub_function);
-            //2
-            sub_function = new uds_service.SubFunction();
-            sub_function.id = "02";
-            sub_function.name = "Reset To Default";
-            service_2F.sub_function_list.Add(sub_function);
-            //3
-            sub_function = new uds_service.SubFunction();
-            sub_function.id = "03";
-            sub_function.name = "Freeze Current State";
-            service_2F.sub_function_list.Add(sub_function);
+            ////2
+            //sub_function = new uds_service.SubFunction();
+            //sub_function.id = "01";
+            //sub_function.name = "Reset To Default";
+            //service_2F.sub_function_list.Add(sub_function);
+            ////3
+            //sub_function = new uds_service.SubFunction();
+            //sub_function.id = "02";
+            //sub_function.name = "Freeze Current State";
+            //service_2F.sub_function_list.Add(sub_function);
             //4
             sub_function = new uds_service.SubFunction();
-            sub_function.id = "04";
+            sub_function.id = "03";
             sub_function.name = "Short Term Adjustment";
             service_2F.sub_function_list.Add(sub_function);
             //@end_sub_function
@@ -1279,31 +1165,31 @@ namespace uds_test
             identifier = new uds_service.Identifier();
             identifier.id = "D500";
             identifier.name = "Digital Input 1";
-            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            identifier.parameter = "FFFFFFFFFFFFFFFF";
             service_2F.identifier_list.Add(identifier);
             //2
             identifier = new uds_service.Identifier();
             identifier.id = "D501";
             identifier.name = "Digital Input 2";
-            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            identifier.parameter = "FFFFFFFFFFFFFFFF";
             service_2F.identifier_list.Add(identifier);
             //3
             identifier = new uds_service.Identifier();
             identifier.id = "D502";
             identifier.name = "Out Put 1";
-            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            identifier.parameter = "FFFFFFFFFFFFFFFF";
             service_2F.identifier_list.Add(identifier);
             //4
             identifier = new uds_service.Identifier();
             identifier.id = "D503";
             identifier.name = "Out Put 2";
-            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            identifier.parameter = "FFFFFFFFFFFFFFFF";
             service_2F.identifier_list.Add(identifier);
             //5
             identifier = new uds_service.Identifier();
             identifier.id = "D504";
             identifier.name = "Out Put 3";
-            identifier.parameter = "FFFFFFFFFFFFFFFFFFFF";
+            identifier.parameter = "FFFFFFFFFFFFFFFF";
             service_2F.identifier_list.Add(identifier);
             //@end_identifier
             services_list.Add(service_2F);
@@ -1467,7 +1353,7 @@ namespace uds_test
             service_31.identifier_list.Add(identifier);
 
             //@end_identifier
-            services_list.Add(service_31);
+            //services_list.Add(service_31);
             #endregion
 
             #region $3D Write Memory By Address
@@ -1552,113 +1438,43 @@ namespace uds_test
             comboBoxServices.SelectedIndex = 0;
         }
 
-        private void uds_init()
+        private void uds_rx_msg(byte[] dat)
         {
-            driver = new can_driver();
-            trans = new uds_trans();
-
-            trans.tx_id = 0x7B0;
-            trans.rx_id = 0x7B8;
-
-            #region Trans Event
-            /*使用事件委托传参*/
-            driver.EventWriteData += new EventHandler(
-                (sender1, e1) =>
-                {
-                    can_driver.WriteDataEventArgs TxFarme = (can_driver.WriteDataEventArgs)e1;
-                    EventHandler TextBoxUpdate = delegate
-                    {
-                        if (checkBoxTesterPresentShow.Checked == false
-                            && TxFarme.dat[0] == 0x02
-                            && TxFarme.dat[1] == 0x3E)
-                        {
-                            return;
-                        }
-                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
-                    };
-                    try { Invoke(TextBoxUpdate); } catch { };
-                }
-                );
-            trans.EventTxFarms += new EventHandler(
-                (sender1, e1) =>
-                {
-                    uds_trans.FarmsEventArgs TxFarme = (uds_trans.FarmsEventArgs)e1;
-                    EventHandler TextBoxUpdate = delegate
-                    {
-                        if (checkBoxTesterPresentShow.Checked == false
-                            && TxFarme.dat[0] == 0x02
-                            && TxFarme.dat[1] == 0x3E)
-                        {
-                            return;
-                        }
-                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
-                    };
-                    try { Invoke(TextBoxUpdate); } catch { };
-                }
-                );
-            trans.EventRxFarms += new EventHandler(
-                (sender1, e1) =>
-                {
-                    uds_trans.FarmsEventArgs RxFarme = (uds_trans.FarmsEventArgs)e1;
-                    EventHandler TextBoxUpdate = delegate
-                    {
-                        if (checkBoxTesterPresentShow.Checked == false
-                            && RxFarme.dat[0] == 0x02
-                            && RxFarme.dat[1] == 0x7E)
-                        {
-                            return;
-                        }
-                        textBoxStream.AppendText(RxFarme.ToString() + "\r\n");
-                    };
-                    try { Invoke(TextBoxUpdate); } catch { };
-                }
-                );
-            #endregion
-
-            uds_seriver_init();
-        }
-
-        private void uds_rx_handler()
-        {
-            if (trans.can_rx_info.rx_msg_rcvd == true)
+            if (dat[0] == 0x67)
             {
-                trans.can_rx_info.rx_msg_rcvd = false;
-                if (trans.can_rx_info.buffer[0] == 0x67)
+                uint seed = 0;
+                uint level;
+                uint result = 0;
+                if (dat.Length == 4)
                 {
-                    uint seed = 0;
-                    uint level;
-                    uint result = 0;
-                    if (trans.can_rx_info.buffer.Length == 4)
+                    seed = (uint)dat[2] << 8
+                        | (uint)dat[3];
+                }
+                else if (dat.Length == 6)
+                {
+                    seed = (uint)dat[2] << 24
+                        | (uint)dat[3] << 16
+                        | (uint)dat[4] << 8
+                        | (uint)dat[5];
+                }
+                level = dat[1];
+                if (seed != 0 && level % 2 != 0)
+                {
+                    result = SecurityAccess(0, seed, level);
+                    if (dat.Length == 4)
                     {
-                        seed = (uint)trans.can_rx_info.buffer[2] << 8
-                            | (uint)trans.can_rx_info.buffer[3];
+                        result &= 0xFFFF;
+                        trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x4")).StringToHex());
                     }
-                    else if (trans.can_rx_info.buffer.Length == 6)
+                    else if (dat.Length == 6)
                     {
-                        seed = (uint)trans.can_rx_info.buffer[2] << 24
-                            | (uint)trans.can_rx_info.buffer[3] << 16
-                            | (uint)trans.can_rx_info.buffer[4] << 8
-                            | (uint)trans.can_rx_info.buffer[5];
-                    }
-                    level = trans.can_rx_info.buffer[1];
-                    if (seed != 0 && level % 2 != 0)
-                    {
-                        result = SecurityAccess(0, seed, level);
-                        if (trans.can_rx_info.buffer.Length == 4)
-                        {
-                            result &= 0xFFFF;
-                            trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x4")).StringToHex());
-                        }
-                        else if (trans.can_rx_info.buffer.Length == 6)
-                        {
-                            trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x8")).StringToHex());
-                        }
+                        trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x8")).StringToHex());
                     }
                 }
-                if (AnalyzeToolStripMenuItem.Checked)
-                {
-                    Analyze();
-                }
+            }
+            if (AnalyzeToolStripMenuItem.Checked)
+            {
+                Analyze(dat);
             }
         }
 

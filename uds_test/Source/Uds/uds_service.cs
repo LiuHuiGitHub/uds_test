@@ -59,12 +59,26 @@ namespace Uds
         {
             string strings = string.Empty;
             strings += sid;
-            strings += sub_function_selectd.id;
+            if (sid != "2F")
+            {
+                strings += sub_function_selectd.id;
+            }
             if (sub_function_selectd.identifier_enabled)
             {
                 strings += identifier_selected.id;
-                strings += identifier_selected.parameter;
-                strings += sub_function_selectd.parameter;
+                if (sid == "2F")
+                {
+                    strings += sub_function_selectd.id;
+                    if(sub_function_selectd.id == "03")
+                    {
+                        strings += identifier_selected.parameter;
+                    }
+                }
+                else
+                {
+                    strings += identifier_selected.parameter;
+                    strings += sub_function_selectd.parameter;
+                }
             }
             else
             {

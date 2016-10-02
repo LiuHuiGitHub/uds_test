@@ -8,6 +8,11 @@ namespace MyFormat
 {
     static class Format
     {
+        /// <summary>
+        /// 将十六进制字符串转换成十六进制数组（不足末尾补0），失败返回空数组
+        /// </summary>
+        /// <param name="strings"></param>
+        /// <returns></returns>
         public static byte[] StringToHex(this string strings)
         {
             byte[] hex = new byte[0];
@@ -34,6 +39,12 @@ namespace MyFormat
             }
         }
 
+        /// <summary>
+        /// 将十六进制数组转换成十六进制字符串，并以space隔开
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <param name="space"></param>
+        /// <returns></returns>
         public static string HexToStrings(this byte[] hex, string space)
         {
             string strings = "";
@@ -44,32 +55,53 @@ namespace MyFormat
             return strings;
         }
 
+        /// <summary>
+        /// 将十六进制数组转换成十六进制字符串
+        /// </summary>
+        /// <param name="hex"></param>
+        /// <returns></returns>
         public static string HexToStrings(this byte[] hex)
         {
             return HexToStrings(hex, "");
         }
 
+        /// <summary>
+        /// 移除字符串中的多余空格
+        /// </summary>
+        /// <param name="strings"></param>
+        /// <returns></returns>
         public static string RemoveUnwantedSpaces(this string strings)
         {
             strings = Regex.Replace(strings.Trim(), "\\s+", " ");
             return strings;
         }
 
-        public static string InsertSpace(this string str, int lenght)
+        /// <summary>
+        /// 在字符串中每隔length个字符添加一个空格
+        /// </summary>
+        /// <param name="strings"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static string InsertSpace(this string strings, int length)
         {
             int i;
-            string strings = "";
-            for (i = 0; i < str.Length; i++)
+            string str = "";
+            for (i = 0; i < strings.Length; i++)
             {
-                strings += str[i];
-                if (i % lenght != 0 && i != str.Length - 1)
+                str += strings[i];
+                if (i % length != 0 && i != strings.Length - 1)
                 {
-                    strings += " ";
+                    str += " ";
                 }
             }
-            return strings;
+            return str;
         }
 
+        /// <summary>
+        /// UDS DTC故障码转义
+        /// </summary>
+        /// <param name="strings"></param>
+        /// <returns></returns>
         public static string DtcEscape(this string strings)
         {
             if (strings.Length == 7)

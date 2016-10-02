@@ -14,6 +14,10 @@ namespace Uds
     {
         private int canHandler = 0;
 
+        /// <summary>
+        /// 选择CAN通道
+        /// </summary>
+        /// <param name="comboBoxChannel"></param>
         public void SelectChannel(ref ComboBox comboBoxChannel)
         {
             int channel_index = 0x00;
@@ -37,7 +41,12 @@ namespace Uds
                 comboBoxChannel.SelectedIndex = 0;
             }
         }
-
+        /// <summary>
+        /// 打开CAN通道
+        /// </summary>
+        /// <param name="comboBoxChannel"></param>
+        /// <param name="comboBoxBaud"></param>
+        /// <returns></returns>
         public bool OpenChannel(ref ComboBox comboBoxChannel, ref ComboBox comboBoxBaud)
         {
             int canFreq;
@@ -110,7 +119,10 @@ namespace Uds
 
             return true;
         }
-
+        /// <summary>
+        /// 关闭CAN通道
+        /// </summary>
+        /// <returns></returns>
         public bool CloseChannel()
         {
             Canlib.canBusOff(canHandler);
@@ -118,39 +130,11 @@ namespace Uds
             return true;
         }
 
-        public class WriteDataEventArgs : EventArgs
-        {
-            public int id = 0;
-            public int dlc = 0;
-            public byte[] dat = new byte[8];
-            public override string ToString()
-            {
-                return id.ToString("X3") + " "
-                           + dlc.ToString("X1") + " "
-                           + dat.HexToStrings(" ");
-            }
-        }
-
-        private WriteDataEventArgs e_args = new WriteDataEventArgs();
-        public event EventHandler EventWriteData;
-
-        public bool WriteData(int id, byte[] dat, int dlc)
-        {
-            Canlib.canStatus canStatus = Canlib.canWrite(canHandler, id, dat, dlc, 0);
-            if (canStatus != Canlib.canStatus.canOK)
-            {
-                return false;
-            }
-            if (EventWriteData != null)
-            {
-                e_args.id = id;
-                e_args.dlc = dlc;
-                Array.Copy(dat, e_args.dat, dlc);
-                EventWriteData(this, e_args);
-            }
-            return true;
-        }
-
+        /// <summary>
+        /// CAN获取总线负载率
+        /// </summary>
+        /// <param name="busload"></param>
+        /// <returns></returns>
         public bool BusLoad(ref int busload)
         {
             Canlib.canBusStatistics sss;
@@ -163,6 +147,60 @@ namespace Uds
             return false;
         }
 
+        public class WriteDataEventArgs : EventArgs
+        {
+            public int id = 0;
+            public int dlc = 0;
+            public byte[] dat = new byte[8];
+            public int time = 0;
+            public override string ToString()
+            {
+                return id.ToString("X3") + " "
+                           + dlc.ToString("X1") + " "
+                           + dat.HexToStrings(" ") + " "
+                           + (time/1000).ToString()+"."+(time%1000).ToString("d3");
+            }
+        }
+
+        private WriteDataEventArgs e_args = new WriteDataEventArgs();
+        public event EventHandler EventWriteData;
+        /// <summary>
+        /// CAN发送一帧数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dat"></param>
+        /// <param name="dlc"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
+        public bool WriteData(int id, byte[] dat, int dlc, out long time)
+        {
+            time = 0;
+            Canlib.canStatus canStatus = Canlib.canWrite(canHandler, id, dat, dlc, 0);
+            if (canStatus != Canlib.canStatus.canOK)
+            {
+                return false;
+            }
+            int ttime = 0;
+            Canlib.kvReadTimer(canHandler, out ttime);
+            time = (long)ttime;
+            if (EventWriteData != null)
+            {
+                e_args.id = id;
+                e_args.dlc = dlc;
+                e_args.time = ttime;
+                Array.Copy(dat, e_args.dat, dlc);
+                EventWriteData(this, e_args);
+            }
+            return true;
+        }
+        /// <summary>
+        /// CAN读取接收的一帧数据
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="dat"></param>
+        /// <param name="dlc"></param>
+        /// <param name="time"></param>
+        /// <returns></returns>
         public bool ReadData(out int id, ref byte[] dat, out int dlc, out long time)
         {
             int flag = 0 ;

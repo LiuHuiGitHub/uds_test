@@ -17,7 +17,9 @@ namespace Uds
         }
 
         private int id;
-
+        /// <summary>
+        /// UDS默认填充字节
+        /// </summary>
         public byte fill_byte = 0x55;
 
         public int tx_id;
@@ -76,21 +78,19 @@ namespace Uds
         };
 
         private int N_As = 25;
-
         private int N_Ar = 25;
 
         private int N_Bs = 75;
+        private int N_Br;
 
         private int N_Cr = 150;
+        private int N_Cs;
 
         private int FC_BS_MAX_VALUE = 0;
-        private int FC_ST_MIN_VALUE = 20;
+        private int FC_ST_MIN_VALUE = 5;
 
         private int CF_SN_MAX_VALUE = 15;
         private int SF_DL_MAX_BYTES = 7;
-
-        private int N_Br;
-        private int N_Cs;
 
         /*
         ** Time to wait for the tester to send a FC frame in response
@@ -122,13 +122,12 @@ namespace Uds
         private readonly int DL_Byte = 1;
         private readonly int BS_Byte = 1;
         private readonly int STminByte = 2;
-        
+
         private class tx_info
         {
             public bool tx_rx_idle = false;
             public bool tx_fc_tpdu = false;
             public bool tx_last_frame_error = false;
-            public bool rx_in_progress = false;
             public bool tx_wait_fc = false;
             public bool tx_in_progress = false;
 
@@ -136,7 +135,7 @@ namespace Uds
             public int tx_stmin_time = 20;
             public int tx_cf_stmin_wait_time = 20;   /* STmin Time in Flow Control Frame */
             public int tx_fc_wait_time = 0;         /* Wait for FC when has sent FF */
-            
+
             public int lenght;
             public int offset;
             public int next_seq_num;
@@ -146,14 +145,10 @@ namespace Uds
 
         private class rx_info
         {
-            public bool rx_info_init = false;
+            public bool rx_in_progress = false;
+            
             public bool rx_msg_rcvd = false;        /* if the message has never been received to be used by application level software */
-            public bool rx_msg_invl_tpci = false;
-            public bool rx_msg_pad_not_zero = false;
             public bool tx_aborted = false;
-            public bool rx_msg_invl_len = false;
-            public bool rcv_msg_is_msng = false;    /* the message has been declared missing */
-            public bool rcv_msg_is_new = false;     /* the message is new */
 
             public int rx_cf_wait_time = 0;
             public bool rx_fc_wait_timeout_disable = false;
@@ -168,19 +163,21 @@ namespace Uds
 
         private tx_info can_tx_info = new tx_info();
         private rx_info can_rx_info = new rx_info();
-
+        
         #region Event 
-
+        
         public class FarmsEventArgs : EventArgs
         {
             public int id = 0;
             public int dlc = 0;
             public byte[] dat = new byte[8];
+            public long time = 0;
             public override string ToString()
             {
                 return id.ToString("X3") + " "
                            + dlc.ToString("X1") + " "
-                           + dat.HexToStrings(" ");
+                           + dat.HexToStrings(" ") + " "
+                           + (time / 1000).ToString() + "." + (time % 1000).ToString("d3");
             }
         }
 
@@ -188,6 +185,7 @@ namespace Uds
         {
             public int id = 0;
             public byte[] dat;
+            public long time = 0;
             public RxMsgEventArgs(int lenght)
             {
                 dat = new byte[lenght];
@@ -195,33 +193,44 @@ namespace Uds
             public override string ToString()
             {
                 return id.ToString("X3") + " "
-                           + dat.HexToStrings(" ");
+                           + dat.HexToStrings(" ") + " "
+                           + (time / 1000).ToString() + "." + (time % 1000).ToString("d3");
             }
         }
-
+        /// <summary>
+        /// UDS 传输层发送一帧事件
+        /// </summary>
         public event EventHandler EventTxFarms;
+        /// <summary>
+        /// UDS 传输层接收一帧事件
+        /// </summary>
         public event EventHandler EventRxFarms;
+        /// <summary>
+        /// UDS 传输层接收完成事件
+        /// </summary>
         public event EventHandler EventRxMsgs;
 
-        private void TxFarmsEvent(int id, byte[] dat, int dlc)
+        private void TxFarmsEvent(int id, byte[] dat, int dlc, long time)
         {
-            if(EventTxFarms != null)
+            if (EventTxFarms != null)
             {
                 FarmsEventArgs e_args = new FarmsEventArgs();
                 e_args.id = id;
                 e_args.dlc = dlc;
+                e_args.time = time;
                 Array.Copy(dat, e_args.dat, dlc);
                 EventTxFarms(this, e_args);
             }
         }
 
-        private void RxFarmsEvent(int id, byte[] dat, int dlc)
+        private void RxFarmsEvent(int id, byte[] dat, int dlc, long time)
         {
             if (EventRxFarms != null)
             {
                 FarmsEventArgs e_args = new FarmsEventArgs();
                 e_args.id = id;
                 e_args.dlc = dlc;
+                e_args.time = time;
                 Array.Copy(dat, e_args.dat, dlc);
                 EventRxFarms(this, e_args);
             }
@@ -229,7 +238,7 @@ namespace Uds
 
         private void RxMsgEvent(int id, byte[] dat)
         {
-            if(EventRxMsgs != null)
+            if (EventRxMsgs != null)
             {
                 int lenght = dat.Length;
                 RxMsgEventArgs e_rx_msg_args = new RxMsgEventArgs(lenght);
@@ -243,51 +252,109 @@ namespace Uds
 
         #region Trans Thread
 
+        Thread testerPresent_thread;
+        private void testerPresent_Thread()
+        {
+            while(true)
+            {
+                long time;
+                if(can.WriteData(0x7DF, new byte[] { 0x02, 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8, out time) == true)
+                {
+                    Thread.Sleep(3000);
+                }
+            }
+        }
+        private bool tester = false;
+        /// <summary>
+        /// 诊断保持
+        /// </summary>
+        public bool testerPresentCheckd
+        {
+            set
+            {
+                tester = value;
+                if (tester)
+                {
+                    testerPresent_thread = new Thread(new ThreadStart(testerPresent_Thread));
+                    testerPresent_thread.Start();
+                }
+                else
+                {
+                    if (testerPresent_thread != null && testerPresent_thread.IsAlive)
+                    {
+                        testerPresent_thread.Abort();
+                    }
+                }
+            }
+            get
+            {
+                return tester;
+            }
+        }
         Thread trans_thread;
         private void CanTrans_Thread()
         {
             long oldTime = DateTime.Now.Ticks;
             while (true)
             {
+                long cnt;
                 int id;
                 int dlc;
                 long time;
                 byte[] dat = new byte[8];
-                long cnt;
                 while (true)
                 {
+                    bool rx_frame = false;
+                    while (can.ReadData(out id, ref dat, out dlc, out time) == true)
+                    {
+                        if (id == rx_id && dlc == 8)
+                        {
+                            if(can_rx_info.rx_in_progress && dat[0] == 0x02 && dat[1] == 0x7F && dat[3] == 0x78)
+                            {
+                                can_rx_info.rx_cf_wait_time = 5000;
+                                break;
+                            }
+                            Array.Copy(dat, can_rx_info.frame, 8);
+                            RxFarmsEvent(id, dat, dlc, time);
+                            rx_frame = true;
+                            break;
+                        }
+                    }
                     long nowTime = DateTime.Now.Ticks;
                     cnt = nowTime - oldTime;
-                    if (cnt > 10000)
+                    if (cnt > 10000 || rx_frame)
                     {
                         oldTime = nowTime;
                         break;
                     }
-                }
-                while (can.ReadData(out id, ref dat, out dlc, out time) == true)
-                {
-                    if (id == rx_id && dlc == 8)
+                    else if(!can_tx_info.tx_in_progress && !can_rx_info.rx_in_progress)     //UDS空闲，释放进程
                     {
-                        Array.Copy(dat, can_rx_info.frame, 8);
-                        RxFarmsEvent(id, dat, dlc);
+                        Thread.Sleep(1);
                     }
                 }
-                CanTrans_Manage((int)cnt / 10000);
+                CanTrans_Manage((int)(cnt + 5000) / 10000);
             }
         }
-
+        /// <summary>
+        /// UDS 传输层开启
+        /// </summary>
         public void Start()
         {
             trans_thread = new Thread(new ThreadStart(CanTrans_Thread));
+            trans_thread.Priority = ThreadPriority.Highest;
             trans_thread.Start();
         }
 
+        /// <summary>
+        /// UDS 传输层关闭
+        /// </summary>
         public void Stop()
         {
-            if (trans_thread.IsAlive)
+            if (trans_thread != null && trans_thread.IsAlive)
             {
                 trans_thread.Abort();
             }
+            testerPresentCheckd = false;
         }
 
         #endregion
@@ -298,14 +365,14 @@ namespace Uds
 
         public bool CanTrans_TxMsg(AddressingModes mode, byte[] msg)
         {
-            if (msg.Length == 0 
+            if (msg.Length == 0
                 || msg.Length > RX_MAX_TP_BYTES - 2
                 || tx_msg.Length != 0
                 )
             {
                 return false;
             }
-            if(mode == AddressingModes.Physical_Addressing)
+            if (mode == AddressingModes.Physical_Addressing)
             {
                 id = tx_id;
             }
@@ -321,7 +388,7 @@ namespace Uds
 
         private void CanTrans_TxMsg()
         {
-            if(tx_msg.Length == 0)
+            if (tx_msg.Length == 0)
             {
                 return;
             }
@@ -418,9 +485,10 @@ namespace Uds
                 }
 
             }
-            if (can.WriteData(id, can_tx_info.frame, 8) == true)
+            long time;
+            if (can.WriteData(id, can_tx_info.frame, 8, out time) == true)
             {
-                TxFarmsEvent(id, can_tx_info.frame, 8);
+                TxFarmsEvent(id, can_tx_info.frame, 8, time);
                 can_tx_info.tx_last_frame_error = false;
                 can_rx_info.frame[TPCI_Byte] = 0;
                 /*
@@ -542,7 +610,7 @@ namespace Uds
                     can_tx_info.tx_last_frame_error = false;
                 }
             }
-            if (can_tx_info.rx_in_progress == true
+            if (can_rx_info.rx_in_progress == true
                 && !can_tx_info.tx_fc_tpdu
               )
             {
@@ -552,7 +620,7 @@ namespace Uds
                     /*
                     ** wait for consecutive frame Time out,abort Rx.
                     */
-                    can_tx_info.rx_in_progress = false;
+                    can_rx_info.rx_in_progress = false;
 
                     /* 
                     ** When Time out occurs, ECU has to send negative
@@ -566,10 +634,14 @@ namespace Uds
                 }
             }
 
-            if(can_rx_info.rx_msg_rcvd == true)
+            if (can_rx_info.rx_msg_rcvd == true)
             {
                 can_rx_info.rx_msg_rcvd = false;
-                RxMsgEvent(rx_id, can_rx_info.buffer);
+                if(can_rx_info.tx_aborted == false)
+                {
+                    RxMsgEvent(rx_id, can_rx_info.buffer);
+                }
+                can_rx_info.tx_aborted = false;
             }
         }
 
@@ -628,7 +700,7 @@ namespace Uds
 
                 can_tx_info.tx_in_progress = false;
                 can_tx_info.tx_wait_fc = false;
-                can_tx_info.rx_in_progress = false;
+                can_rx_info.rx_in_progress = false;
                 can_tx_info.tx_last_frame_error = false;
 
                 if ((data_length == 0)
@@ -666,7 +738,7 @@ namespace Uds
 
                 can_tx_info.tx_in_progress = false;
                 can_tx_info.tx_wait_fc = false;
-                can_tx_info.rx_in_progress = true;
+                can_rx_info.rx_in_progress = true;
 
                 /* set flag to send flow control frame */
                 can_tx_info.tx_fc_tpdu = true;
@@ -682,7 +754,7 @@ namespace Uds
                 /*
                 ** Ignore frame unless RX in progress.
                 */
-                if (can_tx_info.rx_in_progress)
+                if (can_rx_info.rx_in_progress)
                 {
                     /*
                     ** Verify the sequence number is as expected.
@@ -697,7 +769,7 @@ namespace Uds
                         {
                             Array.Copy(can_rx_info.frame, 1, can_rx_info.buffer, can_rx_info.offset, data_length);
 
-                            can_tx_info.rx_in_progress = false;
+                            can_rx_info.rx_in_progress = false;
                             can_rx_info.rx_msg_rcvd = true;
                         }
                         else
@@ -719,7 +791,7 @@ namespace Uds
                         ** Invalid sequence number...abort Rx.As a diagnostic measure, 
                         ** consideration was given to send an FC frame here, but not done.
                         */
-                        can_tx_info.rx_in_progress = false;
+                        can_rx_info.rx_in_progress = false;
                         /* 
                         ** When Invalid sequence number is received, ECU has to send 
                         ** negative resp for the first frame.so set RX_MSG_RCVD flag.
@@ -763,7 +835,7 @@ namespace Uds
                     {
                         can_tx_info.tx_block_size = 0x00;
                     }
-
+                    
                     if ((can_rx_info.frame[STminByte] & 0x7F) != 0x00)
                     {
                         /* 
@@ -775,6 +847,7 @@ namespace Uds
                     {
                         can_tx_info.tx_stmin_time = 20;
                     }
+
                     if ((flow_control_sts == PCI.FC_STATUS_CONTINUE)
                      && (can_rx_info.rx_fc_wait_timeout_disable == false)
                       )

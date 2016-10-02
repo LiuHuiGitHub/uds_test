@@ -49,7 +49,6 @@ namespace uds_test
         #region Bus Params Page
 
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
-        int time_cnt = 0;
 
         private void BusParamsInit()
         {
@@ -82,18 +81,11 @@ namespace uds_test
                         {
                             progressBarBusLoad.Value = busload;
                         }
-                        if (checkBoxTesterPresent.Checked)
-                        {
-                            if (++time_cnt > 4)
-                            {
-                                time_cnt = 0;
-                                driver.WriteData(0x7DF, new byte[] { 0x02, 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8);
-                            }
-                        }
                     };
                     timer.Enabled = true;
+                    trans.testerPresentCheckd = checkBoxTesterPresent.Checked;
 
-                    tabControl.SelectedTab = tabPageUDS;
+                    tabControl.SelectedTab = tabPageDiagnosis;
                 }
             }
             else
@@ -103,16 +95,27 @@ namespace uds_test
                 trans.Stop();
                 comboBoxBaud.Enabled = true;
                 comboBoxChannel.Enabled = true;
+                trans.testerPresentCheckd = false;
 
                 timer.Enabled = false;
                 progressBarBusLoad.Value = 0;
             }
         }
+
+        private void main_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            trans.Stop();
+        }
+
+        private void checkBoxTesterPresent_Click(object sender, EventArgs e)
+        {
+            trans.testerPresentCheckd = checkBoxTesterPresent.Checked;
+        }
         #endregion
-        
+
         #region File
 
-        readonly string IdentifierProject = "$Project Name";
+        readonly string IdentifierProject = "$Project";
         readonly string IdentifierTxId = "$Tx Id";
         readonly string IdentifierRxId = "$Rx Id";
         readonly string IdentifierDtc = "$19 Dtc";
@@ -127,95 +130,108 @@ namespace uds_test
             if (t == OpenToolStripMenuItem)
             {
                 StreamReader myStream;
-                openFileDialog.Title = "打开设置文件";
-                openFileDialog.Filter = "text文本 (*.txt)|*.txt|所有文件 (*.*)|*.*";
+                openFileDialog.Title = "打开文件";
+                openFileDialog.Filter = "ini文件 (*.ini)|*.ini|map文件 (*.map)|*.map";
                 openFileDialog.FilterIndex = 1;
                 openFileDialog.RestoreDirectory = true;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    myStream = new StreamReader(openFileDialog.FileName);
-                    string line;
-                    int lineNumber = 0;
-                    dtc_list = new List<Dtc>();
-                    service_14.identifier_list = new List<uds_service.Identifier>();
-                    service_19.identifier_list = new List<uds_service.Identifier>();
-                    service_22.identifier_list = new List<uds_service.Identifier>();
-                    service_2E.identifier_list = new List<uds_service.Identifier>();
-                    service_2F.identifier_list = new List<uds_service.Identifier>();
-
-                    while ((line = myStream.ReadLine()) != null)
+                    if(openFileDialog.FilterIndex == 1)
                     {
-                        try
-                        {
-                            string[] format = line.Split(new char[] { ':' });
-                            if(format[0] == IdentifierProject)
-                            {
-                                this.Text = format[1];
-                            }
-                            else if (format[0] == IdentifierTxId)
-                            {
-                                trans.tx_id = int.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
-                            }
-                            else if (format[0] == IdentifierRxId)
-                            {
-                                trans.rx_id = int.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
-                            }
-                            else if(format[0] == IdentifierDtc)
-                            {
-                                string[] s = format[1].Split(new char[] { ',' });
-                                uds_service.Identifier identifier = new uds_service.Identifier();
-                                identifier.id = s[0];
-                                identifier.name = s[1];
-                                Dtc dtc = new Dtc(identifier.id, identifier.name);
-                                dtc_list.Add(dtc);
-                                service_14.identifier_list.Add(identifier);
-                                service_19.identifier_list.Add(identifier);
-                            }
-                            else if (format[0] == IdentifierRead)
-                            {
-                                string[] s = format[1].Split(new char[] { ',' });
-                                uds_service.Identifier identifier = new uds_service.Identifier();
-                                identifier.id = s[0];
-                                identifier.name = s[1];
-                                service_22.identifier_list.Add(identifier);
-                            }
-                            else if (format[0] == IdentifierWrite)
-                            {
-                                string[] s = format[1].Split(new char[] { ',' });
-                                uds_service.Identifier identifier = new uds_service.Identifier();
-                                identifier.id = s[0];
-                                identifier.name = s[2];
-                                identifier.parameter = s[1];
-                                service_2E.identifier_list.Add(identifier);
-                            }
-                            else if (format[0] == IdentifierIoCtrl)
-                            {
-                                string[] s = format[1].Split(new char[] { ',' });
-                                uds_service.Identifier identifier = new uds_service.Identifier();
-                                identifier.id = s[0];
-                                identifier.name = s[2];
-                                identifier.parameter = s[1];
-                                service_2F.identifier_list.Add(identifier);
-                            }
-                            else if (format[0] == IdentifierRoutine)
-                            {
+                        myStream = new StreamReader(openFileDialog.FileName);
+                        string line;
+                        int lineNumber = 0;
+                        dtc_list = new List<Dtc>();
+                        service_14.identifier_list = new List<uds_service.Identifier>();
+                        service_19.identifier_list = new List<uds_service.Identifier>();
+                        service_22.identifier_list = new List<uds_service.Identifier>();
+                        service_2E.identifier_list = new List<uds_service.Identifier>();
+                        service_2F.identifier_list = new List<uds_service.Identifier>();
 
-                            }
-                        }
-                        catch
+                        while ((line = myStream.ReadLine()) != null)
                         {
-                            MessageBox.Show("第" + lineNumber.ToString() + "行格式有误:" + line.Substring(0, 20));
+                            try
+                            {
+                                string[] format = line.Split(new char[] { ':' });
+                                if (format[0] == IdentifierProject)
+                                {
+                                    this.Text = format[1];
+                                }
+                                else if (format[0] == IdentifierTxId)
+                                {
+                                    trans.tx_id = int.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+                                }
+                                else if (format[0] == IdentifierRxId)
+                                {
+                                    trans.rx_id = int.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+                                }
+                                else if (format[0] == IdentifierDtc)
+                                {
+                                    string[] s = format[1].Split(new char[] { ',' });
+                                    uds_service.Identifier identifier = new uds_service.Identifier();
+                                    identifier.id = s[0];
+                                    identifier.name = s[1];
+                                    Dtc dtc = new Dtc(identifier.id, identifier.name);
+                                    dtc_list.Add(dtc);
+                                    service_14.identifier_list.Add(identifier);
+                                    service_19.identifier_list.Add(identifier);
+                                }
+                                else if (format[0] == IdentifierRead)
+                                {
+                                    string[] s = format[1].Split(new char[] { ',' });
+                                    uds_service.Identifier identifier = new uds_service.Identifier();
+                                    identifier.id = s[0];
+                                    identifier.name = s[1];
+                                    service_22.identifier_list.Add(identifier);
+                                }
+                                else if (format[0] == IdentifierWrite)
+                                {
+                                    string[] s = format[1].Split(new char[] { ',' });
+                                    uds_service.Identifier identifier = new uds_service.Identifier();
+                                    identifier.id = s[0];
+                                    identifier.name = s[2];
+                                    identifier.parameter = s[1];
+                                    service_2E.identifier_list.Add(identifier);
+                                }
+                                else if (format[0] == IdentifierIoCtrl)
+                                {
+                                    string[] s = format[1].Split(new char[] { ',' });
+                                    uds_service.Identifier identifier = new uds_service.Identifier();
+                                    identifier.id = s[0];
+                                    identifier.name = s[2];
+                                    identifier.parameter = s[1];
+                                    service_2F.identifier_list.Add(identifier);
+                                }
+                                else if (format[0] == IdentifierRoutine)
+                                {
+
+                                }
+                            }
+                            catch
+                            {
+                                MessageBox.Show("第" + lineNumber.ToString() + "行格式有误:\r\n" + line.Substring(0, 50));
+                                break;
+                            }
+                            lineNumber++;
                         }
-                        lineNumber++;
+
+                        myStream.Close();
                     }
-                    myStream.Close();
+                    else if(openFileDialog.FilterIndex == 2)
+                    {
+                        if (OpenMapFileForSpc(openFileDialog.FileName) == true)
+                        {
+                            ReadWriteVariableInit(mapList);
+                        }
+                    }
                 }
             }
             else if (t == SaveToolStripMenuItem)
             {
                 StreamWriter myStream;
                 saveFileDialog.Title = "保存设置文件";
-                saveFileDialog.Filter = "text文本 (*.txt)|*.txt|所有文件 (*.*)|*.*";
+                saveFileDialog.FileName = "uds_config";
+                saveFileDialog.Filter = "ini文件 (*.ini)|*.ini";
                 saveFileDialog.FilterIndex = 1;
                 saveFileDialog.RestoreDirectory = true;
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -227,7 +243,7 @@ namespace uds_test
                     save += "///每行$xx yyy:之后的为该服务的数据，数据中以','分开\r\n";
                     save += "///每行以///起始的为注释行，说明之后的数据存放格式，请勿删除\r\n\r\n";
 
-                    save += IdentifierProject + ":"+ this.Text + "\r\n";
+                    save += IdentifierProject + ":" + this.Text + "\r\n";
                     save += "\r\n";
 
                     save += IdentifierTxId + ":" + trans.tx_id.ToString("X3") + "\r\n";
@@ -242,9 +258,9 @@ namespace uds_test
                     save += "\r\n";
 
                     save += "///" + IdentifierRead + ": + Ident + ',' + Name\r\n";
-                    foreach(uds_service.Identifier id in service_22.identifier_list)
+                    foreach (uds_service.Identifier id in service_22.identifier_list)
                     {
-                        save += IdentifierRead +  ":" + id.id + "," + id.name + "\r\n";
+                        save += IdentifierRead + ":" + id.id + "," + id.name + "\r\n";
                     }
                     save += "\r\n";
 
@@ -262,7 +278,7 @@ namespace uds_test
                         save += IdentifierIoCtrl + ":" + id.id + "," + id.parameter + "," + id.name + "\r\n";
                     }
                     save += "\r\n";
-                    
+
                     save += "///" + IdentifierRoutine + ": + Ident + ',' + Data + ',' Name\r\n";
                     foreach (uds_service.Identifier id in service_31.identifier_list)
                     {
@@ -690,7 +706,7 @@ namespace uds_test
                     Dtc dtc = new Dtc("", "");
                     int dtc_num = (dat.Length - 3) / 4;
                     int dtc_sts;
-                    int index;
+                    int index; 
                     strings += "-->DTC Number:" + dtc_num.ToString() + "\r\n";
                     for (index = 0; index < dtc_num; index++)
                     {
@@ -1038,7 +1054,7 @@ namespace uds_test
             identifier.parameter = "00 00 00 00 00 01";
             service_23.identifier_list.Add(identifier);
             //@end_identifier
-            services_list.Add(service_23);
+            //services_list.Add(service_23);
             #endregion
 
             #region $27 Security Access
@@ -1072,7 +1088,7 @@ namespace uds_test
             //@end_identifier
             //services_list.Add(service_27);
             #endregion
-            
+
             #region $28 Communication Control
             service_28 = new uds_service();
             service_28.sid = "28";
@@ -1370,7 +1386,7 @@ namespace uds_test
             identifier.parameter = "00 00 00 00 00 01 00";
             service_3D.identifier_list.Add(identifier);
             //@end_identifier
-            services_list.Add(service_3D);
+            //services_list.Add(service_3D);
             #endregion
 
             #region $3E Tester Present
@@ -1560,8 +1576,6 @@ namespace uds_test
             }
             else if (e.KeyChar == '\r')
             {
-                trans.rx_id = 0x7B8;
-                trans.tx_id = 0x7B0;
                 if (AutoToolStripMenuItem.Checked)
                 {
                     textBoxStream.Text = "";
@@ -1574,16 +1588,17 @@ namespace uds_test
         {
             TextBox textbox = (TextBox)sender;
             string strings = textbox.Text;
+            int i_idx = textbox.Text.Substring(0, textbox.SelectionStart).Replace(" ", "").Length;
             if (delete_char_flag == true)
             {
                 delete_char_flag = false;
-                if (strings.Length != 0 && strings[strings.Length - 1] != ' ')
+                if ((strings.Replace(" ", "").Length % 2) != 0)
                 {
                     return;
                 }
             }
             textbox.Text = strings.Replace(" ", "").InsertSpace(2);
-            textbox.SelectionStart = textbox.Text.Length;
+            textbox.SelectionStart = i_idx + i_idx/2;
         }
 
         private void buttonSession_Click(object sender, EventArgs e)
@@ -1604,6 +1619,188 @@ namespace uds_test
         private void comboBoxSecurityLevel_SelectedIndexChanged(object sender, EventArgs e)
         {
             service_27.sub_function_selectd = service_27.sub_function_list[comboBoxSecurityLevel.SelectedIndex];
+        }
+        #endregion
+
+        #region Variable
+        public class mapClass
+        {
+            public string variable;
+            public uint addr;
+            public int size;
+            public string type;
+        }
+        
+        private List<mapClass> mapList = new List<mapClass>();
+
+        /// <summary>
+        /// 初始化变量列表
+        /// </summary>
+        /// <param name="list"></param>
+        public void ReadWriteVariableInit(List<mapClass> list)
+        {
+            mapList = list;
+            foreach (mapClass map in mapList)
+            {
+                comboBoxVariable.Items.Add(map.variable);
+                comboBoxVariable.SelectedItem = 0;
+            }
+        }
+
+        /// <summary>
+        /// 选择变量改变事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void comboBoxVariable_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            textBoxVariableAddress.Text = "0x" + mapList[comboBoxVariable.SelectedIndex].addr.ToString("X");
+            textBoxVariableLength.Text = "0x" + mapList[comboBoxVariable.SelectedIndex].size.ToString("X");
+            textBoxVariableType.Text = mapList[comboBoxVariable.SelectedIndex].type;
+        }
+
+        private void TextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar != 8  /* 允许使用退格符 */
+                && !Char.IsDigit(e.KeyChar)
+                && e.KeyChar != 'x'
+                && e.KeyChar != 'X'
+                && e.KeyChar != ' '
+                && !(((int)e.KeyChar >= 'A' && (int)e.KeyChar <= 'F'))
+                && !(((int)e.KeyChar >= 'a' && (int)e.KeyChar <= 'f'))
+                )
+            {
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// 打开并解析SPC的MAP文件
+        /// </summary>
+        /// <param name="file"></param>
+        /// <returns></returns>
+        private bool OpenMapFileForSpc(string file)
+        {
+            string start = string.Empty;
+            string type = string.Empty;
+            string stringsLast = string.Empty;
+            StreamReader myStream = null;
+            try
+            {
+                myStream = new StreamReader(file);
+                string content = myStream.ReadToEnd();
+                string[] str = content.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+                foreach (string strings in str)
+                {
+                    string[] strArray = System.Text.RegularExpressions.Regex.Split((stringsLast + strings).Replace("\r\n", ""), @"\s+");
+                    if (start == string.Empty)
+                    {
+                        if (checkBoxShowFunction.Checked && strings == " *(.text_vle.*)")
+                        {
+                            start = ".text_vle.";
+                            type = "*(.text_vle.*)";
+                        }
+                        else if (checkBoxShowReadOnlyVariable.Checked && strings == " *(.rodata.*)")
+                        {
+                            start = ".rodata.";
+                            type = "*(.rodata.*)";
+                        }
+                        else if (strings == " *(.data.*)")
+                        {
+                            start = ".data.";
+                            type = "*(.data.*)";
+                        }
+                        else if (strings == " *(.bss.*)")
+                        {
+                            start = ".bss.";
+                            type = "*(.bss.*)";
+                        }
+                    }
+                    else if (strArray.Length <= 2)      //添加下一行
+                    {
+                        if (strings == " *(.gnu.linkonce.t_vle.*)")
+                        {
+                            start = string.Empty;
+                        }
+                        else if (strings == " *(.rodata1)")
+                        {
+                            start = string.Empty;
+                        }
+                        else if (strings == " *(.gnu.linkonce.d.*)")
+                        {
+                            start = string.Empty;
+                        }
+                        else if (strings == " *(.gnu.linkonce.b.*)")
+                        {
+                            start = string.Empty;
+                        }
+                        else
+                        {
+                            stringsLast = strings;
+                        }
+                    }
+                    else
+                    {
+                        stringsLast = "";
+                        try
+                        {
+                            mapClass mapItem = new mapClass();
+                            if (strArray[1].Length > start.Length && strArray[1].Substring(0, start.Length) == start)
+                            {
+                                mapItem.variable = strArray[1].Remove(0, start.Length).Split(new char[] { '.'})[0];
+                                mapItem.addr = Convert.ToUInt32(strArray[2].Replace("0X", ""), 16);
+                                mapItem.type = type;
+                                mapItem.size = Convert.ToInt32(strArray[3].Replace("0X", ""), 16);
+                                mapList.Add(mapItem);
+                            }
+                        }
+                        catch
+                        {
+                            start = string.Empty;
+                        }
+                    }
+                }
+                myStream.Close();
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        
+        private void buttonReadVariableValue_Click(object sender, EventArgs e)
+        {
+            string strings = string.Empty;
+            try
+            {
+                strings += "2324";
+                strings += Convert.ToUInt32(textBoxVariableAddress.Text.Replace("0x", ""), 16).ToString("x8");
+                strings += Convert.ToUInt16(textBoxVariableLength.Text.Replace("0x", ""), 16).ToString("x4");
+
+                trans.CanTrans_TxMsg(mode, strings.StringToHex());
+            }
+            catch
+            {
+                MessageBox.Show("输入参数错误！");
+            }
+        }
+
+        private void buttonWriteVariableValue_Click(object sender, EventArgs e)
+        {
+            string strings = string.Empty;
+            try
+            {
+                strings += "3D24";
+                strings += Convert.ToUInt32(textBoxVariableAddress.Text.Replace("0x", ""), 16).ToString("x8");
+                strings += Convert.ToUInt16(textBoxVariableLength.Text.Replace("0x", ""), 16).ToString("x4");
+                strings += textBoxVariableValue.Text;
+                trans.CanTrans_TxMsg(mode, strings.StringToHex());
+            }
+            catch
+            {
+                MessageBox.Show("输入参数错误！");
+            }
         }
         #endregion
     }

@@ -50,7 +50,7 @@
             this.ClearToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBoxStream = new System.Windows.Forms.GroupBox();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.tabPageUDS = new System.Windows.Forms.TabPage();
+            this.tabPageDiagnosis = new System.Windows.Forms.TabPage();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.button7 = new System.Windows.Forms.Button();
@@ -85,16 +85,37 @@
             this.comboBoxBaud = new System.Windows.Forms.ComboBox();
             this.comboBoxChannel = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabPageReadWrite = new System.Windows.Forms.TabPage();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.textBoxVariableType = new System.Windows.Forms.TextBox();
+            this.labelVariableType = new System.Windows.Forms.Label();
+            this.labelVariableValue = new System.Windows.Forms.Label();
+            this.textBoxVariableLength = new System.Windows.Forms.TextBox();
+            this.textBoxVariableAddress = new System.Windows.Forms.TextBox();
+            this.labelVariableLength = new System.Windows.Forms.Label();
+            this.labelVariableAddress = new System.Windows.Forms.Label();
+            this.buttonWriteVariableValue = new System.Windows.Forms.Button();
+            this.buttonReadVariableValue = new System.Windows.Forms.Button();
+            this.textBoxVariableValue = new System.Windows.Forms.TextBox();
+            this.comboBoxVariable = new System.Windows.Forms.ComboBox();
+            this.labelVariable = new System.Windows.Forms.Label();
+            this.checkBoxShowFunction = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowReadOnlyVariable = new System.Windows.Forms.CheckBox();
+            this.textBoxMap = new System.Windows.Forms.TextBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.menuStrip.SuspendLayout();
             this.contextMenuStripSream.SuspendLayout();
             this.groupBoxStream.SuspendLayout();
-            this.tabPageUDS.SuspendLayout();
+            this.tabPageDiagnosis.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox7.SuspendLayout();
             this.groupBoxServices.SuspendLayout();
             this.tabPageBusParams.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.tabControl.SuspendLayout();
+            this.tabPageReadWrite.SuspendLayout();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -122,21 +143,21 @@
             // OpenToolStripMenuItem
             // 
             this.OpenToolStripMenuItem.Name = "OpenToolStripMenuItem";
-            this.OpenToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.OpenToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.OpenToolStripMenuItem.Text = "打开";
             this.OpenToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.SaveToolStripMenuItem.Text = "保存";
             this.SaveToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
             // ExitToolStripMenuItem
             // 
             this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
-            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.ExitToolStripMenuItem.Text = "退出";
             this.ExitToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
@@ -207,7 +228,7 @@
             this.textBoxStream.Multiline = true;
             this.textBoxStream.Name = "textBoxStream";
             this.textBoxStream.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxStream.Size = new System.Drawing.Size(354, 516);
+            this.textBoxStream.Size = new System.Drawing.Size(354, 594);
             this.textBoxStream.TabIndex = 27;
             // 
             // contextMenuStripSream
@@ -248,7 +269,7 @@
             this.groupBoxStream.Controls.Add(this.textBoxStream);
             this.groupBoxStream.Location = new System.Drawing.Point(432, 42);
             this.groupBoxStream.Name = "groupBoxStream";
-            this.groupBoxStream.Size = new System.Drawing.Size(360, 531);
+            this.groupBoxStream.Size = new System.Drawing.Size(360, 609);
             this.groupBoxStream.TabIndex = 28;
             this.groupBoxStream.TabStop = false;
             this.groupBoxStream.Text = "数据流";
@@ -257,25 +278,25 @@
             // 
             this.openFileDialog.FileName = "openFileDialog";
             // 
-            // tabPageUDS
+            // tabPageDiagnosis
             // 
-            this.tabPageUDS.Controls.Add(this.groupBox8);
-            this.tabPageUDS.Controls.Add(this.groupBox7);
-            this.tabPageUDS.Controls.Add(this.groupBoxServices);
-            this.tabPageUDS.Location = new System.Drawing.Point(4, 22);
-            this.tabPageUDS.Name = "tabPageUDS";
-            this.tabPageUDS.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageUDS.Size = new System.Drawing.Size(411, 516);
-            this.tabPageUDS.TabIndex = 2;
-            this.tabPageUDS.Text = "诊断";
-            this.tabPageUDS.UseVisualStyleBackColor = true;
+            this.tabPageDiagnosis.Controls.Add(this.groupBox8);
+            this.tabPageDiagnosis.Controls.Add(this.groupBox7);
+            this.tabPageDiagnosis.Controls.Add(this.groupBoxServices);
+            this.tabPageDiagnosis.Location = new System.Drawing.Point(4, 22);
+            this.tabPageDiagnosis.Name = "tabPageDiagnosis";
+            this.tabPageDiagnosis.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageDiagnosis.Size = new System.Drawing.Size(411, 594);
+            this.tabPageDiagnosis.TabIndex = 2;
+            this.tabPageDiagnosis.Text = "诊断";
+            this.tabPageDiagnosis.UseVisualStyleBackColor = true;
             // 
             // groupBox8
             // 
             this.groupBox8.Controls.Add(this.textBox4);
             this.groupBox8.Controls.Add(this.button7);
             this.groupBox8.Controls.Add(this.comboBox4);
-            this.groupBox8.Location = new System.Drawing.Point(6, 342);
+            this.groupBox8.Location = new System.Drawing.Point(6, 481);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(396, 108);
             this.groupBox8.TabIndex = 15;
@@ -368,6 +389,7 @@
             this.checkBoxTesterPresent.TabIndex = 24;
             this.checkBoxTesterPresent.Text = "诊断保持";
             this.checkBoxTesterPresent.UseVisualStyleBackColor = true;
+            this.checkBoxTesterPresent.Click += new System.EventHandler(this.checkBoxTesterPresent_Click);
             // 
             // label33
             // 
@@ -553,7 +575,7 @@
             this.tabPageBusParams.Location = new System.Drawing.Point(4, 22);
             this.tabPageBusParams.Name = "tabPageBusParams";
             this.tabPageBusParams.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageBusParams.Size = new System.Drawing.Size(411, 516);
+            this.tabPageBusParams.Size = new System.Drawing.Size(411, 594);
             this.tabPageBusParams.TabIndex = 0;
             this.tabPageBusParams.Text = "总线设置";
             this.tabPageBusParams.UseVisualStyleBackColor = true;
@@ -666,21 +688,226 @@
             this.tabControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.tabControl.Controls.Add(this.tabPageBusParams);
-            this.tabControl.Controls.Add(this.tabPageUDS);
+            this.tabControl.Controls.Add(this.tabPageDiagnosis);
+            this.tabControl.Controls.Add(this.tabPageReadWrite);
+            this.tabControl.ItemSize = new System.Drawing.Size(60, 18);
             this.tabControl.Location = new System.Drawing.Point(11, 31);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(419, 542);
+            this.tabControl.Size = new System.Drawing.Size(419, 620);
             this.tabControl.TabIndex = 25;
+            // 
+            // tabPageReadWrite
+            // 
+            this.tabPageReadWrite.Controls.Add(this.groupBox3);
+            this.tabPageReadWrite.Controls.Add(this.groupBox2);
+            this.tabPageReadWrite.Location = new System.Drawing.Point(4, 22);
+            this.tabPageReadWrite.Name = "tabPageReadWrite";
+            this.tabPageReadWrite.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageReadWrite.Size = new System.Drawing.Size(411, 594);
+            this.tabPageReadWrite.TabIndex = 3;
+            this.tabPageReadWrite.Text = "读写变量";
+            this.tabPageReadWrite.UseVisualStyleBackColor = true;
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.checkBoxShowReadOnlyVariable);
+            this.groupBox2.Controls.Add(this.checkBoxShowFunction);
+            this.groupBox2.Controls.Add(this.textBoxVariableType);
+            this.groupBox2.Controls.Add(this.labelVariableType);
+            this.groupBox2.Controls.Add(this.labelVariableValue);
+            this.groupBox2.Controls.Add(this.textBoxVariableLength);
+            this.groupBox2.Controls.Add(this.textBoxVariableAddress);
+            this.groupBox2.Controls.Add(this.labelVariableLength);
+            this.groupBox2.Controls.Add(this.labelVariableAddress);
+            this.groupBox2.Controls.Add(this.buttonWriteVariableValue);
+            this.groupBox2.Controls.Add(this.buttonReadVariableValue);
+            this.groupBox2.Controls.Add(this.textBoxVariableValue);
+            this.groupBox2.Controls.Add(this.comboBoxVariable);
+            this.groupBox2.Controls.Add(this.labelVariable);
+            this.groupBox2.Location = new System.Drawing.Point(6, 9);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(396, 248);
+            this.groupBox2.TabIndex = 6;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "读写 $23 $3D";
+            // 
+            // textBoxVariableType
+            // 
+            this.textBoxVariableType.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.textBoxVariableType.Location = new System.Drawing.Point(60, 92);
+            this.textBoxVariableType.Name = "textBoxVariableType";
+            this.textBoxVariableType.ReadOnly = true;
+            this.textBoxVariableType.Size = new System.Drawing.Size(184, 23);
+            this.textBoxVariableType.TabIndex = 12;
+            this.textBoxVariableType.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            // 
+            // labelVariableType
+            // 
+            this.labelVariableType.AutoSize = true;
+            this.labelVariableType.Location = new System.Drawing.Point(19, 97);
+            this.labelVariableType.Name = "labelVariableType";
+            this.labelVariableType.Size = new System.Drawing.Size(35, 12);
+            this.labelVariableType.TabIndex = 11;
+            this.labelVariableType.Text = "类型:";
+            // 
+            // labelVariableValue
+            // 
+            this.labelVariableValue.AutoSize = true;
+            this.labelVariableValue.Location = new System.Drawing.Point(19, 208);
+            this.labelVariableValue.Name = "labelVariableValue";
+            this.labelVariableValue.Size = new System.Drawing.Size(35, 12);
+            this.labelVariableValue.TabIndex = 10;
+            this.labelVariableValue.Text = "数值:";
+            // 
+            // textBoxVariableLength
+            // 
+            this.textBoxVariableLength.CharacterCasing = System.Windows.Forms.CharacterCasing.Lower;
+            this.textBoxVariableLength.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.textBoxVariableLength.ImeMode = System.Windows.Forms.ImeMode.Close;
+            this.textBoxVariableLength.Location = new System.Drawing.Point(60, 166);
+            this.textBoxVariableLength.Name = "textBoxVariableLength";
+            this.textBoxVariableLength.Size = new System.Drawing.Size(184, 23);
+            this.textBoxVariableLength.TabIndex = 9;
+            this.textBoxVariableLength.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxVariableLength.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPress);
+            // 
+            // textBoxVariableAddress
+            // 
+            this.textBoxVariableAddress.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.textBoxVariableAddress.ImeMode = System.Windows.Forms.ImeMode.Close;
+            this.textBoxVariableAddress.Location = new System.Drawing.Point(60, 129);
+            this.textBoxVariableAddress.Name = "textBoxVariableAddress";
+            this.textBoxVariableAddress.Size = new System.Drawing.Size(184, 23);
+            this.textBoxVariableAddress.TabIndex = 8;
+            this.textBoxVariableAddress.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.textBoxVariableAddress.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPress);
+            // 
+            // labelVariableLength
+            // 
+            this.labelVariableLength.AutoSize = true;
+            this.labelVariableLength.Location = new System.Drawing.Point(19, 171);
+            this.labelVariableLength.Name = "labelVariableLength";
+            this.labelVariableLength.Size = new System.Drawing.Size(35, 12);
+            this.labelVariableLength.TabIndex = 7;
+            this.labelVariableLength.Text = "长度:";
+            // 
+            // labelVariableAddress
+            // 
+            this.labelVariableAddress.AutoSize = true;
+            this.labelVariableAddress.Location = new System.Drawing.Point(19, 134);
+            this.labelVariableAddress.Name = "labelVariableAddress";
+            this.labelVariableAddress.Size = new System.Drawing.Size(35, 12);
+            this.labelVariableAddress.TabIndex = 6;
+            this.labelVariableAddress.Text = "地址:";
+            // 
+            // buttonWriteVariableValue
+            // 
+            this.buttonWriteVariableValue.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonWriteVariableValue.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.buttonWriteVariableValue.Location = new System.Drawing.Point(271, 148);
+            this.buttonWriteVariableValue.Name = "buttonWriteVariableValue";
+            this.buttonWriteVariableValue.Size = new System.Drawing.Size(88, 39);
+            this.buttonWriteVariableValue.TabIndex = 5;
+            this.buttonWriteVariableValue.Text = "写入";
+            this.buttonWriteVariableValue.UseVisualStyleBackColor = true;
+            this.buttonWriteVariableValue.Click += new System.EventHandler(this.buttonWriteVariableValue_Click);
+            // 
+            // buttonReadVariableValue
+            // 
+            this.buttonReadVariableValue.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonReadVariableValue.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.buttonReadVariableValue.Location = new System.Drawing.Point(271, 91);
+            this.buttonReadVariableValue.Name = "buttonReadVariableValue";
+            this.buttonReadVariableValue.Size = new System.Drawing.Size(88, 38);
+            this.buttonReadVariableValue.TabIndex = 0;
+            this.buttonReadVariableValue.Text = "读取";
+            this.buttonReadVariableValue.UseVisualStyleBackColor = true;
+            this.buttonReadVariableValue.Click += new System.EventHandler(this.buttonReadVariableValue_Click);
+            // 
+            // textBoxVariableValue
+            // 
+            this.textBoxVariableValue.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
+            this.textBoxVariableValue.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.textBoxVariableValue.ImeMode = System.Windows.Forms.ImeMode.Close;
+            this.textBoxVariableValue.Location = new System.Drawing.Point(60, 203);
+            this.textBoxVariableValue.Name = "textBoxVariableValue";
+            this.textBoxVariableValue.Size = new System.Drawing.Size(314, 23);
+            this.textBoxVariableValue.TabIndex = 4;
+            this.textBoxVariableValue.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TextBox_KeyPress);
+            // 
+            // comboBoxVariable
+            // 
+            this.comboBoxVariable.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+            this.comboBoxVariable.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+            this.comboBoxVariable.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.comboBoxVariable.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.comboBoxVariable.FormattingEnabled = true;
+            this.comboBoxVariable.ImeMode = System.Windows.Forms.ImeMode.Close;
+            this.comboBoxVariable.Location = new System.Drawing.Point(60, 27);
+            this.comboBoxVariable.MaxDropDownItems = 16;
+            this.comboBoxVariable.Name = "comboBoxVariable";
+            this.comboBoxVariable.Size = new System.Drawing.Size(314, 22);
+            this.comboBoxVariable.TabIndex = 2;
+            this.comboBoxVariable.SelectedIndexChanged += new System.EventHandler(this.comboBoxVariable_SelectedIndexChanged);
+            // 
+            // labelVariable
+            // 
+            this.labelVariable.AutoSize = true;
+            this.labelVariable.Location = new System.Drawing.Point(19, 32);
+            this.labelVariable.Name = "labelVariable";
+            this.labelVariable.Size = new System.Drawing.Size(35, 12);
+            this.labelVariable.TabIndex = 3;
+            this.labelVariable.Text = "变量:";
+            // 
+            // checkBoxShowFunction
+            // 
+            this.checkBoxShowFunction.AutoSize = true;
+            this.checkBoxShowFunction.Location = new System.Drawing.Point(91, 61);
+            this.checkBoxShowFunction.Name = "checkBoxShowFunction";
+            this.checkBoxShowFunction.Size = new System.Drawing.Size(72, 16);
+            this.checkBoxShowFunction.TabIndex = 13;
+            this.checkBoxShowFunction.Text = "显示函数";
+            this.checkBoxShowFunction.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxShowReadOnlyVariable
+            // 
+            this.checkBoxShowReadOnlyVariable.AutoSize = true;
+            this.checkBoxShowReadOnlyVariable.Checked = true;
+            this.checkBoxShowReadOnlyVariable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowReadOnlyVariable.Location = new System.Drawing.Point(235, 61);
+            this.checkBoxShowReadOnlyVariable.Name = "checkBoxShowReadOnlyVariable";
+            this.checkBoxShowReadOnlyVariable.Size = new System.Drawing.Size(96, 16);
+            this.checkBoxShowReadOnlyVariable.TabIndex = 14;
+            this.checkBoxShowReadOnlyVariable.Text = "显示只读变量";
+            this.checkBoxShowReadOnlyVariable.UseVisualStyleBackColor = true;
+            // 
+            // textBoxMap
+            // 
+            this.textBoxMap.Location = new System.Drawing.Point(21, 32);
+            this.textBoxMap.Multiline = true;
+            this.textBoxMap.Name = "textBoxMap";
+            this.textBoxMap.Size = new System.Drawing.Size(353, 271);
+            this.textBoxMap.TabIndex = 7;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.textBoxMap);
+            this.groupBox3.Location = new System.Drawing.Point(6, 263);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(396, 325);
+            this.groupBox3.TabIndex = 7;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Map信息";
             // 
             // main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(804, 581);
+            this.ClientSize = new System.Drawing.Size(804, 659);
+            this.Controls.Add(this.tabControl);
             this.Controls.Add(this.groupBoxStream);
             this.Controls.Add(this.menuStrip);
-            this.Controls.Add(this.tabControl);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
@@ -689,12 +916,13 @@
             this.Name = "main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "uds_test";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.main_FormClosing);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.contextMenuStripSream.ResumeLayout(false);
             this.groupBoxStream.ResumeLayout(false);
             this.groupBoxStream.PerformLayout();
-            this.tabPageUDS.ResumeLayout(false);
+            this.tabPageDiagnosis.ResumeLayout(false);
             this.groupBox8.ResumeLayout(false);
             this.groupBox8.PerformLayout();
             this.groupBox7.ResumeLayout(false);
@@ -705,6 +933,11 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabControl.ResumeLayout(false);
+            this.tabPageReadWrite.ResumeLayout(false);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -765,7 +998,25 @@
         private System.Windows.Forms.Button button7;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.GroupBox groupBox8;
-        private System.Windows.Forms.TabPage tabPageUDS;
+        private System.Windows.Forms.TabPage tabPageDiagnosis;
+        private System.Windows.Forms.TabPage tabPageReadWrite;
+        private System.Windows.Forms.Button buttonReadVariableValue;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.Button buttonWriteVariableValue;
+        private System.Windows.Forms.Label labelVariable;
+        private System.Windows.Forms.Label labelVariableLength;
+        private System.Windows.Forms.Label labelVariableAddress;
+        private System.Windows.Forms.Label labelVariableValue;
+        private System.Windows.Forms.Label labelVariableType;
+        private System.Windows.Forms.TextBox textBoxVariableValue;
+        private System.Windows.Forms.ComboBox comboBoxVariable;
+        private System.Windows.Forms.TextBox textBoxVariableLength;
+        private System.Windows.Forms.TextBox textBoxVariableAddress;
+        private System.Windows.Forms.TextBox textBoxVariableType;
+        private System.Windows.Forms.CheckBox checkBoxShowReadOnlyVariable;
+        private System.Windows.Forms.CheckBox checkBoxShowFunction;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TextBox textBoxMap;
     }
 }
 

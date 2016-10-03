@@ -174,6 +174,7 @@ namespace Uds
             public long time = 0;
             public override string ToString()
             {
+                time %= 1000000;
                 return id.ToString("X3") + " "
                            + dlc.ToString("X1") + " "
                            + dat.HexToStrings(" ") + " "
@@ -192,11 +193,23 @@ namespace Uds
             }
             public override string ToString()
             {
+                time %= 1000000;
                 return id.ToString("X3") + " "
                            + dat.HexToStrings(" ") + " "
                            + (time / 1000).ToString() + "." + (time % 1000).ToString("d3");
             }
         }
+
+        public class ErrorEventArgs : EventArgs
+        {
+            public string error;
+
+            public override string ToString()
+            {
+                return error;
+            }
+        }
+
         /// <summary>
         /// UDS 传输层发送一帧事件
         /// </summary>
@@ -209,6 +222,8 @@ namespace Uds
         /// UDS 传输层接收完成事件
         /// </summary>
         public event EventHandler EventRxMsgs;
+
+        public event EventHandler EventError;
 
         private void TxFarmsEvent(int id, byte[] dat, int dlc, long time)
         {
@@ -245,6 +260,16 @@ namespace Uds
                 e_rx_msg_args.id = id;
                 Array.Copy(dat, e_rx_msg_args.dat, lenght);
                 EventRxMsgs(this, e_rx_msg_args);
+            }
+        }
+
+        private void RrrorEvent(string strings)
+        {
+            if (EventError != null)
+            {
+                ErrorEventArgs e_args = new ErrorEventArgs();
+                e_args.error = strings;
+                EventError(this, e_args);
             }
         }
 
@@ -365,11 +390,19 @@ namespace Uds
 
         public bool CanTrans_TxMsg(AddressingModes mode, byte[] msg)
         {
-            if (msg.Length == 0
-                || msg.Length > RX_MAX_TP_BYTES - 2
-                || tx_msg.Length != 0
-                )
+            if(msg.Length == 0)
             {
+                RrrorEvent("-->Error: Tx Msg Length Is Zero");
+                return false;
+            }
+            if (msg.Length > RX_MAX_TP_BYTES - 2)
+            {
+                RrrorEvent("-->Error: Tx Msg Length > RX_MAX_TP_BYTES");
+                return false;
+            }
+            if (tx_msg.Length != 0)
+            {
+                RrrorEvent("-->Error: Tx Msg ing");
                 return false;
             }
             if (mode == AddressingModes.Physical_Addressing)
@@ -608,6 +641,7 @@ namespace Uds
                     can_tx_info.tx_in_progress = false;
                     can_tx_info.tx_wait_fc = false;
                     can_tx_info.tx_last_frame_error = false;
+                    RrrorEvent("-->Error: Wait For Flow Control Frame Time Out");
                 }
             }
             if (can_rx_info.rx_in_progress == true
@@ -631,6 +665,8 @@ namespace Uds
                     */
                     can_rx_info.lenght = SF_DL_MAX_BYTES - 1;
                     can_rx_info.rx_msg_rcvd = true;
+
+                    RrrorEvent("-->Error: Ecu Tx Aborted");
                 }
             }
 
@@ -799,6 +835,7 @@ namespace Uds
                         */
                         can_rx_info.tx_aborted = true;
                         can_rx_info.rx_msg_rcvd = true;
+                        RrrorEvent("-->Error: Ecu Invalid Sequence Number");
                     }
                 }
             }
@@ -864,6 +901,7 @@ namespace Uds
                         /* do nothing here, if over flow, we will stop sending 
                            any message until we got new cmd */
                         can_tx_info.tx_fc_wait_time = 1;   /* exit after 10ms */
+                        RrrorEvent("-->Error: Ecu Buff Over Flow");
                     }
                     else
                     {

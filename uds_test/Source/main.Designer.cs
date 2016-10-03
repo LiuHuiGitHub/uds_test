@@ -86,7 +86,11 @@
             this.comboBoxChannel = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPageReadWrite = new System.Windows.Forms.TabPage();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.textBoxMap = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.checkBoxShowReadOnlyVariable = new System.Windows.Forms.CheckBox();
+            this.checkBoxShowFunction = new System.Windows.Forms.CheckBox();
             this.textBoxVariableType = new System.Windows.Forms.TextBox();
             this.labelVariableType = new System.Windows.Forms.Label();
             this.labelVariableValue = new System.Windows.Forms.Label();
@@ -99,10 +103,6 @@
             this.textBoxVariableValue = new System.Windows.Forms.TextBox();
             this.comboBoxVariable = new System.Windows.Forms.ComboBox();
             this.labelVariable = new System.Windows.Forms.Label();
-            this.checkBoxShowFunction = new System.Windows.Forms.CheckBox();
-            this.checkBoxShowReadOnlyVariable = new System.Windows.Forms.CheckBox();
-            this.textBoxMap = new System.Windows.Forms.TextBox();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.menuStrip.SuspendLayout();
             this.contextMenuStripSream.SuspendLayout();
             this.groupBoxStream.SuspendLayout();
@@ -114,8 +114,8 @@
             this.groupBox1.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPageReadWrite.SuspendLayout();
-            this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -126,7 +126,7 @@
             this.AboutToolStripMenuItem});
             this.menuStrip.Location = new System.Drawing.Point(0, 0);
             this.menuStrip.Name = "menuStrip";
-            this.menuStrip.Size = new System.Drawing.Size(804, 25);
+            this.menuStrip.Size = new System.Drawing.Size(814, 25);
             this.menuStrip.TabIndex = 26;
             this.menuStrip.Text = "menuStrip";
             // 
@@ -143,21 +143,21 @@
             // OpenToolStripMenuItem
             // 
             this.OpenToolStripMenuItem.Name = "OpenToolStripMenuItem";
-            this.OpenToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.OpenToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.OpenToolStripMenuItem.Text = "打开";
             this.OpenToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
             // SaveToolStripMenuItem
             // 
             this.SaveToolStripMenuItem.Name = "SaveToolStripMenuItem";
-            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.SaveToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.SaveToolStripMenuItem.Text = "保存";
             this.SaveToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
             // ExitToolStripMenuItem
             // 
             this.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem";
-            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.ExitToolStripMenuItem.Size = new System.Drawing.Size(100, 22);
             this.ExitToolStripMenuItem.Text = "退出";
             this.ExitToolStripMenuItem.Click += new System.EventHandler(this.FileToolStripMenuItem_Click);
             // 
@@ -228,7 +228,7 @@
             this.textBoxStream.Multiline = true;
             this.textBoxStream.Name = "textBoxStream";
             this.textBoxStream.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxStream.Size = new System.Drawing.Size(354, 594);
+            this.textBoxStream.Size = new System.Drawing.Size(364, 596);
             this.textBoxStream.TabIndex = 27;
             // 
             // contextMenuStripSream
@@ -267,9 +267,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBoxStream.Controls.Add(this.textBoxStream);
-            this.groupBoxStream.Location = new System.Drawing.Point(432, 42);
+            this.groupBoxStream.Location = new System.Drawing.Point(442, 42);
             this.groupBoxStream.Name = "groupBoxStream";
-            this.groupBoxStream.Size = new System.Drawing.Size(360, 609);
+            this.groupBoxStream.Size = new System.Drawing.Size(370, 611);
             this.groupBoxStream.TabIndex = 28;
             this.groupBoxStream.TabStop = false;
             this.groupBoxStream.Text = "数据流";
@@ -286,7 +286,7 @@
             this.tabPageDiagnosis.Location = new System.Drawing.Point(4, 22);
             this.tabPageDiagnosis.Name = "tabPageDiagnosis";
             this.tabPageDiagnosis.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageDiagnosis.Size = new System.Drawing.Size(411, 594);
+            this.tabPageDiagnosis.Size = new System.Drawing.Size(422, 596);
             this.tabPageDiagnosis.TabIndex = 2;
             this.tabPageDiagnosis.Text = "诊断";
             this.tabPageDiagnosis.UseVisualStyleBackColor = true;
@@ -296,9 +296,9 @@
             this.groupBox8.Controls.Add(this.textBox4);
             this.groupBox8.Controls.Add(this.button7);
             this.groupBox8.Controls.Add(this.comboBox4);
-            this.groupBox8.Location = new System.Drawing.Point(6, 481);
+            this.groupBox8.Location = new System.Drawing.Point(6, 466);
             this.groupBox8.Name = "groupBox8";
-            this.groupBox8.Size = new System.Drawing.Size(396, 108);
+            this.groupBox8.Size = new System.Drawing.Size(405, 124);
             this.groupBox8.TabIndex = 15;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "快捷指令";
@@ -306,19 +306,19 @@
             // textBox4
             // 
             this.textBox4.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.textBox4.Location = new System.Drawing.Point(9, 57);
+            this.textBox4.Location = new System.Drawing.Point(13, 57);
             this.textBox4.Multiline = true;
             this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(278, 36);
+            this.textBox4.Size = new System.Drawing.Size(282, 50);
             this.textBox4.TabIndex = 13;
             // 
             // button7
             // 
             this.button7.Cursor = System.Windows.Forms.Cursors.Hand;
             this.button7.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button7.Location = new System.Drawing.Point(302, 22);
+            this.button7.Location = new System.Drawing.Point(310, 24);
             this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(81, 68);
+            this.button7.Size = new System.Drawing.Size(81, 83);
             this.button7.TabIndex = 0;
             this.button7.Text = " 执行";
             this.button7.UseVisualStyleBackColor = true;
@@ -329,9 +329,9 @@
             this.comboBox4.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox4.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.comboBox4.FormattingEnabled = true;
-            this.comboBox4.Location = new System.Drawing.Point(9, 24);
+            this.comboBox4.Location = new System.Drawing.Point(13, 24);
             this.comboBox4.Name = "comboBox4";
-            this.comboBox4.Size = new System.Drawing.Size(278, 22);
+            this.comboBox4.Size = new System.Drawing.Size(282, 22);
             this.comboBox4.TabIndex = 11;
             // 
             // groupBox7
@@ -347,7 +347,7 @@
             this.groupBox7.Controls.Add(this.comboBoxSecurityLevel);
             this.groupBox7.Location = new System.Drawing.Point(6, 9);
             this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(396, 118);
+            this.groupBox7.Size = new System.Drawing.Size(405, 118);
             this.groupBox7.TabIndex = 15;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "模式选择 $10 $27";
@@ -413,7 +413,7 @@
             // 
             this.buttonSecurityAccess.Cursor = System.Windows.Forms.Cursors.Hand;
             this.buttonSecurityAccess.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.buttonSecurityAccess.Location = new System.Drawing.Point(302, 58);
+            this.buttonSecurityAccess.Location = new System.Drawing.Point(310, 58);
             this.buttonSecurityAccess.Name = "buttonSecurityAccess";
             this.buttonSecurityAccess.Size = new System.Drawing.Size(81, 23);
             this.buttonSecurityAccess.TabIndex = 4;
@@ -429,7 +429,7 @@
             this.comboBoxSession.FormattingEnabled = true;
             this.comboBoxSession.Location = new System.Drawing.Point(71, 22);
             this.comboBoxSession.Name = "comboBoxSession";
-            this.comboBoxSession.Size = new System.Drawing.Size(216, 22);
+            this.comboBoxSession.Size = new System.Drawing.Size(224, 22);
             this.comboBoxSession.TabIndex = 2;
             this.comboBoxSession.SelectedIndexChanged += new System.EventHandler(this.comboBoxSession_SelectIndexChanged);
             // 
@@ -437,7 +437,7 @@
             // 
             this.buttonSession.Cursor = System.Windows.Forms.Cursors.Hand;
             this.buttonSession.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.buttonSession.Location = new System.Drawing.Point(302, 21);
+            this.buttonSession.Location = new System.Drawing.Point(310, 20);
             this.buttonSession.Name = "buttonSession";
             this.buttonSession.Size = new System.Drawing.Size(81, 24);
             this.buttonSession.TabIndex = 3;
@@ -453,12 +453,14 @@
             this.comboBoxSecurityLevel.FormattingEnabled = true;
             this.comboBoxSecurityLevel.Location = new System.Drawing.Point(71, 58);
             this.comboBoxSecurityLevel.Name = "comboBoxSecurityLevel";
-            this.comboBoxSecurityLevel.Size = new System.Drawing.Size(216, 22);
+            this.comboBoxSecurityLevel.Size = new System.Drawing.Size(224, 22);
             this.comboBoxSecurityLevel.TabIndex = 6;
             this.comboBoxSecurityLevel.SelectedIndexChanged += new System.EventHandler(this.comboBoxSecurityLevel_SelectedIndexChanged);
             // 
             // groupBoxServices
             // 
+            this.groupBoxServices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBoxServices.Controls.Add(this.textBoxTransData);
             this.groupBoxServices.Controls.Add(this.label32);
             this.groupBoxServices.Controls.Add(this.label31);
@@ -467,22 +469,24 @@
             this.groupBoxServices.Controls.Add(this.comboBoxSubFunction);
             this.groupBoxServices.Controls.Add(this.button1);
             this.groupBoxServices.Controls.Add(this.comboBoxServices);
-            this.groupBoxServices.Location = new System.Drawing.Point(6, 134);
+            this.groupBoxServices.Location = new System.Drawing.Point(6, 133);
             this.groupBoxServices.Name = "groupBoxServices";
-            this.groupBoxServices.Size = new System.Drawing.Size(396, 200);
+            this.groupBoxServices.Size = new System.Drawing.Size(405, 327);
             this.groupBoxServices.TabIndex = 14;
             this.groupBoxServices.TabStop = false;
             this.groupBoxServices.Text = "诊断服务";
             // 
             // textBoxTransData
             // 
+            this.textBoxTransData.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
             this.textBoxTransData.CharacterCasing = System.Windows.Forms.CharacterCasing.Upper;
             this.textBoxTransData.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
             this.textBoxTransData.ImeMode = System.Windows.Forms.ImeMode.Close;
-            this.textBoxTransData.Location = new System.Drawing.Point(13, 124);
+            this.textBoxTransData.Location = new System.Drawing.Point(13, 125);
             this.textBoxTransData.Multiline = true;
             this.textBoxTransData.Name = "textBoxTransData";
-            this.textBoxTransData.Size = new System.Drawing.Size(370, 62);
+            this.textBoxTransData.Size = new System.Drawing.Size(378, 185);
             this.textBoxTransData.TabIndex = 1;
             this.textBoxTransData.TextChanged += new System.EventHandler(this.trans_data_TextChanged);
             this.textBoxTransData.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.trans_data_KeyPress);
@@ -525,7 +529,7 @@
             this.comboBoxIdentifier.Location = new System.Drawing.Point(60, 88);
             this.comboBoxIdentifier.MaxDropDownItems = 16;
             this.comboBoxIdentifier.Name = "comboBoxIdentifier";
-            this.comboBoxIdentifier.Size = new System.Drawing.Size(227, 22);
+            this.comboBoxIdentifier.Size = new System.Drawing.Size(235, 22);
             this.comboBoxIdentifier.TabIndex = 18;
             this.comboBoxIdentifier.SelectedIndexChanged += new System.EventHandler(this.comboBoxIdentifier_SelectedIndexChanged);
             // 
@@ -539,7 +543,7 @@
             this.comboBoxSubFunction.Location = new System.Drawing.Point(60, 54);
             this.comboBoxSubFunction.MaxDropDownItems = 16;
             this.comboBoxSubFunction.Name = "comboBoxSubFunction";
-            this.comboBoxSubFunction.Size = new System.Drawing.Size(227, 22);
+            this.comboBoxSubFunction.Size = new System.Drawing.Size(235, 22);
             this.comboBoxSubFunction.TabIndex = 12;
             this.comboBoxSubFunction.SelectedIndexChanged += new System.EventHandler(this.comboBoxSubFunction_SelectedIndexChanged);
             // 
@@ -547,7 +551,7 @@
             // 
             this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.button1.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button1.Location = new System.Drawing.Point(302, 21);
+            this.button1.Location = new System.Drawing.Point(310, 21);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(81, 86);
             this.button1.TabIndex = 0;
@@ -565,7 +569,7 @@
             this.comboBoxServices.Location = new System.Drawing.Point(60, 20);
             this.comboBoxServices.MaxDropDownItems = 16;
             this.comboBoxServices.Name = "comboBoxServices";
-            this.comboBoxServices.Size = new System.Drawing.Size(227, 22);
+            this.comboBoxServices.Size = new System.Drawing.Size(235, 22);
             this.comboBoxServices.TabIndex = 11;
             this.comboBoxServices.SelectedIndexChanged += new System.EventHandler(this.comboBoxSerivers_SelectedIndexChanged);
             // 
@@ -575,7 +579,7 @@
             this.tabPageBusParams.Location = new System.Drawing.Point(4, 22);
             this.tabPageBusParams.Name = "tabPageBusParams";
             this.tabPageBusParams.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageBusParams.Size = new System.Drawing.Size(411, 594);
+            this.tabPageBusParams.Size = new System.Drawing.Size(422, 596);
             this.tabPageBusParams.TabIndex = 0;
             this.tabPageBusParams.Text = "总线设置";
             this.tabPageBusParams.UseVisualStyleBackColor = true;
@@ -694,7 +698,7 @@
             this.tabControl.Location = new System.Drawing.Point(11, 31);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(419, 620);
+            this.tabControl.Size = new System.Drawing.Size(430, 622);
             this.tabControl.TabIndex = 25;
             // 
             // tabPageReadWrite
@@ -704,10 +708,28 @@
             this.tabPageReadWrite.Location = new System.Drawing.Point(4, 22);
             this.tabPageReadWrite.Name = "tabPageReadWrite";
             this.tabPageReadWrite.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPageReadWrite.Size = new System.Drawing.Size(411, 594);
+            this.tabPageReadWrite.Size = new System.Drawing.Size(422, 596);
             this.tabPageReadWrite.TabIndex = 3;
             this.tabPageReadWrite.Text = "读写变量";
             this.tabPageReadWrite.UseVisualStyleBackColor = true;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.textBoxMap);
+            this.groupBox3.Location = new System.Drawing.Point(6, 263);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(396, 325);
+            this.groupBox3.TabIndex = 7;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Map信息";
+            // 
+            // textBoxMap
+            // 
+            this.textBoxMap.Location = new System.Drawing.Point(21, 32);
+            this.textBoxMap.Multiline = true;
+            this.textBoxMap.Name = "textBoxMap";
+            this.textBoxMap.Size = new System.Drawing.Size(353, 271);
+            this.textBoxMap.TabIndex = 7;
             // 
             // groupBox2
             // 
@@ -731,6 +753,28 @@
             this.groupBox2.TabIndex = 6;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "读写 $23 $3D";
+            // 
+            // checkBoxShowReadOnlyVariable
+            // 
+            this.checkBoxShowReadOnlyVariable.AutoSize = true;
+            this.checkBoxShowReadOnlyVariable.Checked = true;
+            this.checkBoxShowReadOnlyVariable.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxShowReadOnlyVariable.Location = new System.Drawing.Point(235, 61);
+            this.checkBoxShowReadOnlyVariable.Name = "checkBoxShowReadOnlyVariable";
+            this.checkBoxShowReadOnlyVariable.Size = new System.Drawing.Size(96, 16);
+            this.checkBoxShowReadOnlyVariable.TabIndex = 14;
+            this.checkBoxShowReadOnlyVariable.Text = "显示只读变量";
+            this.checkBoxShowReadOnlyVariable.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxShowFunction
+            // 
+            this.checkBoxShowFunction.AutoSize = true;
+            this.checkBoxShowFunction.Location = new System.Drawing.Point(91, 61);
+            this.checkBoxShowFunction.Name = "checkBoxShowFunction";
+            this.checkBoxShowFunction.Size = new System.Drawing.Size(72, 16);
+            this.checkBoxShowFunction.TabIndex = 13;
+            this.checkBoxShowFunction.Text = "显示函数";
+            this.checkBoxShowFunction.UseVisualStyleBackColor = true;
             // 
             // textBoxVariableType
             // 
@@ -860,63 +904,23 @@
             this.labelVariable.TabIndex = 3;
             this.labelVariable.Text = "变量:";
             // 
-            // checkBoxShowFunction
-            // 
-            this.checkBoxShowFunction.AutoSize = true;
-            this.checkBoxShowFunction.Location = new System.Drawing.Point(91, 61);
-            this.checkBoxShowFunction.Name = "checkBoxShowFunction";
-            this.checkBoxShowFunction.Size = new System.Drawing.Size(72, 16);
-            this.checkBoxShowFunction.TabIndex = 13;
-            this.checkBoxShowFunction.Text = "显示函数";
-            this.checkBoxShowFunction.UseVisualStyleBackColor = true;
-            // 
-            // checkBoxShowReadOnlyVariable
-            // 
-            this.checkBoxShowReadOnlyVariable.AutoSize = true;
-            this.checkBoxShowReadOnlyVariable.Checked = true;
-            this.checkBoxShowReadOnlyVariable.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBoxShowReadOnlyVariable.Location = new System.Drawing.Point(235, 61);
-            this.checkBoxShowReadOnlyVariable.Name = "checkBoxShowReadOnlyVariable";
-            this.checkBoxShowReadOnlyVariable.Size = new System.Drawing.Size(96, 16);
-            this.checkBoxShowReadOnlyVariable.TabIndex = 14;
-            this.checkBoxShowReadOnlyVariable.Text = "显示只读变量";
-            this.checkBoxShowReadOnlyVariable.UseVisualStyleBackColor = true;
-            // 
-            // textBoxMap
-            // 
-            this.textBoxMap.Location = new System.Drawing.Point(21, 32);
-            this.textBoxMap.Multiline = true;
-            this.textBoxMap.Name = "textBoxMap";
-            this.textBoxMap.Size = new System.Drawing.Size(353, 271);
-            this.textBoxMap.TabIndex = 7;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.textBoxMap);
-            this.groupBox3.Location = new System.Drawing.Point(6, 263);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(396, 325);
-            this.groupBox3.TabIndex = 7;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Map信息";
-            // 
             // main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(804, 659);
+            this.ClientSize = new System.Drawing.Size(814, 661);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.groupBoxStream);
             this.Controls.Add(this.menuStrip);
             this.DoubleBuffered = true;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip;
-            this.MaximizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(820, 620);
+            this.MinimumSize = new System.Drawing.Size(830, 535);
             this.Name = "main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "uds_test";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.main_FormClosing);
+            this.Resize += new System.EventHandler(this.main_Resize);
             this.menuStrip.ResumeLayout(false);
             this.menuStrip.PerformLayout();
             this.contextMenuStripSream.ResumeLayout(false);
@@ -934,10 +938,10 @@
             this.groupBox1.PerformLayout();
             this.tabControl.ResumeLayout(false);
             this.tabPageReadWrite.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 

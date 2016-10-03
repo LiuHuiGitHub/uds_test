@@ -44,6 +44,18 @@ namespace uds_test
                      true);
             BusParamsInit();
             uds_init();
+
+            groupBox8Location = groupBox8.Location;
+        }
+
+        Point groupBox8Location = new Point();
+        private void main_Resize(object sender, EventArgs e)
+        {
+            Point point = new Point();
+            point.X = groupBox8Location.X;
+            point.Y = groupBox8Location.Y + this.Size.Height - 700;
+            groupBox8.Location = point;
+            //this.Text = this.Size.Height.ToString() + " " + this.Size.Width.ToString();
         }
 
         #region Bus Params Page
@@ -826,6 +838,18 @@ namespace uds_test
                 {
                     uds_trans.RxMsgEventArgs RxMsg = (uds_trans.RxMsgEventArgs)e1;
                     uds_rx_msg(RxMsg.dat);
+                }
+                );
+
+            trans.EventError += new EventHandler(
+                (sender1, e1) =>
+                {
+                    uds_trans.ErrorEventArgs Error = (uds_trans.ErrorEventArgs)e1;
+                    EventHandler TextBoxUpdate = delegate
+                    {
+                        textBoxStream.AppendText(Error.ToString() + "\r\n");
+                    };
+                    try { Invoke(TextBoxUpdate); } catch { };
                 }
                 );
             #endregion
@@ -1640,9 +1664,13 @@ namespace uds_test
         public void ReadWriteVariableInit(List<mapClass> list)
         {
             mapList = list;
+            comboBoxVariable.Items.Clear(); 
             foreach (mapClass map in mapList)
             {
                 comboBoxVariable.Items.Add(map.variable);
+            }
+            if(comboBoxVariable.Items.Count != 0)
+            {
                 comboBoxVariable.SelectedItem = 0;
             }
         }
@@ -1685,6 +1713,7 @@ namespace uds_test
             string type = string.Empty;
             string stringsLast = string.Empty;
             StreamReader myStream = null;
+            mapList.Clear();
             try
             {
                 myStream = new StreamReader(file);
@@ -1718,19 +1747,19 @@ namespace uds_test
                     }
                     else if (strArray.Length <= 2)      //添加下一行
                     {
-                        if (strings == " *(.gnu.linkonce.t_vle.*)")
+                        if (strings == " *(.gnu.linkonce.t_vle.*)")     //.text_vle. end
                         {
                             start = string.Empty;
                         }
-                        else if (strings == " *(.rodata1)")
+                        else if (strings == " *(.rodata1)")             //.rodata. end
                         {
                             start = string.Empty;
                         }
-                        else if (strings == " *(.gnu.linkonce.d.*)")
+                        else if (strings == " *(.gnu.linkonce.d.*)")     //.data. end
                         {
                             start = string.Empty;
                         }
-                        else if (strings == " *(.gnu.linkonce.b.*)")
+                        else if (strings == " *(.gnu.linkonce.b.*)")     //.bss. end
                         {
                             start = string.Empty;
                         }
@@ -1748,9 +1777,9 @@ namespace uds_test
                             if (strArray[1].Length > start.Length && strArray[1].Substring(0, start.Length) == start)
                             {
                                 mapItem.variable = strArray[1].Remove(0, start.Length).Split(new char[] { '.'})[0];
-                                mapItem.addr = Convert.ToUInt32(strArray[2].Replace("0X", ""), 16);
+                                mapItem.addr = Convert.ToUInt32(strArray[2].Replace("0x", ""), 16);
                                 mapItem.type = type;
-                                mapItem.size = Convert.ToInt32(strArray[3].Replace("0X", ""), 16);
+                                mapItem.size = Convert.ToInt32(strArray[3].Replace("0x", ""), 16);
                                 mapList.Add(mapItem);
                             }
                         }

@@ -155,10 +155,11 @@ namespace Uds
             public int time = 0;
             public override string ToString()
             {
+                time %= 1000000;
                 return id.ToString("X3") + " "
                            + dlc.ToString("X1") + " "
                            + dat.HexToStrings(" ") + " "
-                           + (time/1000).ToString()+"."+(time%1000).ToString("d3");
+                           + (time / 1000).ToString() + "." + (time % 1000).ToString("d3");
             }
         }
 

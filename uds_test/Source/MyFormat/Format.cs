@@ -18,10 +18,10 @@ namespace MyFormat
             byte[] hex = new byte[0];
             try
             {
-                strings = strings.Replace(" ", "");     //将原string中的空格删除
                 strings = strings.Replace("0x", "");
                 strings = strings.Replace("0X", "");
-                strings = strings.Replace(",", "");
+                strings = strings.Replace(" ", "");
+                strings = Regex.Replace(strings, @"(?i)[^a-f\d\s]+", "");
                 if (strings.Length % 2 != 0)
                 {
                     strings += "0";

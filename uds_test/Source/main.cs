@@ -6,13 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using System.Threading;
 using System.IO;
 using System.Runtime.InteropServices;
 
-using User_Control;
-
-using uds_test.Source.Transmit;
 using Uds;
 using MyFormat;
 
@@ -59,7 +55,6 @@ namespace uds_test
             point.X = groupBox4Location.X;
             point.Y = groupBox4Location.Y + this.Size.Height - size.Height;
             groupBoxSeriverRoutine.Location = point;
-            this.Text = this.Size.Height.ToString() + " " + this.Size.Width.ToString();
         }
 
         #region Bus Params Page
@@ -154,7 +149,7 @@ namespace uds_test
                 openFileDialog.RestoreDirectory = true;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    if(openFileDialog.FilterIndex == 1)
+                    if (openFileDialog.FilterIndex == 1)
                     {
                         myStream = new StreamReader(openFileDialog.FileName);
                         string line;
@@ -205,7 +200,7 @@ namespace uds_test
                                 {
                                     string[] s = format[1].Split(new char[] { ',' });
                                     uds_service.Identifier identifier = new uds_service.Identifier();
-                                    if(service_14.identifier_list.Count == 0)
+                                    if (service_14.identifier_list.Count == 0)
                                     {
                                         identifier.id = "FFFFFF";
                                         identifier.name = "All DTC";
@@ -265,7 +260,7 @@ namespace uds_test
                                                         , "配置文件错误"
                                                         , MessageBoxButtons.YesNoCancel
                                                         , MessageBoxIcon.Error);
-                                if(result != DialogResult.Yes)
+                                if (result != DialogResult.Yes)
                                 {
                                     break;
                                 }
@@ -275,7 +270,7 @@ namespace uds_test
 
                         myStream.Close();
                     }
-                    else if(openFileDialog.FilterIndex == 2)
+                    else if (openFileDialog.FilterIndex == 2)
                     {
                         if (OpenMapFileForSpc(openFileDialog.FileName) == true)
                         {
@@ -304,11 +299,11 @@ namespace uds_test
                     save += "///" + IdentifierProject + ": + name \r\n";
                     save += IdentifierProject + ":" + this.Text + "\r\n";
                     save += "\r\n";
-                    
+
                     save += IdentifierTxId + ":" + trans.tx_id.ToString("X3") + "\r\n";
                     save += IdentifierRxId + ":" + trans.rx_id.ToString("X3") + "\r\n";
                     save += "\r\n";
-                    
+
                     save += IdentifierSecurityAccess + ":" + security_access.ToString("x") + "\r\n";
                     save += "\r\n";
 
@@ -775,7 +770,7 @@ namespace uds_test
                     Dtc dtc = new Dtc("", "");
                     int dtc_num = (dat.Length - 3) / 4;
                     int dtc_sts;
-                    int index; 
+                    int index;
                     strings += "-->DTC Number:" + dtc_num.ToString() + "\r\n";
                     for (index = 0; index < dtc_num; index++)
                     {
@@ -831,31 +826,11 @@ namespace uds_test
 
         private void uds_init()
         {
-            driver = new can_driver();
-            trans = new uds_trans();
-
             trans.tx_id = 0x7B0;
             trans.rx_id = 0x7B8;
 
             #region Trans Event
-            /*使用事件委托传参*/
-            driver.EventWriteData += new EventHandler(
-                (sender1, e1) =>
-                {
-                    can_driver.WriteDataEventArgs TxFarme = (can_driver.WriteDataEventArgs)e1;
-                    EventHandler TextBoxUpdate = delegate
-                    {
-                        if (checkBoxTesterPresentShow.Checked == false
-                            && TxFarme.dat[0] == 0x02
-                            && TxFarme.dat[1] == 0x3E)
-                        {
-                            return;
-                        }
-                        textBoxStream.AppendText(TxFarme.ToString() + "\r\n");
-                    };
-                    try { Invoke(TextBoxUpdate); } catch { };
-                }
-                );
+            /* 使用事件委托传参 */
             trans.EventTxFarms += new EventHandler(
                 (sender1, e1) =>
                 {
@@ -909,6 +884,11 @@ namespace uds_test
                     try { Invoke(TextBoxUpdate); } catch { };
                 }
                 );
+
+            /* trans使用委托调用driver */
+            trans.ReadData += driver.ReadData;
+            trans.WriteData += driver.WriteData;
+
             #endregion
 
             uds_seriver_init();
@@ -1456,7 +1436,7 @@ namespace uds_test
             routine.start = "FFFF";
             routine.name = "Valid All Key";
             routine_list.Add(routine);
-            
+
             #endregion
 
             #region $3D Write Memory By Address
@@ -1522,7 +1502,7 @@ namespace uds_test
             services_list.Add(service_85);
             #endregion
 
-            foreach(Cmd c in cmd_list)
+            foreach (Cmd c in cmd_list)
             {
                 comboBoxCmd.Items.Add(c.name);
                 comboBoxCmd.SelectedIndex = 0;
@@ -1753,7 +1733,7 @@ namespace uds_test
                 }
             }
             textbox.Text = strings.Replace(" ", "").InsertSpace(2);
-            textbox.SelectionStart = i_idx + i_idx/2;
+            textbox.SelectionStart = i_idx + i_idx / 2;
         }
 
         private void buttonSession_Click(object sender, EventArgs e)
@@ -1785,7 +1765,7 @@ namespace uds_test
             public int size;
             public string type;
         }
-        
+
         private List<mapClass> mapList = new List<mapClass>();
 
         /// <summary>
@@ -1795,12 +1775,12 @@ namespace uds_test
         public void ReadWriteVariableInit(List<mapClass> list)
         {
             mapList = list;
-            comboBoxVariable.Items.Clear(); 
+            comboBoxVariable.Items.Clear();
             foreach (mapClass map in mapList)
             {
                 comboBoxVariable.Items.Add(map.variable);
             }
-            if(comboBoxVariable.Items.Count != 0)
+            if (comboBoxVariable.Items.Count != 0)
             {
                 comboBoxVariable.SelectedItem = 0;
             }
@@ -1907,7 +1887,7 @@ namespace uds_test
                             mapClass mapItem = new mapClass();
                             if (strArray[1].Length > start.Length && strArray[1].Substring(0, start.Length) == start)
                             {
-                                mapItem.variable = strArray[1].Remove(0, start.Length).Split(new char[] { '.'})[0];
+                                mapItem.variable = strArray[1].Remove(0, start.Length).Split(new char[] { '.' })[0];
                                 mapItem.addr = Convert.ToUInt32(strArray[2].Replace("0x", ""), 16);
                                 mapItem.type = type;
                                 mapItem.size = Convert.ToInt32(strArray[3].Replace("0x", ""), 16);
@@ -1928,7 +1908,7 @@ namespace uds_test
             }
             return true;
         }
-        
+
         private void buttonReadVariableValue_Click(object sender, EventArgs e)
         {
             string strings = string.Empty;

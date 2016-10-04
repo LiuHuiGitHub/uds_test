@@ -41,6 +41,7 @@ namespace Uds
                 comboBoxChannel.SelectedIndex = 0;
             }
         }
+
         /// <summary>
         /// 打开CAN通道
         /// </summary>
@@ -147,24 +148,6 @@ namespace Uds
             return false;
         }
 
-        public class WriteDataEventArgs : EventArgs
-        {
-            public int id = 0;
-            public int dlc = 0;
-            public byte[] dat = new byte[8];
-            public int time = 0;
-            public override string ToString()
-            {
-                time %= 1000000;
-                return id.ToString("X3") + " "
-                           + dlc.ToString("X1") + " "
-                           + dat.HexToStrings(" ") + " "
-                           + (time / 1000).ToString() + "." + (time % 1000).ToString("d3");
-            }
-        }
-
-        private WriteDataEventArgs e_args = new WriteDataEventArgs();
-        public event EventHandler EventWriteData;
         /// <summary>
         /// CAN发送一帧数据
         /// </summary>
@@ -184,16 +167,9 @@ namespace Uds
             int ttime = 0;
             Canlib.kvReadTimer(canHandler, out ttime);
             time = (long)ttime;
-            if (EventWriteData != null)
-            {
-                e_args.id = id;
-                e_args.dlc = dlc;
-                e_args.time = ttime;
-                Array.Copy(dat, e_args.dat, dlc);
-                EventWriteData(this, e_args);
-            }
             return true;
         }
+
         /// <summary>
         /// CAN读取接收的一帧数据
         /// </summary>
@@ -204,12 +180,8 @@ namespace Uds
         /// <returns></returns>
         public bool ReadData(out int id, ref byte[] dat, out int dlc, out long time)
         {
-            int flag = 0 ;
-            if(Canlib.canRead(canHandler, out id, dat, out dlc, out flag, out time) == Canlib.canStatus.canOK)
-            {
-                return true;
-            }
-            return false;
+            int flag = 0;
+            return Canlib.canRead(canHandler, out id, dat, out dlc, out flag, out time) == Canlib.canStatus.canOK;
         }
     }
 }

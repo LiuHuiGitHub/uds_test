@@ -34,7 +34,7 @@ namespace Uds
             TX_SF = 0, /* Single Frame */
             TX_FF = 1, /* First Frame */
             TX_CF = 2, /* Consecutive Frame */
-            TX_FC = 3 /* Flow Control Frame */
+            TX_FC = 3  /* Flow Control Frame */
         };
 
         /*
@@ -146,7 +146,7 @@ namespace Uds
         private class rx_info
         {
             public bool rx_in_progress = false;
-            
+
             public bool rx_msg_rcvd = false;        /* if the message has never been received to be used by application level software */
             public bool tx_aborted = false;
 
@@ -163,9 +163,9 @@ namespace Uds
 
         private tx_info can_tx_info = new tx_info();
         private rx_info can_rx_info = new rx_info();
-        
+
         #region Event 
-        
+
         public class FarmsEventArgs : EventArgs
         {
             public int id = 0;
@@ -222,7 +222,9 @@ namespace Uds
         /// UDS 传输层接收完成事件
         /// </summary>
         public event EventHandler EventRxMsgs;
-
+        /// <summary>
+        /// UDS 传输层错误事件
+        /// </summary>
         public event EventHandler EventError;
 
         private void TxFarmsEvent(int id, byte[] dat, int dlc, long time)
@@ -273,6 +275,18 @@ namespace Uds
             }
         }
 
+        public delegate bool CanWriteData(int id, byte[] dat, int dlc, out long time);
+        public delegate bool CanReadData(out int id, ref byte[] dat, out int dlc, out long time);
+
+        /// <summary>
+        /// 利用委托发送一帧数据
+        /// </summary>
+        public CanWriteData WriteData;
+        /// <summary>
+        /// 利用委托接收一帧数据
+        /// </summary>
+        public CanReadData ReadData;
+
         #endregion
 
         #region Trans Thread
@@ -280,10 +294,10 @@ namespace Uds
         Thread testerPresent_thread;
         private void testerPresent_Thread()
         {
-            while(true)
+            while (true)
             {
                 long time;
-                if(can.WriteData(0x7DF, new byte[] { 0x02, 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8, out time) == true)
+                if (WriteData != null && WriteData(0x7DF, new byte[] { 0x02, 0x3E, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00 }, 8, out time) == true)
                 {
                     Thread.Sleep(3000);
                 }
@@ -330,11 +344,11 @@ namespace Uds
                 while (true)
                 {
                     bool rx_frame = false;
-                    while (can.ReadData(out id, ref dat, out dlc, out time) == true)
+                    while (ReadData != null && ReadData(out id, ref dat, out dlc, out time) == true)
                     {
                         if (id == rx_id && dlc == 8)
                         {
-                            if(can_rx_info.rx_in_progress && dat[0] == 0x02 && dat[1] == 0x7F && dat[3] == 0x78)
+                            if (can_rx_info.rx_in_progress && dat[0] == 0x02 && dat[1] == 0x7F && dat[3] == 0x78)
                             {
                                 can_rx_info.rx_cf_wait_time = 5000;
                                 break;
@@ -352,7 +366,7 @@ namespace Uds
                         oldTime = nowTime;
                         break;
                     }
-                    else if(!can_tx_info.tx_in_progress && !can_rx_info.rx_in_progress)     //UDS空闲，释放进程
+                    else if (!can_tx_info.tx_in_progress && !can_rx_info.rx_in_progress)     //UDS空闲，释放进程
                     {
                         Thread.Sleep(1);
                     }
@@ -384,8 +398,6 @@ namespace Uds
 
         #endregion
 
-        can_driver can = new can_driver();
-
         private byte[] tx_msg = new byte[0];
 
         /// <summary>
@@ -396,7 +408,7 @@ namespace Uds
         /// <returns></returns>
         public bool CanTrans_TxMsg(AddressingModes mode, byte[] msg)
         {
-            if(msg.Length == 0)
+            if (msg.Length == 0)
             {
                 RrrorEvent("-->Error: Tx Msg Length Is Zero");
                 return false;
@@ -536,7 +548,7 @@ namespace Uds
 
             }
             long time;
-            if (can.WriteData(id, can_tx_info.frame, 8, out time) == true)
+            if (WriteData != null && WriteData(id, can_tx_info.frame, 8, out time) == true)
             {
                 TxFarmsEvent(id, can_tx_info.frame, 8, time);
                 can_tx_info.tx_last_frame_error = false;
@@ -690,7 +702,7 @@ namespace Uds
             if (can_rx_info.rx_msg_rcvd == true)
             {
                 can_rx_info.rx_msg_rcvd = false;
-                if(can_rx_info.tx_aborted == false)
+                if (can_rx_info.tx_aborted == false)
                 {
                     RxMsgEvent(rx_id, can_rx_info.buffer);
                 }
@@ -889,7 +901,7 @@ namespace Uds
                     {
                         can_tx_info.tx_block_size = 0x00;
                     }
-                    
+
                     if ((can_rx_info.frame[STminByte] & 0x7F) != 0x00)
                     {
                         /* 

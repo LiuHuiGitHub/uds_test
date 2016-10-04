@@ -28,6 +28,7 @@ namespace uds_test
         can_driver driver = new can_driver();
         uds_trans trans = new uds_trans();
         List<uds_service> services_list = new List<Uds.uds_service>();
+        uint security_access = 0;
 
         public main()
         {
@@ -131,12 +132,13 @@ namespace uds_test
         #region File
 
         readonly string IdentifierProject = "$Project";
+        readonly string IdentifierSecurityAccess = "$Security Access";
         readonly string IdentifierCmd = "$Cmd";
         readonly string IdentifierTxId = "$Tx Id";
         readonly string IdentifierRxId = "$Rx Id";
         readonly string IdentifierDtc = "$19 Dtc";
         readonly string IdentifierRead = "$22 Read";
-        readonly string IdentifierWrite = "$22 Write";
+        readonly string IdentifierWrite = "$2E Write";
         readonly string IdentifierIoCtrl = "$2F IoCtrl";
         readonly string IdentifierRoutine = "$31 Routine";
 
@@ -185,6 +187,10 @@ namespace uds_test
                                 {
                                     trans.rx_id = int.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
                                 }
+                                else if (format[0] == IdentifierSecurityAccess)
+                                {
+                                    security_access = uint.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+                                }
                                 else if (format[0] == IdentifierCmd)
                                 {
                                     string[] s = format[1].Split(new char[] { ',' });
@@ -199,6 +205,13 @@ namespace uds_test
                                 {
                                     string[] s = format[1].Split(new char[] { ',' });
                                     uds_service.Identifier identifier = new uds_service.Identifier();
+                                    if(service_14.identifier_list.Count == 0)
+                                    {
+                                        identifier.id = "FFFFFF";
+                                        identifier.name = "All DTC";
+                                        service_14.identifier_list.Add(identifier);
+                                    }
+                                    identifier = new uds_service.Identifier();
                                     identifier.id = s[0];
                                     identifier.name = s[1];
                                     Dtc dtc = new Dtc(identifier.id, identifier.name);
@@ -288,11 +301,15 @@ namespace uds_test
                     save += "///每行$xx yyy:之后的为该服务的数据，数据中以','分开\r\n";
                     save += "///每行以///起始的为注释行，说明之后的数据存放格式，请勿删除\r\n\r\n";
 
+                    save += "///" + IdentifierProject + ": + name \r\n";
                     save += IdentifierProject + ":" + this.Text + "\r\n";
                     save += "\r\n";
-
+                    
                     save += IdentifierTxId + ":" + trans.tx_id.ToString("X3") + "\r\n";
                     save += IdentifierRxId + ":" + trans.rx_id.ToString("X3") + "\r\n";
+                    save += "\r\n";
+                    
+                    save += IdentifierSecurityAccess + ":" + security_access.ToString("x") + "\r\n";
                     save += "\r\n";
 
                     save += "///" + IdentifierCmd + ": + cmd + ',' + Name\r\n";
@@ -1564,7 +1581,7 @@ namespace uds_test
                 level = dat[1];
                 if (seed != 0 && level % 2 != 0)
                 {
-                    result = SecurityAccess(0, seed, level);
+                    result = SecurityAccess(security_access, seed, level);
                     if (dat.Length == 4)
                     {
                         result &= 0xFFFF;

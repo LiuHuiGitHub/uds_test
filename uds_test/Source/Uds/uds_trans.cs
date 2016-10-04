@@ -388,6 +388,12 @@ namespace Uds
 
         private byte[] tx_msg = new byte[0];
 
+        /// <summary>
+        /// 发送信息
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="msg"></param>
+        /// <returns></returns>
         public bool CanTrans_TxMsg(AddressingModes mode, byte[] msg)
         {
             if(msg.Length == 0)
@@ -417,6 +423,17 @@ namespace Uds
             tx_msg = new byte[msg.Length];
             Array.Copy(msg, tx_msg, msg.Length);
             return true;
+        }
+
+        /// <summary>
+        /// 发送信息
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="strings"></param>
+        /// <returns></returns>
+        public bool CanTrans_TxMsg(AddressingModes mode, string strings)
+        {
+            return CanTrans_TxMsg(mode, strings.StringToHex());
         }
 
         private void CanTrans_TxMsg()

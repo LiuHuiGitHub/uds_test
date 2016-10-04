@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Dongzr.MidiLite;
 using System.Threading;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -45,17 +44,21 @@ namespace uds_test
             BusParamsInit();
             uds_init();
 
-            groupBox8Location = groupBox8.Location;
+            textBoxTransData.KeyPress += textBoxTransData_KeyPress;
+
+            size = this.Size;
+            groupBox4Location = groupBoxSeriverRoutine.Location;
         }
 
-        Point groupBox8Location = new Point();
+        Size size = new Size();
+        Point groupBox4Location = new Point();
         private void main_Resize(object sender, EventArgs e)
         {
             Point point = new Point();
-            point.X = groupBox8Location.X;
-            point.Y = groupBox8Location.Y + this.Size.Height - 700;
-            groupBox8.Location = point;
-            //this.Text = this.Size.Height.ToString() + " " + this.Size.Width.ToString();
+            point.X = groupBox4Location.X;
+            point.Y = groupBox4Location.Y + this.Size.Height - size.Height;
+            groupBoxSeriverRoutine.Location = point;
+            this.Text = this.Size.Height.ToString() + " " + this.Size.Width.ToString();
         }
 
         #region Bus Params Page
@@ -128,6 +131,7 @@ namespace uds_test
         #region File
 
         readonly string IdentifierProject = "$Project";
+        readonly string IdentifierCmd = "$Cmd";
         readonly string IdentifierTxId = "$Tx Id";
         readonly string IdentifierRxId = "$Rx Id";
         readonly string IdentifierDtc = "$19 Dtc";
@@ -153,12 +157,16 @@ namespace uds_test
                         myStream = new StreamReader(openFileDialog.FileName);
                         string line;
                         int lineNumber = 0;
+                        cmd_list = new List<Cmd>();
+                        comboBoxCmd.Items.Clear();
                         dtc_list = new List<Dtc>();
                         service_14.identifier_list = new List<uds_service.Identifier>();
                         service_19.identifier_list = new List<uds_service.Identifier>();
                         service_22.identifier_list = new List<uds_service.Identifier>();
                         service_2E.identifier_list = new List<uds_service.Identifier>();
                         service_2F.identifier_list = new List<uds_service.Identifier>();
+                        routine_list = new List<Routine>();
+                        comboBoxRoutineIdent.Items.Clear();
 
                         while ((line = myStream.ReadLine()) != null)
                         {
@@ -176,6 +184,16 @@ namespace uds_test
                                 else if (format[0] == IdentifierRxId)
                                 {
                                     trans.rx_id = int.Parse(format[1].Replace("0x", ""), System.Globalization.NumberStyles.HexNumber);
+                                }
+                                else if (format[0] == IdentifierCmd)
+                                {
+                                    string[] s = format[1].Split(new char[] { ',' });
+                                    Cmd cmd = new Cmd();
+                                    cmd.cmd = s[0];
+                                    cmd.name = s[1];
+                                    cmd_list.Add(cmd);
+                                    comboBoxCmd.Items.Add(cmd.name);
+                                    comboBoxCmd.SelectedIndex = 0;
                                 }
                                 else if (format[0] == IdentifierDtc)
                                 {
@@ -216,13 +234,28 @@ namespace uds_test
                                 }
                                 else if (format[0] == IdentifierRoutine)
                                 {
-
+                                    string[] s = format[1].Split(new char[] { ',' });
+                                    Routine routine = new Routine();
+                                    routine.id = s[0];
+                                    routine.start = s[1];
+                                    routine.stop = s[2];
+                                    routine.result = s[3];
+                                    routine.name = s[4];
+                                    routine_list.Add(routine);
+                                    comboBoxRoutineIdent.Items.Add("$" + routine.id + " " + routine.name);
+                                    comboBoxRoutineIdent.SelectedIndex = 0;
                                 }
                             }
                             catch
                             {
-                                MessageBox.Show("第" + lineNumber.ToString() + "行格式有误:\r\n" + line.Substring(0, 50));
-                                break;
+                                DialogResult result = MessageBox.Show("第" + lineNumber.ToString() + "行格式有误:\r\n" + line + "\r\n是否继续？"
+                                                        , "配置文件错误"
+                                                        , MessageBoxButtons.YesNoCancel
+                                                        , MessageBoxIcon.Error);
+                                if(result != DialogResult.Yes)
+                                {
+                                    break;
+                                }
                             }
                             lineNumber++;
                         }
@@ -262,6 +295,13 @@ namespace uds_test
                     save += IdentifierRxId + ":" + trans.rx_id.ToString("X3") + "\r\n";
                     save += "\r\n";
 
+                    save += "///" + IdentifierCmd + ": + cmd + ',' + Name\r\n";
+                    foreach (Cmd cmd in cmd_list)
+                    {
+                        save += IdentifierCmd + ":" + cmd.cmd + "," + cmd.name + "\r\n";
+                    }
+                    save += "\r\n";
+
                     save += "///" + IdentifierDtc + ": + Ident + ',' + Name\r\n";
                     foreach (Dtc dtc in dtc_list)
                     {
@@ -291,10 +331,10 @@ namespace uds_test
                     }
                     save += "\r\n";
 
-                    save += "///" + IdentifierRoutine + ": + Ident + ',' + Data + ',' Name\r\n";
-                    foreach (uds_service.Identifier id in service_31.identifier_list)
+                    save += "///" + IdentifierRoutine + ": + Ident + ',' + StartParameter + ',' + StopParameter + ',' + ResultParameter + ',' Name\r\n";
+                    foreach (Routine r in routine_list)
                     {
-                        save += IdentifierRoutine + ":" + id.id + "," + id.parameter + "," + id.name + "\r\n";
+                        save += IdentifierRoutine + ":" + r.id + "," + r.start + "," + r.stop + "," + r.result + "," + r.name + "\r\n";
                     }
                     save += "\r\n";
 
@@ -857,6 +897,25 @@ namespace uds_test
             uds_seriver_init();
         }
 
+        public class Cmd
+        {
+            public string cmd;
+            public string name;
+        };
+
+        List<Cmd> cmd_list = new List<Cmd>();
+
+        public class Routine
+        {
+            public string id;
+            public string start;
+            public string stop;
+            public string result;
+            public string name;
+        };
+
+        List<Routine> routine_list = new List<Routine>();
+
         uds_service now_service = new uds_service();
         uds_service service_10 = new uds_service();
         uds_service service_11 = new uds_service();
@@ -868,7 +927,6 @@ namespace uds_test
         uds_service service_28 = new uds_service();
         uds_service service_2E = new uds_service();
         uds_service service_2F = new uds_service();
-        uds_service service_31 = new uds_service();
         uds_service service_3D = new uds_service();
         uds_service service_3E = new uds_service();
         uds_service service_85 = new uds_service();
@@ -878,6 +936,14 @@ namespace uds_test
             services_list = new List<Uds.uds_service>();
             uds_service.SubFunction sub_function = new uds_service.SubFunction();
             uds_service.Identifier identifier = new uds_service.Identifier();
+
+            #region Cmd
+            Cmd cmd = new Cmd();
+            cmd = new Cmd();
+            cmd.cmd = "1101";
+            cmd.name = "ECU Reset";
+            cmd_list.Add(cmd);
+            #endregion
 
             #region $10 Diagnostic Session Control
             service_10 = new uds_service();
@@ -1236,164 +1302,144 @@ namespace uds_test
             #endregion
 
             #region $31 Routine Control
-            service_31 = new uds_service();
-            service_31.sid = "31";
-            service_31.name = "Routine Control";
-            service_31.sub_function_list = new List<uds_service.SubFunction>();
-            //@sub_function
-            sub_function = new uds_service.SubFunction();
-            sub_function.id = "01";
-            sub_function.name = "Start Routine";
-            service_31.sub_function_list.Add(sub_function);
-            sub_function = new uds_service.SubFunction();
-            sub_function.id = "02";
-            sub_function.name = "Stop Routine";
-            service_31.sub_function_list.Add(sub_function);
-            sub_function = new uds_service.SubFunction();
-            sub_function.id = "03";
-            sub_function.name = "Request Routine Result";
-            service_31.sub_function_list.Add(sub_function);
-            //end_sub_function
-            //@identifier
+            Routine routine = new Routine();
             //1
-            identifier = new uds_service.Identifier();
-            identifier.id = "7501";
-            identifier.name = "Generate Random Secret Key";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7501";
+            routine.start = "AABBCCDD";
+            routine.name = "Generate Random Secret Key";
+            routine_list.Add(routine);
             //2
-            identifier = new uds_service.Identifier();
-            identifier.id = "7502";
-            identifier.name = "Lock ECU";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7502";
+            routine.start = "AABBCCDD";
+            routine.name = "Lock ECU";
+            routine_list.Add(routine);
             //3
-            identifier = new uds_service.Identifier();
-            identifier.id = "7503";
-            identifier.name = "Add Key";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7503";
+            routine.start = "AABBCCDD";
+            routine.name = "Add Key";
+            routine_list.Add(routine);
             //4
-            identifier = new uds_service.Identifier();
-            identifier.id = "7504";
-            identifier.name = "Delete Key";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7504";
+            routine.start = "AABBCCDD";
+            routine.name = "Delete Key";
+            routine_list.Add(routine);
             //5
-            identifier = new uds_service.Identifier();
-            identifier.id = "7505";
-            identifier.name = "Learn Secret Key from EMS";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7505";
+            routine.start = "AABBCCDD";
+            routine.name = "Learn Secret Key from EMS";
+            routine_list.Add(routine);
             //6
-            identifier = new uds_service.Identifier();
-            identifier.id = "7506";
-            identifier.name = "Teach Secret key to EMS";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7506";
+            routine.start = "AABBCCDD";
+            routine.name = "Teach Secret key to EMS";
+            routine_list.Add(routine);
             //7
-            identifier = new uds_service.Identifier();
-            identifier.id = "7507";
-            identifier.name = "Key Test";
-            identifier.parameter = "AABBCCDD";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7507";
+            routine.start = "AABBCCDD";
+            routine.name = "Key Test";
+            routine_list.Add(routine);
             //8
-            identifier = new uds_service.Identifier();
-            identifier.id = "7508";
-            identifier.name = "DD Windows Position";
-            identifier.parameter = "64000000";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7508";
+            routine.start = "64000000";
+            routine.name = "DD Windows Position";
+            routine_list.Add(routine);
             //9
-            identifier = new uds_service.Identifier();
-            identifier.id = "7509";
-            identifier.name = "PD Windows Position";
-            identifier.parameter = "64000000";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7509";
+            routine.start = "64000000";
+            routine.name = "PD Windows Position";
+            routine_list.Add(routine);
             //10
-            identifier = new uds_service.Identifier();
-            identifier.id = "750A";
-            identifier.name = "RLD Windows Position";
-            identifier.parameter = "64000000";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "750A";
+            routine.start = "64000000";
+            routine.name = "RLD Windows Position";
+            routine_list.Add(routine);
             //11
-            identifier = new uds_service.Identifier();
-            identifier.id = "750B";
-            identifier.name = "RRD Windows Position";
-            identifier.parameter = "64000000";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "750B";
+            routine.start = "64000000";
+            routine.name = "RRD Windows Position";
+            routine_list.Add(routine);
             //12
-            identifier = new uds_service.Identifier();
-            identifier.id = "750C";
-            identifier.name = "HornCtr";
-            identifier.parameter = "64000000";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "750C";
+            routine.start = "01";
+            routine.name = "HornCtr";
+            routine_list.Add(routine);
             //13
-            identifier = new uds_service.Identifier();
-            identifier.id = "750D";
-            identifier.name = "RRD Windows Position";
-            identifier.parameter = "64646464";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "750D";
+            routine.start = "64646464";
+            routine.name = "All Windows Position";
+            routine_list.Add(routine);
             //14
-            identifier = new uds_service.Identifier();
-            identifier.id = "750E";
-            identifier.name = "ALL Door Lock";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "750E";
+            routine.name = "ALL Door Lock";
+            routine_list.Add(routine);
             //15
-            identifier = new uds_service.Identifier();
-            identifier.id = "750F";
-            identifier.name = "ALL Door Unlock";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "750F";
+            routine.name = "ALL Door Unlock";
+            routine_list.Add(routine);
             //16
-            identifier = new uds_service.Identifier();
-            identifier.id = "7500";
-            identifier.name = "Driver Door Unlock";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7500";
+            routine.name = "Driver Door Unlock";
+            routine_list.Add(routine);
             //17
-            identifier = new uds_service.Identifier();
-            identifier.id = "7500";
-            identifier.name = "Hazard Control";
-            identifier.parameter = "01";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7550";
+            routine.start = "FF";
+            routine.name = "Hazard Control";
+            routine_list.Add(routine);
             //18
-            identifier = new uds_service.Identifier();
-            identifier.id = "7551";
-            identifier.name = "Find My Car";
-            identifier.parameter = "F0";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "7551";
+            routine.start = "F0";
+            routine.name = "Find My Car";
+            routine_list.Add(routine);
             //19
-            identifier = new uds_service.Identifier();
-            identifier.id = "FF01";
-            identifier.name = "Check Programming Dependecies";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "FF01";
+            routine.name = "Check Programming Dependecies";
+            routine_list.Add(routine);
             //20
-            identifier = new uds_service.Identifier();
-            identifier.id = "FFF7";
-            identifier.name = "Immo Unlock";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "FFF7";
+            routine.name = "Immo Unlock";
+            routine_list.Add(routine);
             //21
-            identifier = new uds_service.Identifier();
-            identifier.id = "FFF8";
-            identifier.name = "Test ABIC Phase";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "FFF8";
+            routine.name = "Test ABIC Phase";
+            routine_list.Add(routine);
             //22
-            identifier = new uds_service.Identifier();
-            identifier.id = "FFF9";
-            identifier.name = "DEBUG Mode";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "FFF9";
+            routine.name = "DEBUG Mode";
+            routine_list.Add(routine);
             //23
-            identifier = new uds_service.Identifier();
-            identifier.id = "FDF0";
-            identifier.name = "Turn Calibration";
-            service_31.identifier_list.Add(identifier);
+            routine = new Routine();
+            routine.id = "FDF0";
+            routine.name = "Turn Calibration";
+            routine_list.Add(routine);
             //24
-            identifier = new uds_service.Identifier();
-            identifier.id = "FFFA";
-            identifier.name = "Valid All Key";
-            identifier.parameter = "FFFF";
-            service_31.identifier_list.Add(identifier);
-
-            //@end_identifier
-            //services_list.Add(service_31);
+            routine = new Routine();
+            routine.id = "FFFA";
+            routine.start = "FFFF";
+            routine.name = "Valid All Key";
+            routine_list.Add(routine);
+            
             #endregion
 
             #region $3D Write Memory By Address
@@ -1459,6 +1505,12 @@ namespace uds_test
             services_list.Add(service_85);
             #endregion
 
+            foreach(Cmd c in cmd_list)
+            {
+                comboBoxCmd.Items.Add(c.name);
+                comboBoxCmd.SelectedIndex = 0;
+            }
+
             foreach (uds_service.SubFunction sub in service_10.sub_function_list)
             {
                 comboBoxSession.Items.Add("$" + sub.id + " " + sub.name);
@@ -1476,6 +1528,18 @@ namespace uds_test
             comboBoxSession.SelectedIndex = 2;
             comboBoxSecurityLevel.SelectedIndex = 0;
             comboBoxServices.SelectedIndex = 0;
+
+            foreach (Routine r in routine_list)
+            {
+                comboBoxRoutineIdent.Items.Add("$" + r.id + " " + r.name);
+                comboBoxRoutineIdent.SelectedIndex = 0;
+            }
+
+            comboBoxRoutineSubFunction.Items.Add("$01 Start Routine");
+            comboBoxRoutineSubFunction.Items.Add("$02 Stop Routine");
+            comboBoxRoutineSubFunction.Items.Add("$03 Result Routine");
+            comboBoxRoutineSubFunction.SelectedIndex = 0;
+
         }
 
         private void uds_rx_msg(byte[] dat)
@@ -1504,11 +1568,11 @@ namespace uds_test
                     if (dat.Length == 4)
                     {
                         result &= 0xFFFF;
-                        trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x4")).StringToHex());
+                        trans.CanTrans_TxMsg(mode, "27" + (level + 1).ToString("x2") + result.ToString("x4"));
                     }
                     else if (dat.Length == 6)
                     {
-                        trans.CanTrans_TxMsg(mode, ("27" + (level + 1).ToString("x2") + result.ToString("x8")).StringToHex());
+                        trans.CanTrans_TxMsg(mode, "27" + (level + 1).ToString("x2") + result.ToString("x8"));
                     }
                 }
             }
@@ -1516,6 +1580,15 @@ namespace uds_test
             {
                 Analyze(dat);
             }
+        }
+
+        private void uds_tx_msg(string strings)
+        {
+            if (AutoToolStripMenuItem.Checked)
+            {
+                textBoxStream.Text = "";
+            }
+            trans.CanTrans_TxMsg(mode, strings);
         }
 
         private void comboBoxSerivers_SelectedIndexChanged(object sender, EventArgs e)
@@ -1537,7 +1610,7 @@ namespace uds_test
                 comboBoxIdentifier.SelectedIndex = 0;
             }
             comboBoxIdentifier.Enabled = now_service.sub_function_selectd.identifier_enabled;
-            updateTransData();
+            updateServicesTransData();
         }
 
         private void comboBoxSubFunction_SelectedIndexChanged(object sender, EventArgs e)
@@ -1547,7 +1620,7 @@ namespace uds_test
                 now_service.sub_function_selectd = now_service.sub_function_list[comboBoxSubFunction.SelectedIndex];
                 comboBoxIdentifier.Enabled = now_service.sub_function_selectd.identifier_enabled;
             }
-            updateTransData();
+            updateServicesTransData();
         }
 
         private void comboBoxIdentifier_SelectedIndexChanged(object sender, EventArgs e)
@@ -1556,30 +1629,79 @@ namespace uds_test
             {
                 now_service.identifier_selected = now_service.identifier_list[comboBoxIdentifier.SelectedIndex];
             }
-            updateTransData();
+            updateServicesTransData();
         }
 
-        void updateTransData()
+        private void comboBoxRoutine_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxRoutineSubFunction.SelectedIndex == 0)
+            {
+                textBoxRoutineParameter.Text = routine_list[comboBoxRoutineIdent.SelectedIndex].start;
+            }
+            else if (comboBoxRoutineSubFunction.SelectedIndex == 1)
+            {
+                textBoxRoutineParameter.Text = routine_list[comboBoxRoutineIdent.SelectedIndex].stop;
+            }
+            else if (comboBoxRoutineSubFunction.SelectedIndex == 2)
+            {
+                textBoxRoutineParameter.Text = routine_list[comboBoxRoutineIdent.SelectedIndex].result;
+            }
+        }
+
+        void updateServicesTransData()
         {
             textBoxTransData.Text = now_service.ToString();
         }
 
         private void textBoxParameter_TextChanged(object sender, EventArgs e)
         {
-            updateTransData();
+            updateServicesTransData();
         }
 
         private void button_Click(object sender, EventArgs e)
         {
-            if (AutoToolStripMenuItem.Checked)
+            uds_tx_msg(textBoxTransData.Text);
+        }
+
+        private void buttonCmd_Click(object sender, EventArgs e)
+        {
+            uds_tx_msg(cmd_list[comboBoxCmd.SelectedIndex].cmd);
+        }
+
+        private void buttonRoutine_Click(object sender, EventArgs e)
+        {
+            string strings = "31";
+
+            if (comboBoxRoutineSubFunction.SelectedIndex == 0)
             {
-                textBoxStream.Text = "";
+                strings += "01";
             }
-            trans.CanTrans_TxMsg(mode, textBoxTransData.Text.StringToHex());
+            else if (comboBoxRoutineSubFunction.SelectedIndex == 1)
+            {
+                strings += "02";
+            }
+            else if (comboBoxRoutineSubFunction.SelectedIndex == 2)
+            {
+                strings += "03";
+            }
+
+            strings += routine_list[comboBoxRoutineIdent.SelectedIndex].id;
+            strings += textBoxRoutineParameter.Text;
+
+            uds_tx_msg(strings);
+        }
+
+        private void textBoxTransData_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            TextBox textbox = (TextBox)sender;
+            if (e.KeyChar == '\r')
+            {
+                uds_tx_msg(textbox.Text);
+            }
         }
 
         private bool delete_char_flag = false;
-        private void trans_data_KeyPress(object sender, KeyPressEventArgs e)
+        private void textBoxHex_KeyPress(object sender, KeyPressEventArgs e)
         {
             TextBox textbox = (TextBox)sender;
             string strings = textbox.Text;
@@ -1598,17 +1720,9 @@ namespace uds_test
             {
                 delete_char_flag = true;
             }
-            else if (e.KeyChar == '\r')
-            {
-                if (AutoToolStripMenuItem.Checked)
-                {
-                    textBoxStream.Text = "";
-                }
-                trans.CanTrans_TxMsg(mode, textBoxTransData.Text.StringToHex());
-            }
         }
 
-        private void trans_data_TextChanged(object sender, EventArgs e)
+        private void textBoxHex_TextChanged(object sender, EventArgs e)
         {
             TextBox textbox = (TextBox)sender;
             string strings = textbox.Text;

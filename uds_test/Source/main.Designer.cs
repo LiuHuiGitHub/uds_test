@@ -774,7 +774,6 @@
             this.comboBoxChannel.Name = "comboBoxChannel";
             this.comboBoxChannel.Size = new System.Drawing.Size(278, 22);
             this.comboBoxChannel.TabIndex = 1;
-            this.comboBoxChannel.Click += new System.EventHandler(this.comboBoxChannel_Click);
             // 
             // tabControl
             // 

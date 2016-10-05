@@ -3,68 +3,57 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using System.Windows.Forms;
-
 using canlibCLSNET;
-using MyFormat;
 
 namespace Uds
 {
     class can_driver
     {
         private int canHandler = 0;
+        private string[] channel = new string[0];
 
         /// <summary>
-        /// 选择CAN通道
+        /// 获取CAN通道
         /// </summary>
-        /// <param name="comboBoxChannel"></param>
-        public void SelectChannel(ref ComboBox comboBoxChannel)
+        /// <returns></returns>
+        public string[] GetChannel()
         {
-            int channel_index = 0x00;
+            int channel_num = 0x00;
             Canlib.canInitializeLibrary();
 
-            if (Canlib.canStatus.canOK == Canlib.canGetNumberOfChannels(out channel_index))
+            if (Canlib.canStatus.canOK == Canlib.canGetNumberOfChannels(out channel_num))
             {
-                comboBoxChannel.Items.Clear();
-                for (int i = 0; i < channel_index; i++)
+                channel = new string[channel_num];
+                for (int i = 0; i < channel_num; i++)
                 {
                     object canChannelType = new Object();
                     object canChannelName = new Object();
 
                     Canlib.canGetChannelData(i, Canlib.canCHANNELDATA_TRANS_TYPE, out canChannelType); /* get channel type */
                     Canlib.canGetChannelData(i, Canlib.canCHANNELDATA_CHANNEL_NAME, out canChannelName); /* get channel name */
-                    if (Convert.ToInt32(canChannelType) != Canlib.canTRANSCEIVER_TYPE_LIN)
-                    {
-                        comboBoxChannel.Items.Add(Convert.ToString(canChannelName));
-                    }
+                    channel[i] = Convert.ToString(canChannelName);
                 }
-                comboBoxChannel.SelectedIndex = 0;
             }
+            return channel;
         }
 
         /// <summary>
         /// 打开CAN通道
         /// </summary>
-        /// <param name="comboBoxChannel"></param>
-        /// <param name="comboBoxBaud"></param>
+        /// <param name="channel"></param>
+        /// <param name="baud"></param>
         /// <returns></returns>
-        public bool OpenChannel(ref ComboBox comboBoxChannel, ref ComboBox comboBoxBaud)
+        public bool OpenChannel(int channel, string baud)
         {
             int canFreq;
-            if (comboBoxChannel.Items.Count == 0)
-            {
-                MessageBox.Show("Don't Have Any One Channel!");
-                return false;
-            }
 
-            canHandler = Canlib.canOpenChannel(comboBoxChannel.SelectedIndex, Canlib.canOPEN_ACCEPT_VIRTUAL);
+            canHandler = Canlib.canOpenChannel(channel, Canlib.canOPEN_ACCEPT_VIRTUAL);
             if (canHandler != (int)Canlib.canStatus.canOK)
             {
-                MessageBox.Show("Can't Open This Channel!");
                 return false;
             }
 
-            switch (comboBoxBaud.Text)
+            switch (baud)
             {
                 case "50000":
                     canFreq = Canlib.BAUD_50K;
@@ -100,21 +89,18 @@ namespace Uds
 
                 default:
                     canFreq = Canlib.BAUD_500K;
-                    comboBoxBaud.SelectedIndex = 1;
                     break;
             }
 
             Canlib.canStatus canStatus = Canlib.canSetBusParams(canHandler, canFreq, 0x80, 0x3A, 1, 1, 0);
             if (canStatus != Canlib.canStatus.canOK)
             {
-                MessageBox.Show("Can't Open This Channel!");
                 return false;
             }
 
             canStatus = Canlib.canBusOn(canHandler);
             if (canStatus != Canlib.canStatus.canOK)
             {
-                MessageBox.Show("Can't Open This Channel!");
                 return false;
             }
 
@@ -134,18 +120,17 @@ namespace Uds
         /// <summary>
         /// CAN获取总线负载率
         /// </summary>
-        /// <param name="busload"></param>
         /// <returns></returns>
-        public bool BusLoad(ref int busload)
+        public int BusLoad()
         {
+            int busload = 0;
             Canlib.canBusStatistics sss;
             if (Canlib.canRequestBusStatistics(canHandler) == Canlib.canStatus.canOK)
             {
                 Canlib.canGetBusStatistics(canHandler, out sss);
                 busload = (int)sss.busLoad / 100;
-                return true;
             }
-            return false;
+            return busload;
         }
 
         /// <summary>

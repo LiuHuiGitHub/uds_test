@@ -60,54 +60,54 @@ namespace uds_test
 
         #region Bus Params Page
 
-        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+        Timer timer = new Timer();
 
         private void BusParamsInit()
         {
-            driver.SelectChannel(ref comboBoxChannel);
-            comboBoxBaud.SelectedIndex = 1;
-        }
-
-        private void comboBoxChannel_Click(object sender, EventArgs e)
-        {
-            driver.SelectChannel(ref comboBoxChannel);
+            string[] channel = driver.GetChannel();
+            if(channel.Length != 0)
+            {
+                comboBoxChannel.Items.AddRange(channel);
+                comboBoxChannel.SelectedIndex = 0;
+                comboBoxBaud.SelectedIndex = 1;
+            }
         }
 
         private void buttonSchedulerSwitch_Click(object sender, EventArgs e)
         {
             if (buttonBusSwitch.Text == "打开")
             {
-                if (driver.OpenChannel(ref comboBoxChannel, ref comboBoxBaud) == true)
+                if (driver.OpenChannel(comboBoxChannel.SelectedIndex, comboBoxBaud.Text) == true)
                 {
                     buttonBusSwitch.Text = "关闭";
                     trans.Start();
                     comboBoxBaud.Enabled = false;
                     comboBoxChannel.Enabled = false;
 
-                    timer = new System.Windows.Forms.Timer();
+                    timer = new Timer();
                     timer.Interval = 1000;
                     timer.Tick += delegate
                     {
-                        int busload = 0;
-                        if (driver.BusLoad(ref busload) == true)
-                        {
-                            progressBarBusLoad.Value = busload;
-                        }
+                        progressBarBusLoad.Value = driver.BusLoad();
                     };
                     timer.Enabled = true;
                     trans.testerPresentCheckd = checkBoxTesterPresent.Checked;
 
                     tabControl.SelectedTab = tabPageDiagnosis;
                 }
+                else
+                {
+                    MessageBox.Show("打开" + comboBoxChannel.Text + "通道失败!");
+                }
             }
             else
             {
                 driver.CloseChannel();
                 buttonBusSwitch.Text = "打开";
-                trans.Stop();
                 comboBoxBaud.Enabled = true;
                 comboBoxChannel.Enabled = true;
                 trans.testerPresentCheckd = false;
+                trans.Stop();
 
                 timer.Enabled = false;
                 progressBarBusLoad.Value = 0;

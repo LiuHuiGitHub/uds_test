@@ -52,7 +52,7 @@
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.tabPageDiagnosis = new System.Windows.Forms.TabPage();
             this.groupBoxSeriverRoutine = new System.Windows.Forms.GroupBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.labelRoutineSubFunction = new System.Windows.Forms.Label();
             this.buttonRoutine = new System.Windows.Forms.Button();
             this.comboBoxRoutineSubFunction = new System.Windows.Forms.ComboBox();
             this.labelRoutineParameter = new System.Windows.Forms.Label();
@@ -66,36 +66,36 @@
             this.checkBoxPhysicalAddressing = new System.Windows.Forms.CheckBox();
             this.checkBoxTesterPresentShow = new System.Windows.Forms.CheckBox();
             this.checkBoxTesterPresent = new System.Windows.Forms.CheckBox();
-            this.label33 = new System.Windows.Forms.Label();
-            this.label29 = new System.Windows.Forms.Label();
+            this.labelSecurityAccess = new System.Windows.Forms.Label();
+            this.labelDiagMode = new System.Windows.Forms.Label();
             this.buttonSecurityAccess = new System.Windows.Forms.Button();
             this.comboBoxSession = new System.Windows.Forms.ComboBox();
             this.buttonSession = new System.Windows.Forms.Button();
             this.comboBoxSecurityLevel = new System.Windows.Forms.ComboBox();
             this.groupBoxServices = new System.Windows.Forms.GroupBox();
             this.textBoxTransData = new System.Windows.Forms.TextBox();
-            this.label32 = new System.Windows.Forms.Label();
-            this.label31 = new System.Windows.Forms.Label();
-            this.label30 = new System.Windows.Forms.Label();
+            this.labelServicesIdent = new System.Windows.Forms.Label();
+            this.labelServicesSubFunction = new System.Windows.Forms.Label();
+            this.labelServicesId = new System.Windows.Forms.Label();
             this.comboBoxIdentifier = new System.Windows.Forms.ComboBox();
             this.comboBoxSubFunction = new System.Windows.Forms.ComboBox();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonServices = new System.Windows.Forms.Button();
             this.comboBoxServices = new System.Windows.Forms.ComboBox();
             this.tabPageBusParams = new System.Windows.Forms.TabPage();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.label2 = new System.Windows.Forms.Label();
+            this.groupBoxBusParams = new System.Windows.Forms.GroupBox();
+            this.labelBusLoad = new System.Windows.Forms.Label();
             this.progressBarBusLoad = new System.Windows.Forms.ProgressBar();
             this.label9 = new System.Windows.Forms.Label();
             this.labelChannel = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
+            this.labelBaud = new System.Windows.Forms.Label();
             this.buttonBusSwitch = new System.Windows.Forms.Button();
             this.comboBoxBaud = new System.Windows.Forms.ComboBox();
             this.comboBoxChannel = new System.Windows.Forms.ComboBox();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabPageReadWrite = new System.Windows.Forms.TabPage();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.groupBoxMap = new System.Windows.Forms.GroupBox();
             this.textBoxMap = new System.Windows.Forms.TextBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.groupBoxReadWriteMemory = new System.Windows.Forms.GroupBox();
             this.checkBoxShowReadOnlyVariable = new System.Windows.Forms.CheckBox();
             this.checkBoxShowFunction = new System.Windows.Forms.CheckBox();
             this.textBoxVariableType = new System.Windows.Forms.TextBox();
@@ -119,11 +119,11 @@
             this.groupBoxSession.SuspendLayout();
             this.groupBoxServices.SuspendLayout();
             this.tabPageBusParams.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.groupBoxBusParams.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabPageReadWrite.SuspendLayout();
-            this.groupBox3.SuspendLayout();
-            this.groupBox2.SuspendLayout();
+            this.groupBoxMap.SuspendLayout();
+            this.groupBoxReadWriteMemory.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip
@@ -302,7 +302,7 @@
             // 
             // groupBoxSeriverRoutine
             // 
-            this.groupBoxSeriverRoutine.Controls.Add(this.label3);
+            this.groupBoxSeriverRoutine.Controls.Add(this.labelRoutineSubFunction);
             this.groupBoxSeriverRoutine.Controls.Add(this.buttonRoutine);
             this.groupBoxSeriverRoutine.Controls.Add(this.comboBoxRoutineSubFunction);
             this.groupBoxSeriverRoutine.Controls.Add(this.labelRoutineParameter);
@@ -316,14 +316,14 @@
             this.groupBoxSeriverRoutine.TabStop = false;
             this.groupBoxSeriverRoutine.Text = "诊断服务 $31";
             // 
-            // label3
+            // labelRoutineSubFunction
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(11, 34);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(47, 12);
-            this.label3.TabIndex = 25;
-            this.label3.Text = "子功能:";
+            this.labelRoutineSubFunction.AutoSize = true;
+            this.labelRoutineSubFunction.Location = new System.Drawing.Point(11, 34);
+            this.labelRoutineSubFunction.Name = "labelRoutineSubFunction";
+            this.labelRoutineSubFunction.Size = new System.Drawing.Size(47, 12);
+            this.labelRoutineSubFunction.TabIndex = 25;
+            this.labelRoutineSubFunction.Text = "子功能:";
             // 
             // buttonRoutine
             // 
@@ -428,8 +428,8 @@
             this.groupBoxSession.Controls.Add(this.checkBoxPhysicalAddressing);
             this.groupBoxSession.Controls.Add(this.checkBoxTesterPresentShow);
             this.groupBoxSession.Controls.Add(this.checkBoxTesterPresent);
-            this.groupBoxSession.Controls.Add(this.label33);
-            this.groupBoxSession.Controls.Add(this.label29);
+            this.groupBoxSession.Controls.Add(this.labelSecurityAccess);
+            this.groupBoxSession.Controls.Add(this.labelDiagMode);
             this.groupBoxSession.Controls.Add(this.buttonSecurityAccess);
             this.groupBoxSession.Controls.Add(this.comboBoxSession);
             this.groupBoxSession.Controls.Add(this.buttonSession);
@@ -480,23 +480,23 @@
             this.checkBoxTesterPresent.UseVisualStyleBackColor = true;
             this.checkBoxTesterPresent.Click += new System.EventHandler(this.checkBoxTesterPresent_Click);
             // 
-            // label33
+            // labelSecurityAccess
             // 
-            this.label33.AutoSize = true;
-            this.label33.Location = new System.Drawing.Point(11, 63);
-            this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(59, 12);
-            this.label33.TabIndex = 23;
-            this.label33.Text = "安全等级:";
+            this.labelSecurityAccess.AutoSize = true;
+            this.labelSecurityAccess.Location = new System.Drawing.Point(11, 63);
+            this.labelSecurityAccess.Name = "labelSecurityAccess";
+            this.labelSecurityAccess.Size = new System.Drawing.Size(59, 12);
+            this.labelSecurityAccess.TabIndex = 23;
+            this.labelSecurityAccess.Text = "安全等级:";
             // 
-            // label29
+            // labelDiagMode
             // 
-            this.label29.AutoSize = true;
-            this.label29.Location = new System.Drawing.Point(11, 27);
-            this.label29.Name = "label29";
-            this.label29.Size = new System.Drawing.Size(59, 12);
-            this.label29.TabIndex = 22;
-            this.label29.Text = "诊断模式:";
+            this.labelDiagMode.AutoSize = true;
+            this.labelDiagMode.Location = new System.Drawing.Point(11, 27);
+            this.labelDiagMode.Name = "labelDiagMode";
+            this.labelDiagMode.Size = new System.Drawing.Size(59, 12);
+            this.labelDiagMode.TabIndex = 22;
+            this.labelDiagMode.Text = "诊断模式:";
             // 
             // buttonSecurityAccess
             // 
@@ -551,12 +551,12 @@
             this.groupBoxServices.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBoxServices.Controls.Add(this.textBoxTransData);
-            this.groupBoxServices.Controls.Add(this.label32);
-            this.groupBoxServices.Controls.Add(this.label31);
-            this.groupBoxServices.Controls.Add(this.label30);
+            this.groupBoxServices.Controls.Add(this.labelServicesIdent);
+            this.groupBoxServices.Controls.Add(this.labelServicesSubFunction);
+            this.groupBoxServices.Controls.Add(this.labelServicesId);
             this.groupBoxServices.Controls.Add(this.comboBoxIdentifier);
             this.groupBoxServices.Controls.Add(this.comboBoxSubFunction);
-            this.groupBoxServices.Controls.Add(this.button1);
+            this.groupBoxServices.Controls.Add(this.buttonServices);
             this.groupBoxServices.Controls.Add(this.comboBoxServices);
             this.groupBoxServices.Location = new System.Drawing.Point(6, 203);
             this.groupBoxServices.Name = "groupBoxServices";
@@ -580,32 +580,32 @@
             this.textBoxTransData.TextChanged += new System.EventHandler(this.textBoxHex_TextChanged);
             this.textBoxTransData.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxHex_KeyPress);
             // 
-            // label32
+            // labelServicesIdent
             // 
-            this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(11, 93);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(47, 12);
-            this.label32.TabIndex = 21;
-            this.label32.Text = "标识符:";
+            this.labelServicesIdent.AutoSize = true;
+            this.labelServicesIdent.Location = new System.Drawing.Point(11, 93);
+            this.labelServicesIdent.Name = "labelServicesIdent";
+            this.labelServicesIdent.Size = new System.Drawing.Size(47, 12);
+            this.labelServicesIdent.TabIndex = 21;
+            this.labelServicesIdent.Text = "标识符:";
             // 
-            // label31
+            // labelServicesSubFunction
             // 
-            this.label31.AutoSize = true;
-            this.label31.Location = new System.Drawing.Point(11, 59);
-            this.label31.Name = "label31";
-            this.label31.Size = new System.Drawing.Size(47, 12);
-            this.label31.TabIndex = 20;
-            this.label31.Text = "子功能:";
+            this.labelServicesSubFunction.AutoSize = true;
+            this.labelServicesSubFunction.Location = new System.Drawing.Point(11, 59);
+            this.labelServicesSubFunction.Name = "labelServicesSubFunction";
+            this.labelServicesSubFunction.Size = new System.Drawing.Size(47, 12);
+            this.labelServicesSubFunction.TabIndex = 20;
+            this.labelServicesSubFunction.Text = "子功能:";
             // 
-            // label30
+            // labelServicesId
             // 
-            this.label30.AutoSize = true;
-            this.label30.Location = new System.Drawing.Point(11, 25);
-            this.label30.Name = "label30";
-            this.label30.Size = new System.Drawing.Size(47, 12);
-            this.label30.TabIndex = 19;
-            this.label30.Text = "服务ID:";
+            this.labelServicesId.AutoSize = true;
+            this.labelServicesId.Location = new System.Drawing.Point(11, 25);
+            this.labelServicesId.Name = "labelServicesId";
+            this.labelServicesId.Size = new System.Drawing.Size(47, 12);
+            this.labelServicesId.TabIndex = 19;
+            this.labelServicesId.Text = "服务ID:";
             // 
             // comboBoxIdentifier
             // 
@@ -636,17 +636,17 @@
             this.comboBoxSubFunction.TabIndex = 12;
             this.comboBoxSubFunction.SelectedIndexChanged += new System.EventHandler(this.comboBoxSubFunction_SelectedIndexChanged);
             // 
-            // button1
+            // buttonServices
             // 
-            this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button1.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
-            this.button1.Location = new System.Drawing.Point(310, 21);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(81, 86);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "执行";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button_Click);
+            this.buttonServices.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.buttonServices.Font = new System.Drawing.Font("宋体", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(134)));
+            this.buttonServices.Location = new System.Drawing.Point(310, 21);
+            this.buttonServices.Name = "buttonServices";
+            this.buttonServices.Size = new System.Drawing.Size(81, 86);
+            this.buttonServices.TabIndex = 0;
+            this.buttonServices.Text = "执行";
+            this.buttonServices.UseVisualStyleBackColor = true;
+            this.buttonServices.Click += new System.EventHandler(this.button_Click);
             // 
             // comboBoxServices
             // 
@@ -664,7 +664,7 @@
             // 
             // tabPageBusParams
             // 
-            this.tabPageBusParams.Controls.Add(this.groupBox1);
+            this.tabPageBusParams.Controls.Add(this.groupBoxBusParams);
             this.tabPageBusParams.Location = new System.Drawing.Point(4, 22);
             this.tabPageBusParams.Name = "tabPageBusParams";
             this.tabPageBusParams.Padding = new System.Windows.Forms.Padding(3);
@@ -673,30 +673,30 @@
             this.tabPageBusParams.Text = "总线设置";
             this.tabPageBusParams.UseVisualStyleBackColor = true;
             // 
-            // groupBox1
+            // groupBoxBusParams
             // 
-            this.groupBox1.Controls.Add(this.label2);
-            this.groupBox1.Controls.Add(this.progressBarBusLoad);
-            this.groupBox1.Controls.Add(this.label9);
-            this.groupBox1.Controls.Add(this.labelChannel);
-            this.groupBox1.Controls.Add(this.label1);
-            this.groupBox1.Controls.Add(this.buttonBusSwitch);
-            this.groupBox1.Controls.Add(this.comboBoxBaud);
-            this.groupBox1.Controls.Add(this.comboBoxChannel);
-            this.groupBox1.Location = new System.Drawing.Point(6, 7);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(405, 118);
-            this.groupBox1.TabIndex = 2;
-            this.groupBox1.TabStop = false;
+            this.groupBoxBusParams.Controls.Add(this.labelBusLoad);
+            this.groupBoxBusParams.Controls.Add(this.progressBarBusLoad);
+            this.groupBoxBusParams.Controls.Add(this.label9);
+            this.groupBoxBusParams.Controls.Add(this.labelChannel);
+            this.groupBoxBusParams.Controls.Add(this.labelBaud);
+            this.groupBoxBusParams.Controls.Add(this.buttonBusSwitch);
+            this.groupBoxBusParams.Controls.Add(this.comboBoxBaud);
+            this.groupBoxBusParams.Controls.Add(this.comboBoxChannel);
+            this.groupBoxBusParams.Location = new System.Drawing.Point(6, 7);
+            this.groupBoxBusParams.Name = "groupBoxBusParams";
+            this.groupBoxBusParams.Size = new System.Drawing.Size(405, 118);
+            this.groupBoxBusParams.TabIndex = 2;
+            this.groupBoxBusParams.TabStop = false;
             // 
-            // label2
+            // labelBusLoad
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(27, 55);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(53, 12);
-            this.label2.TabIndex = 11;
-            this.label2.Text = "负载率：";
+            this.labelBusLoad.AutoSize = true;
+            this.labelBusLoad.Location = new System.Drawing.Point(27, 55);
+            this.labelBusLoad.Name = "labelBusLoad";
+            this.labelBusLoad.Size = new System.Drawing.Size(53, 12);
+            this.labelBusLoad.TabIndex = 11;
+            this.labelBusLoad.Text = "负载率：";
             // 
             // progressBarBusLoad
             // 
@@ -724,14 +724,14 @@
             this.labelChannel.TabIndex = 7;
             this.labelChannel.Text = "CAN通道：";
             // 
-            // label1
+            // labelBaud
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(27, 87);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(53, 12);
-            this.label1.TabIndex = 6;
-            this.label1.Text = "波特率：";
+            this.labelBaud.AutoSize = true;
+            this.labelBaud.Location = new System.Drawing.Point(27, 87);
+            this.labelBaud.Name = "labelBaud";
+            this.labelBaud.Size = new System.Drawing.Size(53, 12);
+            this.labelBaud.TabIndex = 6;
+            this.labelBaud.Text = "波特率：";
             // 
             // buttonBusSwitch
             // 
@@ -792,8 +792,8 @@
             // 
             // tabPageReadWrite
             // 
-            this.tabPageReadWrite.Controls.Add(this.groupBox3);
-            this.tabPageReadWrite.Controls.Add(this.groupBox2);
+            this.tabPageReadWrite.Controls.Add(this.groupBoxMap);
+            this.tabPageReadWrite.Controls.Add(this.groupBoxReadWriteMemory);
             this.tabPageReadWrite.Location = new System.Drawing.Point(4, 22);
             this.tabPageReadWrite.Name = "tabPageReadWrite";
             this.tabPageReadWrite.Padding = new System.Windows.Forms.Padding(3);
@@ -802,50 +802,52 @@
             this.tabPageReadWrite.Text = "读写变量";
             this.tabPageReadWrite.UseVisualStyleBackColor = true;
             // 
-            // groupBox3
+            // groupBoxMap
             // 
-            this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.groupBoxMap.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox3.Controls.Add(this.textBoxMap);
-            this.groupBox3.Location = new System.Drawing.Point(6, 263);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(405, 307);
-            this.groupBox3.TabIndex = 7;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Map信息";
+            this.groupBoxMap.Controls.Add(this.textBoxMap);
+            this.groupBoxMap.Location = new System.Drawing.Point(6, 263);
+            this.groupBoxMap.Name = "groupBoxMap";
+            this.groupBoxMap.Size = new System.Drawing.Size(405, 307);
+            this.groupBoxMap.TabIndex = 7;
+            this.groupBoxMap.TabStop = false;
+            this.groupBoxMap.Text = "Map信息";
             // 
             // textBoxMap
             // 
             this.textBoxMap.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.textBoxMap.Location = new System.Drawing.Point(21, 32);
+            this.textBoxMap.Location = new System.Drawing.Point(6, 16);
             this.textBoxMap.Multiline = true;
             this.textBoxMap.Name = "textBoxMap";
-            this.textBoxMap.Size = new System.Drawing.Size(360, 255);
+            this.textBoxMap.ReadOnly = true;
+            this.textBoxMap.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxMap.Size = new System.Drawing.Size(393, 285);
             this.textBoxMap.TabIndex = 7;
             // 
-            // groupBox2
+            // groupBoxReadWriteMemory
             // 
-            this.groupBox2.Controls.Add(this.checkBoxShowReadOnlyVariable);
-            this.groupBox2.Controls.Add(this.checkBoxShowFunction);
-            this.groupBox2.Controls.Add(this.textBoxVariableType);
-            this.groupBox2.Controls.Add(this.labelVariableType);
-            this.groupBox2.Controls.Add(this.labelVariableValue);
-            this.groupBox2.Controls.Add(this.textBoxVariableLength);
-            this.groupBox2.Controls.Add(this.textBoxVariableAddress);
-            this.groupBox2.Controls.Add(this.labelVariableLength);
-            this.groupBox2.Controls.Add(this.labelVariableAddress);
-            this.groupBox2.Controls.Add(this.buttonWriteVariableValue);
-            this.groupBox2.Controls.Add(this.buttonReadVariableValue);
-            this.groupBox2.Controls.Add(this.textBoxVariableValue);
-            this.groupBox2.Controls.Add(this.comboBoxVariable);
-            this.groupBox2.Controls.Add(this.labelVariable);
-            this.groupBox2.Location = new System.Drawing.Point(6, 9);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(405, 248);
-            this.groupBox2.TabIndex = 6;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "读写 $23 $3D";
+            this.groupBoxReadWriteMemory.Controls.Add(this.checkBoxShowReadOnlyVariable);
+            this.groupBoxReadWriteMemory.Controls.Add(this.checkBoxShowFunction);
+            this.groupBoxReadWriteMemory.Controls.Add(this.textBoxVariableType);
+            this.groupBoxReadWriteMemory.Controls.Add(this.labelVariableType);
+            this.groupBoxReadWriteMemory.Controls.Add(this.labelVariableValue);
+            this.groupBoxReadWriteMemory.Controls.Add(this.textBoxVariableLength);
+            this.groupBoxReadWriteMemory.Controls.Add(this.textBoxVariableAddress);
+            this.groupBoxReadWriteMemory.Controls.Add(this.labelVariableLength);
+            this.groupBoxReadWriteMemory.Controls.Add(this.labelVariableAddress);
+            this.groupBoxReadWriteMemory.Controls.Add(this.buttonWriteVariableValue);
+            this.groupBoxReadWriteMemory.Controls.Add(this.buttonReadVariableValue);
+            this.groupBoxReadWriteMemory.Controls.Add(this.textBoxVariableValue);
+            this.groupBoxReadWriteMemory.Controls.Add(this.comboBoxVariable);
+            this.groupBoxReadWriteMemory.Controls.Add(this.labelVariable);
+            this.groupBoxReadWriteMemory.Location = new System.Drawing.Point(6, 9);
+            this.groupBoxReadWriteMemory.Name = "groupBoxReadWriteMemory";
+            this.groupBoxReadWriteMemory.Size = new System.Drawing.Size(405, 248);
+            this.groupBoxReadWriteMemory.TabIndex = 6;
+            this.groupBoxReadWriteMemory.TabStop = false;
+            this.groupBoxReadWriteMemory.Text = "读写 $23 $3D";
             // 
             // checkBoxShowReadOnlyVariable
             // 
@@ -1029,14 +1031,14 @@
             this.groupBoxServices.ResumeLayout(false);
             this.groupBoxServices.PerformLayout();
             this.tabPageBusParams.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.groupBoxBusParams.ResumeLayout(false);
+            this.groupBoxBusParams.PerformLayout();
             this.tabControl.ResumeLayout(false);
             this.tabPageReadWrite.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
-            this.groupBox3.PerformLayout();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
+            this.groupBoxMap.ResumeLayout(false);
+            this.groupBoxMap.PerformLayout();
+            this.groupBoxReadWriteMemory.ResumeLayout(false);
+            this.groupBoxReadWriteMemory.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1067,28 +1069,28 @@
         private System.Windows.Forms.ComboBox comboBoxChannel;
         private System.Windows.Forms.ComboBox comboBoxBaud;
         private System.Windows.Forms.Button buttonBusSwitch;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelBaud;
         private System.Windows.Forms.Label labelChannel;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.ProgressBar progressBarBusLoad;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.Label labelBusLoad;
+        private System.Windows.Forms.GroupBox groupBoxBusParams;
         private System.Windows.Forms.TabPage tabPageBusParams;
         private System.Windows.Forms.ComboBox comboBoxServices;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonServices;
         private System.Windows.Forms.ComboBox comboBoxSubFunction;
         private System.Windows.Forms.ComboBox comboBoxIdentifier;
-        private System.Windows.Forms.Label label30;
-        private System.Windows.Forms.Label label31;
-        private System.Windows.Forms.Label label32;
+        private System.Windows.Forms.Label labelServicesId;
+        private System.Windows.Forms.Label labelServicesSubFunction;
+        private System.Windows.Forms.Label labelServicesIdent;
         private System.Windows.Forms.TextBox textBoxTransData;
         private System.Windows.Forms.GroupBox groupBoxServices;
         private System.Windows.Forms.ComboBox comboBoxSecurityLevel;
         private System.Windows.Forms.Button buttonSession;
         private System.Windows.Forms.ComboBox comboBoxSession;
         private System.Windows.Forms.Button buttonSecurityAccess;
-        private System.Windows.Forms.Label label29;
-        private System.Windows.Forms.Label label33;
+        private System.Windows.Forms.Label labelDiagMode;
+        private System.Windows.Forms.Label labelSecurityAccess;
         private System.Windows.Forms.CheckBox checkBoxTesterPresent;
         private System.Windows.Forms.CheckBox checkBoxTesterPresentShow;
         private System.Windows.Forms.CheckBox checkBoxPhysicalAddressing;
@@ -1099,7 +1101,7 @@
         private System.Windows.Forms.TabPage tabPageDiagnosis;
         private System.Windows.Forms.TabPage tabPageReadWrite;
         private System.Windows.Forms.Button buttonReadVariableValue;
-        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.GroupBox groupBoxReadWriteMemory;
         private System.Windows.Forms.Button buttonWriteVariableValue;
         private System.Windows.Forms.Label labelVariable;
         private System.Windows.Forms.Label labelVariableLength;
@@ -1113,7 +1115,7 @@
         private System.Windows.Forms.TextBox textBoxVariableType;
         private System.Windows.Forms.CheckBox checkBoxShowReadOnlyVariable;
         private System.Windows.Forms.CheckBox checkBoxShowFunction;
-        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.GroupBox groupBoxMap;
         private System.Windows.Forms.TextBox textBoxMap;
         private System.Windows.Forms.GroupBox groupBoxSeriverRoutine;
         private System.Windows.Forms.TextBox textBoxRoutineParameter;
@@ -1121,7 +1123,7 @@
         private System.Windows.Forms.ComboBox comboBoxRoutineIdent;
         private System.Windows.Forms.Label labelRoutineParameter;
         private System.Windows.Forms.Label labelRoutineIdent;
-        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label labelRoutineSubFunction;
         private System.Windows.Forms.ComboBox comboBoxRoutineSubFunction;
     }
 }

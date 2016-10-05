@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 using Uds;
 using MyFormat;
@@ -43,17 +44,17 @@ namespace uds_test
 
             textBoxTransData.KeyPress += textBoxTransData_KeyPress;
 
-            size = this.Size;
-            groupBox4Location = groupBoxSeriverRoutine.Location;
+            form_size = this.Size;
+            groupBoxRoutineLocation = groupBoxSeriverRoutine.Location;
         }
 
-        Size size = new Size();
-        Point groupBox4Location = new Point();
+        Size form_size = new Size();
+        Point groupBoxRoutineLocation = new Point();
         private void main_Resize(object sender, EventArgs e)
         {
             Point point = new Point();
-            point.X = groupBox4Location.X;
-            point.Y = groupBox4Location.Y + this.Size.Height - size.Height;
+            point.X = groupBoxRoutineLocation.X;
+            point.Y = groupBoxRoutineLocation.Y + this.Size.Height - form_size.Height;
             groupBoxSeriverRoutine.Location = point;
         }
 
@@ -1765,7 +1766,7 @@ namespace uds_test
             public int size;
             public string type;
         }
-
+        
         private List<mapClass> mapList = new List<mapClass>();
 
         /// <summary>
@@ -1820,87 +1821,62 @@ namespace uds_test
         /// <returns></returns>
         private bool OpenMapFileForSpc(string file)
         {
-            string start = string.Empty;
-            string type = string.Empty;
-            string stringsLast = string.Empty;
-            StreamReader myStream = null;
             mapList.Clear();
+            textBoxMap.Text = file;
             try
             {
-                myStream = new StreamReader(file);
+                StreamReader myStream = new StreamReader(file);
                 string content = myStream.ReadToEnd();
+                myStream.Close();
                 string[] str = content.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+                bool match_variable_flag = false;
+                mapClass mapItem = new mapClass();
+                Match match;
                 foreach (string strings in str)
                 {
-                    string[] strArray = System.Text.RegularExpressions.Regex.Split((stringsLast + strings).Replace("\r\n", ""), @"\s+");
-                    if (start == string.Empty)
+                    if (!match_variable_flag)
                     {
-                        if (checkBoxShowFunction.Checked && strings == " *(.text_vle.*)")
-                        {
-                            start = ".text_vle.";
-                            type = "*(.text_vle.*)";
-                        }
-                        else if (checkBoxShowReadOnlyVariable.Checked && strings == " *(.rodata.*)")
-                        {
-                            start = ".rodata.";
-                            type = "*(.rodata.*)";
-                        }
-                        else if (strings == " *(.data.*)")
-                        {
-                            start = ".data.";
-                            type = "*(.data.*)";
-                        }
-                        else if (strings == " *(.bss.*)")
-                        {
-                            start = ".bss.";
-                            type = "*(.bss.*)";
-                        }
+                        match = Regex.Match(strings, @"^\s[.](\w+)[.](\w+)");     //匹配" .rodata.system_pins"格式
                     }
-                    else if (strArray.Length <= 2)      //添加下一行
+                    else
                     {
-                        if (strings == " *(.gnu.linkonce.t_vle.*)")     //.text_vle. end
+                        match = Regex.Match(strings, @"^\s+(\w+)\s+(\w+)\s");     //匹配"                0x00037700       0x10 build/obj/pal_lld.o"格式
+                    }
+                    
+                    if (match.Success)
+                    {
+                        if (!match_variable_flag)
                         {
-                            start = string.Empty;
-                        }
-                        else if (strings == " *(.rodata1)")             //.rodata. end
-                        {
-                            start = string.Empty;
-                        }
-                        else if (strings == " *(.gnu.linkonce.d.*)")     //.data. end
-                        {
-                            start = string.Empty;
-                        }
-                        else if (strings == " *(.gnu.linkonce.b.*)")     //.bss. end
-                        {
-                            start = string.Empty;
+                            mapItem = new mapClass();
+                            mapItem.type = match.Groups[1].Value;
+                            mapItem.variable = match.Groups[2].Value;
+                            if((checkBoxShowFunction.Checked &&  mapItem.type == "text_vle")
+                                || (checkBoxShowReadOnlyVariable.Checked && mapItem.type == "rodata")
+                                || mapItem.type == "data"
+                                || mapItem.type == "bss")
+                            {
+                                match_variable_flag = true;
+                            }
                         }
                         else
                         {
-                            stringsLast = strings;
+                            mapItem.addr = Convert.ToUInt32(match.Groups[1].Value.Replace("0x", ""), 16);
+                            mapItem.size = Convert.ToInt32(match.Groups[2].Value.Replace("0x", ""), 16);
+                            mapList.Add(mapItem);
+                            match_variable_flag = false;
                         }
                     }
                     else
                     {
-                        stringsLast = "";
-                        try
+                        match_variable_flag = false;
+
+                        match = Regex.Match(strings, @"^\s+(\w+)\s+(\w+\s[=]\s.+)");
+                        if (match.Success)
                         {
-                            mapClass mapItem = new mapClass();
-                            if (strArray[1].Length > start.Length && strArray[1].Substring(0, start.Length) == start)
-                            {
-                                mapItem.variable = strArray[1].Remove(0, start.Length).Split(new char[] { '.' })[0];
-                                mapItem.addr = Convert.ToUInt32(strArray[2].Replace("0x", ""), 16);
-                                mapItem.type = type;
-                                mapItem.size = Convert.ToInt32(strArray[3].Replace("0x", ""), 16);
-                                mapList.Add(mapItem);
-                            }
-                        }
-                        catch
-                        {
-                            start = string.Empty;
+                            textBoxMap.AppendText("\r\n" + match.Groups[1].Value + " " + match.Groups[2].Value);
                         }
                     }
                 }
-                myStream.Close();
             }
             catch
             {

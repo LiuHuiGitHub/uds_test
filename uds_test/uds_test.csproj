@@ -76,21 +76,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="uds_trans">
+      <HintPath>Lib\uds_trans.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\MyFormat\Format.cs" />
-    <Compile Include="Source\Transmit\Transmit.cs" />
-    <Compile Include="Source\Transmit\Transmit.Designer.cs">
-      <DependentUpon>Transmit.settings</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-    </Compile>
-    <Compile Include="Source\Transmit\CycleCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Source\Transmit\CycleCtrl.Designer.cs">
-      <DependentUpon>CycleCtrl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -105,18 +96,8 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Source\Transmit\OneShotCtrl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Source\Transmit\OneShotCtrl.Designer.cs">
-      <DependentUpon>OneShotCtrl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Source\Uds\can_driver.cs" />
     <Compile Include="Source\Uds\uds_service.cs" />
-    <Compile Include="Source\Uds\uds_trans.cs" />
-    <EmbeddedResource Include="Source\Transmit\CycleCtrl.resx">
-      <DependentUpon>CycleCtrl.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Source\main.resx">
       <DependentUpon>main.cs</DependentUpon>
     </EmbeddedResource>
@@ -130,9 +111,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <EmbeddedResource Include="Source\Transmit\OneShotCtrl.resx">
-      <DependentUpon>OneShotCtrl.cs</DependentUpon>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0,Profile=Client">
@@ -153,11 +131,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Source\Transmit\Transmit.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Transmit.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

@@ -1,0 +1,6 @@
+D:\User\桌面\uds_test\uds_trans\bin\Debug\uds_trans.dll
+D:\User\桌面\uds_test\uds_trans\bin\Debug\uds_trans.pdb
+D:\User\桌面\uds_test\uds_trans\bin\Debug\System.Net.Http.dll
+D:\User\桌面\uds_test\uds_trans\obj\Debug\uds_trans.csprojResolveAssemblyReference.cache
+D:\User\桌面\uds_test\uds_trans\obj\Debug\uds_trans.dll
+D:\User\桌面\uds_test\uds_trans\obj\Debug\uds_trans.pdb

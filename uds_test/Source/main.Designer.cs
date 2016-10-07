@@ -756,8 +756,6 @@
             "250000",
             "125000",
             "100000",
-            "83000",
-            "62000",
             "50000"});
             this.comboBoxBaud.Location = new System.Drawing.Point(89, 82);
             this.comboBoxBaud.Name = "comboBoxBaud";

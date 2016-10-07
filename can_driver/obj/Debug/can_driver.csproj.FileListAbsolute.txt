@@ -1,0 +1,7 @@
+D:\User\桌面\uds_test\can_driver\bin\Debug\can_driver.dll
+D:\User\桌面\uds_test\can_driver\bin\Debug\can_driver.pdb
+D:\User\桌面\uds_test\can_driver\bin\Debug\canlibCLSNET.dll
+D:\User\桌面\uds_test\can_driver\bin\Debug\System.Net.Http.dll
+D:\User\桌面\uds_test\can_driver\obj\Debug\can_driver.csprojResolveAssemblyReference.cache
+D:\User\桌面\uds_test\can_driver\obj\Debug\can_driver.dll
+D:\User\桌面\uds_test\can_driver\obj\Debug\can_driver.pdb
